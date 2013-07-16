@@ -5,7 +5,7 @@
  *
  * Description: Creates advanced view templates for displaying Pod data on the front end via a Shortcode.
  *
- * Version: <strong>PROTOTYPE</strong>
+ * Version: 0.1
  *
  * Category: Advanced
  *
@@ -17,43 +17,6 @@
  * @subpackage Advanced Templates
  */
 
-/**
- * ==Disclaimer==
- * I have not worked on Pods before, nor seen any of the code,
- * so please go easy on me.
- * I still dont know the api or your coding standards so I'm just winging it for now.
- * I do hope that my thought patterns are not to far off others.
- *
- *
- *
- * ==SOME NOTES==
- *
- * Comments:
- * I still struggle to comment my work effectivly. I will try to be more consistant.
- *
- * The UI:
- * I know some people are very much against custom UI's in WordPress.
- * I did try with the WordPress UI, but space became an issue and somethings
- * just wouldn't work.
- * I did try model the Editor UI within Wordpress so it looked at least like it belonged.
- * Please let me know if it will be an issue.
- *
- * What it does:
- * This aim of this component is to allow you build wrapper elements around a pod,
- * and display it on a page via a shortcode or as a widget.
- *
- * I'm not sure of the name "Advanced Templates" but I'll leave it for now.
- * Maybe something like Pod Elements or what ever.
- *
- * It current just works on a loop. I'm going to add options to set the template up
- * for single view, list, parameters setting, things like that...
- *
- * Anyway, this is just a prototype component to help me learn and understand pods better
- * and hey, It might be useful.
- *
- * ~ David
- *
- */
 class Pods_Advanced_Templates extends PodsComponent {
 
     /**
