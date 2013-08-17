@@ -7,15 +7,16 @@
         wp_nonce_field('displaypod-editor', self::slug.'-builder');
         
         // get the edited ID, or make a new one.
-        $id = uniqid();
         $displaypods = get_option('displayPods_registry');
-
+        // some defaults for new
+        $displaypod = array(
+            'displaypod_id' => uniqid()
+        );
         if(!empty($_GET['displaypodid'])){
-            $id=$_GET['displaypodid'];
-            $displaypod = get_option($id);
+            $displaypod = get_option($_GET['displaypodid']);
             //dump($displaypod,0);
         }
-        echo '<input type="hidden" name="displaypod_id" value="'.$id.'" />';
+        echo '<input type="hidden" name="displaypod_id" value="'.$displaypod['displaypod_id'].'" />';
         echo '<input type="hidden" name="displaypod_type" value="layout" />';
         echo '<div class="displaypods-wrap">';
 
