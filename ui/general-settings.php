@@ -7,7 +7,7 @@ $_pods = $api->load_pods();
 
 echo '<div class="caldera_configOption podselect" id="config_pod_cfg">';
 echo '<label>Pod</label>';
-    echo '<select name="base_pod" class="sf-trigger" data-target="null_panel" id="base-pod" data-action="sfbuilder" data-process="load-pod" data-callback="load_pod" data-event="change" />';
+    echo '<select name="base_pod" class="trigger" data-target="null_panel" id="base-pod" data-action="sfbuilder" data-process="load-pod" data-callback="load_pod" data-event="change" />';
     echo '<option value="">Select Pod</option>';
 
     foreach($_pods as $pod){

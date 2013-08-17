@@ -144,7 +144,7 @@ class DisplayPod {
 
             // Header
             echo '<div class="header-nav">';
-                echo '<div class="logo-icon sf-trigger" data-request="null" data-autoload="true" data-callback="hashLoad"></div>';            
+                echo '<div class="logo-icon trigger" data-request="true" data-callback="hashLoad"></div>';            
                 echo '<ul>';
                     echo '<li><h3>'.__('DisplayPods', DisplayPod::slug).'</h3></li>';
                     echo '<li class="divider-vertical"></li>';
@@ -239,13 +239,13 @@ class DisplayPod {
 		// Bring in the admin System
 		include plugin_dir_path(__FILE__) . 'libs/caldera-layout.php';
 		if(empty($_GET['type'])){
-			include plugin_dir_path(__FILE__) . 'views/template-editor.php';
+			include plugin_dir_path(__FILE__) . 'ui/template-editor.php';
 			return;	
 		}
 		if($_GET['type'] == 'form'){
-			include plugin_dir_path(__FILE__) . 'views/builder.php';
+			include plugin_dir_path(__FILE__) . 'ui/builder.php';
 		}elseif($_GET['type'] == 'layout'){
-			include plugin_dir_path(__FILE__) . 'views/layout-builder.php';
+			include plugin_dir_path(__FILE__) . 'ui/layout-builder.php';
 		}
 
 	}
@@ -474,7 +474,7 @@ class DisplayPod {
 					}
 				}
 				if(!empty($typeConfigs[$type[0]][$type[1]])){
-					echo $this->configOption('fieldlabel_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][label]', 'text', 'Field Label', $typeConfigs[$type[0]][$type[1]]['label'], false, 'class="sf-trigger" data-request="null" data-callback="instaLable" data-event="keyup" data-parent="wrapper_'.$_POST['id'].'" data-autoload="true"', 'internal-config-option');
+					echo $this->configOption('fieldlabel_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][label]', 'text', 'Field Label', $typeConfigs[$type[0]][$type[1]]['label'], false, 'class="trigger" data-request="instaLable" data-event="keyup" data-parent="wrapper_'.$_POST['id'].'" data-autoload="true"', 'internal-config-option');
 				}
 				if(!empty($_POST['pod'])){
 					$pod = pods($_POST['pod']);
@@ -520,7 +520,7 @@ class DisplayPod {
 	 */
 	function register_scripts_and_styles() {		
 		if ( is_admin() ) {
-			$this->load_file( self::slug . '-admin-script', '/js/core.js', true);
+			$this->load_file( self::slug . '-admin-script', '/js/jquery.baldrick.js', true);
 			if(!empty($_GET['action'])){
 				if($_GET['action'] == 'edit'){
 					wp_enqueue_script('jquery-ui-core');

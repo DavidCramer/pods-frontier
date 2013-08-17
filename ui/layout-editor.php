@@ -58,9 +58,9 @@
 
                     echo '<div class="trayItem formField button" data-type="'.$base.'-'.$key.'">';
                         echo '<i class="fieldEdit">';
-                            echo '<span class="delete sf-trigger" data-request="null" data-callback="removeField"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
+                            echo '<span class="control delete" data-request="removeField"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
                             echo ' | ';
-                            echo '<span class="edit sf-trigger" data-request="null" data-callback="toggleConfig"><i class="icon-cog"></i> '.__('Edit', self::slug).'</span>';
+                            echo '<span class="control edit" data-request="toggleConfig"><i class="icon-cog"></i> '.__('Edit', self::slug).'</span>';
                             echo '</i>';
                             
                         echo '<span class="fieldType">'.__($field, self::slug).'</span>';
@@ -117,11 +117,11 @@
 
                             echo '<div data-type="standard-address" class="formField button ui-draggable" id="wrapper_'.$displaypodField.'" style="display: block;">';
                                 echo '<i class="fieldEdit">';
-                                    echo '<span data-callback="removeField" data-request="null" class="delete sf-trigger">';
+                                    echo '<span data-callback="removeField" data-request="null" class="delete trigger">';
                                         echo '<i class="icon-remove"></i> Remove';
                                     echo '</span>';
                                     echo ' | ';
-                                    echo '<span data-callback="toggleConfig" data-request="null" class="edit sf-trigger">';
+                                    echo '<span data-callback="toggleConfig" data-request="null" class="edit trigger">';
                                         echo '<i class="icon-cog"></i> Edit';
                                     echo '</span>';
                                 echo '</i>';
@@ -140,7 +140,7 @@
                                         }
                                     }
                                     if(!empty($typeConfigs[$type[0]][$type[1]])){
-                                        echo $this->configOption('fieldlabel_'.$displaypodField, 'form_fields['.$displaypodField.'][config][label]', 'text', 'Field Label', $displaypod['form_fields'][$displaypodField]['config']['label'], false, 'class="sf-trigger" data-request="null" data-callback="instaLable" data-event="keyup" data-parent="wrapper_'.$displaypodField.'" data-autoload="true"');
+                                        echo $this->configOption('fieldlabel_'.$displaypodField, 'form_fields['.$displaypodField.'][config][label]', 'text', 'Field Label', $displaypod['form_fields'][$displaypodField]['config']['label'], false, 'class="trigger" data-request="null" data-callback="instaLable" data-event="keyup" data-parent="wrapper_'.$displaypodField.'" data-autoload="true"');
                                     }
                                     if(!empty($displaypod['base_pod'])){
                                         $pod = pods($displaypod['base_pod']);
@@ -296,7 +296,6 @@ jQuery(document).ready(function(){
            colsArray[i] = 12/jQuery(this).parent().prev().find('div.formColumn').length;
        }
        jQuery('#layout_'+jQuery(this).parent().prev().attr('id')).val(colsArray.join(':'));
-        buildTriggers();
     });
     jQuery('.removeRow').live('click', function(){
         //jQuery(this).parent().parent().prev().find('.fieldLocationCapture').val('');
@@ -431,14 +430,17 @@ function resetSortables(){
     jQuery( ".fieldHolder" ).droppable({
         accept: ".trayItem",
         drop: function( event, ui ) {
-            var id= "field" + (((1+Math.random())*0x10000)|0).toString(16).substring(1)+(((1+Math.random())*0x10000)|0).toString(16).substring(1);            
-            var row = parseFloat(jQuery(this).parent().parent().attr('ref'));
-            var col = jQuery(this).parent().attr('ref');
-            var pod = jQuery('#base-pod').val();
-            var fieldType = ui.draggable.data('type');
-            var field = jQuery('<input class="fieldLocation" type="hidden" name="form_fields['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="form_fields['+id+'][type]" value="'+fieldType+'" /><div class="config-panel hidden sf-trigger" data-action="sfbuilder" data-process="fieldConfig" data-type="'+fieldType+'" data-id="'+id+'" data-pod="'+pod+'" data-target="'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="null"></div>');
-            ui.draggable.clone().removeClass('trayItem').attr('id', 'wrapper_'+id).append(field).appendTo(this);
-            buildTriggers();
+            var id= "field" + (((1+Math.random())*0x10000)|0).toString(16).substring(1)+(((1+Math.random())*0x10000)|0).toString(16).substring(1),
+                row = parseFloat(jQuery(this).parent().parent().attr('ref')),
+                col = jQuery(this).parent().attr('ref'),
+                pod = jQuery('#base-pod').val(),
+                fieldType = ui.draggable.data('type');
+            //var field = jQuery('<input class="fieldLocation" type="hidden" name="form_fields['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="form_fields['+id+'][type]" value="'+fieldType+'" /><div class="config-panel hidden trigger" data-before="alert" data-action="sfbuilder" data-process="fieldConfig" data-type="'+fieldType+'" data-id="'+id+'" data-pod="'+pod+'" data-target="'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="null"></div>');
+            var field = jQuery('<input class="fieldLocation" type="hidden" name="form_fields['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="form_fields['+id+'][type]" value="'+fieldType+'" /><div class="config-panel hidden trigger" data-action="sfbuilder" data-process="fieldConfig" data-type="'+fieldType+'" data-id="'+id+'" data-pod="'+pod+'" data-target="#'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="load"></div>');
+            ui.draggable.clone().removeClass('trayItem').attr('id', 'wrapper_'+id).append(field).appendTo(this).find('.control').addClass('trigger');
+            jQuery('.trigger').baldrick({
+                request: ajaxurl
+            });
             toggleConfig();
         }
     }).sortable({
@@ -500,24 +502,40 @@ resetSortables();
 
 });
 
+
 function toggleConfig(element){
+    console.log(element);
     var field = jQuery(element).parent().parent();
     jQuery('.formField').not(field).removeClass('editing');
     field.toggleClass('editing');
 }
 function instaLable(element){
+    console.log(this);
     var fieldbox = jQuery(element);
     var label = jQuery('#'+fieldbox.data('parent')).find('.fieldName');
     jQuery('#'+fieldbox.data('parent')).find('.fieldType').addClass('description');
     label.html(element.value);
     //console.log(fieldbox.data('parent'));
 }
-function removeField(element){    
+function removeField(element){
+    console.log(this);
     var field = jQuery(element).parent().parent();
     field.fadeOut(200, function(){
         jQuery(this).remove();
     });
 }
+function bindtriggers(){
+    jQuery('.trigger').baldrick({
+        request: ajaxurl
+    });
+}
+
+jQuery(function($){
+    alert('a');
+    bindtriggers();
+})
+
+
 </script>
 
 

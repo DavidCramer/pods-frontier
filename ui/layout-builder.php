@@ -20,7 +20,7 @@
 
             // Header
             echo '<div class="header-nav">';
-                echo '<div class="logo-icon sf-trigger" data-request="null" data-autoload="true" data-callback="hashLoad"></div>';            
+                echo '<div class="logo-icon trigger" data-request="hashLoad" data-autoload="true"></div>';            
                 echo '<ul>';
                     echo '<li><h3>'.__('DisplayPods', self::slug).'</h3></li>';
                     echo '<li class="divider-vertical"></li>';
@@ -39,9 +39,7 @@
             echo '<div id="side-controls" class="side-controls">';
 
                 echo '<ul class="element-config-tabs navigation-tabs">';
-                    echo '<li class="sf-trigger active" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Builder" href="#builder-tab" class="control-builder-icon"><span>Builder</span></a></li>';
-                    echo '<li class="sf-trigger" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Settings" href="#config-tab" class="control-settings-icon"><span>Settings</span></a></li>';
-                    echo '<li class="sf-trigger" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Processors" href="#processors-tab" class="control-processors-icon active"><span>Processors</span></a></li>';
+                    echo '<li class="trigger active" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Builder" href="#builder-tab" class="control-builder-icon"><span>Builder</span></a></li>';
                 echo '</ul>';
             echo '</div>';
 
@@ -51,22 +49,8 @@
                 echo '<div class="editor-panel" id="builder-tab">';
                     echo '<h3>'.__('Form Builder', self::slug).' <small>'.__('Design and build your form', self::slug).'.</small></h3>';
                     // pull in the editor - easier to keep it separate.
-                    include plugin_dir_path(__FILE__) . 'form-editor.php';
-                echo '</div>';        
-
-                // config tab
-                echo '<div class="editor-panel hide" id="config-tab">';
-                    echo '<h3>'.__('DisplayPod Settings', self::slug).' <small>'.__('Configure form basics', self::slug).'</small></h3>';
-                    // pull in the settings
-                    include plugin_dir_path(__FILE__) . 'general-settings.php';
-
+                    include plugin_dir_path(__FILE__) . 'layout-editor.php';
                 echo '</div>';
-
-                // processors tab
-                echo '<div class="editor-panel hide" id="processors-tab">';
-                    echo '<h3>'.__('Processors', self::slug).' <small>'.__('Manage how the submitted data is handled', self::slug).'</small></h3>';
-                echo '</div>';
-
 
             echo '</div>';
 
@@ -77,7 +61,7 @@
 
 
 ?><script type='text/javascript'>
-    var processURL = ajaxurl, bindClass = "sf-trigger";
+    var processURL = ajaxurl, bindClass = "trigger";
 
     function hashLoad(){
         if(window.location.hash){
