@@ -5,70 +5,29 @@
     <div class="span2">
         <div id="fieldTray" class="fieldTray">
             <?php
-            //echo plugin_dir_path(__FILE__).'../';
-                $types = array(
-                        'standard' => array(
-                            '_category'        => 'Standard',
-                                'name'         => 'Name',
-                                'website'      => 'Website Address',
-                                'phone'        => 'Phone',
-                                'email'        => 'E-Mail',
-                                'password'     => 'Password',
-                                'address'      => 'Address',
-                                'hidden'       => 'Hidden'
-                            ),
-                        'text'     => array(
-                            '_category'        => 'Text',
-                                'single'       => 'Single Line Text',
-                                'paragraph'    => 'Paragraph Text',
-                                'visual'       => 'Visual Editor',
-                                'code'         => 'Code Editor'
-                            ),
-                        'date'     => array(
-                            '_category'        =>  'Date & Time',
-                                'datetime'     => 'Date & Time',
-                                'date'         => 'Date',
-                                'time'         => 'Time'
-                            ),
-                        'number'   =>  array(
-                            '_category'        => 'Numerical',
-                                'plain'        => 'Plain Number',
-                                'money'        => 'Money'
-                            ),
-                        'file'     =>  array(
-                            '_category'        => 'File Upload',
-                                'file'         => 'File',
-                                'image'        => 'Image'
-                            ),
-                        'util'     =>  array(
-                            '_category'        => 'Utilities',
-                                'util-color'   => 'Color Picker'
-                            )
-                );
+            foreach($displaypods as $id=>$element){
+                $displaypodelements[$element['displaypod_type']][$id] = $element['name'];
+            }
+            
+            foreach($displaypodelements as $base=>$displaypodelement){
 
-            foreach($types as $base=>$type){
-                $category = 'Unsorted';
-                if(!empty($type['_category'])){
-                    $category = $type['_category'];
-                    unset($type['_category']);
-                }
-                echo '<div class="label">'.__($category, self::slug).'</div>';
+                echo '<div class="label">'.__(ucwords($base), self::slug).'</div>';
                 echo '<div>';
-                foreach($type as $key=>$field){
+                foreach($displaypodelement as $key=>$field){
+                    if($key === $displaypod['displaypod_id']){continue;}
 
-                    echo '<div class="trayItem formField button" data-type="'.$base.'-'.$key.'">';
+                    echo '<div class="trayItem formField button" data-id="'.$key.'">';
                         echo '<i class="fieldEdit">';
                             echo '<span class="control delete" data-request="removeField"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
                             echo ' | ';
                             echo '<span class="control edit" data-request="toggleConfig"><i class="icon-cog"></i> '.__('Edit', self::slug).'</span>';
                             echo '</i>';
-                            
-                        echo '<span class="fieldType">'.__($field, self::slug).'</span>';
-                        echo '<span class="fieldName"></span>';
+                        echo '<span class="fieldType description">'.__(ucwords($base), self::slug).'</span>';    
+                        echo '<span class="fieldName">'.__($field, self::slug).'</span>';
+                        
                     echo '</div>';
                 }
-                echo '</div>';
-
+                echo '&nbsp;</div>';
             }
             ?>
         </div>
@@ -85,7 +44,7 @@
         //dump($displaypod);
         // build positioning
         $displaypodFields = array();
-        foreach($displaypod['form_fields'] as $id=>$cfg){
+        foreach($displaypod['layout_elements'] as $id=>$cfg){
             $displaypodFields[$cfg['position']][] = $id; 
         }
     }
@@ -98,7 +57,7 @@
 
             $columns = explode(':', $Row);
             $colindex = 1;
-            $typeConfigs = array();
+            $displaypodelementConfigs = array();
             foreach($columns as $column){
 
                 //echo "<div class=\"formColumn span".$column."\" style=\"width:".(($column/12)*100)."%;\" ref=\"".$colindex."\">\n";
@@ -111,36 +70,34 @@
                     if(!empty($displaypodFields[$rowIndex.':'.$colindex])){
                         foreach($displaypodFields[$rowIndex.':'.$colindex] as $displaypodField){
                             
-                            $type=explode('-',$displaypod['form_fields'][$displaypodField]['type']);
-
-
+                            $displaypodelement=explode('-',$displaypod['layout_elements'][$displaypodField]['dp']);
 
                             echo '<div data-type="standard-address" class="formField button ui-draggable" id="wrapper_'.$displaypodField.'" style="display: block;">';
                                 echo '<i class="fieldEdit">';
-                                    echo '<span data-callback="removeField" data-request="null" class="delete trigger">';
+                                    echo '<span data-request="removeField" class="delete trigger">';
                                         echo '<i class="icon-remove"></i> Remove';
                                     echo '</span>';
                                     echo ' | ';
-                                    echo '<span data-callback="toggleConfig" data-request="null" class="edit trigger">';
+                                    echo '<span data-request="toggleConfig" class="edit trigger">';
                                         echo '<i class="icon-cog"></i> Edit';
                                     echo '</span>';
                                 echo '</i>';
-                                echo '<span class="fieldType description">'.$types[$type[0]][$type[1]].'</span>';
-                                echo '<span class="fieldName">'.$displaypod['form_fields'][$displaypodField]['config']['label'].'</span>';
-                                echo '<input type="hidden" value="'.$displaypod['form_fields'][$displaypodField]['position'].'" id="'.$displaypodField.'" name="form_fields['.$displaypodField.'][position]" class="fieldLocation">';
-                                echo '<input type="hidden" value="'.$displaypod['form_fields'][$displaypodField]['type'].'" name="form_fields['.$displaypodField.'][type]">';
+                                echo '<span class="fieldType description">'.__(ucwords($displaypods[$displaypod['layout_elements'][$displaypodField]['dp']]['displaypod_type']), self::slug).'</span>';
+                                echo '<span class="fieldName">'.$displaypods[$displaypod['layout_elements'][$displaypodField]['dp']]['name'].'</span>';
+                                echo '<input type="hidden" value="'.$displaypod['layout_elements'][$displaypodField]['position'].'" id="'.$displaypodField.'" name="layout_elements['.$displaypodField.'][position]" class="fieldLocation">';
+                                echo '<input type="hidden" value="'.$displaypod['layout_elements'][$displaypodField]['dp'].'" name="layout_elements['.$displaypodField.'][dp]">';
                                 echo '<div id="'.$displaypodField.'_panel"class="config-panel hidden">';
 
 
-                                    //$type = explode('-', $_POST['type']);
-                                    if(empty($typeConfigs[$type[0]])){
-                                        if(file_exists(plugin_dir_path(dirname(__FILE__)).'fields/'.$type[0].'/config.json')){
-                                            $data = json_decode(file_get_contents(plugin_dir_path(dirname(__FILE__)).'fields/'.$type[0].'/config.json'),true);
-                                            $typeConfigs[$type[0]] = $data['fields'];
+                                    //$displaypodelement = explode('-', $_POST['dp']);
+                                    if(empty($displaypodelementConfigs[$displaypodelement[0]])){
+                                        if(file_exists(plugin_dir_path(dirname(__FILE__)).'fields/'.$displaypodelement[0].'/config.json')){
+                                            $data = json_decode(file_get_contents(plugin_dir_path(dirname(__FILE__)).'fields/'.$displaypodelement[0].'/config.json'),true);
+                                            $displaypodelementConfigs[$displaypodelement[0]] = $data['fields'];
                                         }
                                     }
-                                    if(!empty($typeConfigs[$type[0]][$type[1]])){
-                                        echo $this->configOption('fieldlabel_'.$displaypodField, 'form_fields['.$displaypodField.'][config][label]', 'text', 'Field Label', $displaypod['form_fields'][$displaypodField]['config']['label'], false, 'class="trigger" data-request="null" data-callback="instaLable" data-event="keyup" data-parent="wrapper_'.$displaypodField.'" data-autoload="true"');
+                                    if(!empty($displaypodelementConfigs[$displaypodelement[0]][$displaypodelement[1]])){
+                                        echo $this->configOption('fieldlabel_'.$displaypodField, 'layout_elements['.$displaypodField.'][config][label]', 'text', 'Field Label', $displaypod['layout_elements'][$displaypodField]['config']['label'], false, 'class="trigger" data-request="instaLable" data-event="keyup" data-parent="wrapper_'.$displaypodField.'" data-autoload="true"');
                                     }
                                     if(!empty($displaypod['base_pod'])){
                                         $pod = pods($displaypod['base_pod']);
@@ -153,7 +110,7 @@
                                             $fields[$field] = $details['label'];
                                         }
                                         if(!empty($fields)){
-                                            echo $this->configOption('podfield_'.$displaypodField, 'form_fields['.$displaypodField.'][config][pod_field]', 'dropdown', 'Pod Field', $displaypod['form_fields'][$displaypodField]['config']['pod_field'], 'Associate to Pod Field', $fields,'internal-config-option');
+                                            echo $this->configOption('podfield_'.$displaypodField, 'layout_elements['.$displaypodField.'][config][pod_field]', 'dropdown', 'Pod Field', $displaypod['layout_elements'][$displaypodField]['config']['pod_field'], 'Associate to Pod Field', $fields,'internal-config-option');
                                         }
                                     }
 
@@ -434,10 +391,10 @@ function resetSortables(){
                 row = parseFloat(jQuery(this).parent().parent().attr('ref')),
                 col = jQuery(this).parent().attr('ref'),
                 pod = jQuery('#base-pod').val(),
-                fieldType = ui.draggable.data('type');
-            //var field = jQuery('<input class="fieldLocation" type="hidden" name="form_fields['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="form_fields['+id+'][type]" value="'+fieldType+'" /><div class="config-panel hidden trigger" data-before="alert" data-action="sfbuilder" data-process="fieldConfig" data-type="'+fieldType+'" data-id="'+id+'" data-pod="'+pod+'" data-target="'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="null"></div>');
-            var field = jQuery('<input class="fieldLocation" type="hidden" name="form_fields['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="form_fields['+id+'][type]" value="'+fieldType+'" /><div class="config-panel hidden trigger" data-action="sfbuilder" data-process="fieldConfig" data-type="'+fieldType+'" data-id="'+id+'" data-pod="'+pod+'" data-target="#'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="load"></div>');
-            ui.draggable.clone().removeClass('trayItem').attr('id', 'wrapper_'+id).append(field).appendTo(this).find('.control').addClass('trigger');
+                displaypodid = ui.draggable.data('id');
+            //var field = jQuery('<input class="fieldLocation" type="hidden" name="layout_elements['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="layout_elements['+id+'][dp]" value="'+fieldType+'" /><div class="config-panel hidden trigger" data-before="alert" data-action="sfbuilder" data-process="fieldConfig" data-type="'+fieldType+'" data-id="'+id+'" data-pod="'+pod+'" data-target="'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="null"></div>');
+            var field = jQuery('<input class="fieldLocation" type="hidden" name="layout_elements['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="layout_elements['+id+'][dp]" value="'+displaypodid+'" /><div class="config-panel hidden trigger" data-action="sfbuilder" data-process="elementConfig" data-displaypodid="'+displaypodid+'" data-id="'+id+'" data-pod="'+pod+'" data-target="#'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="load"></div>');
+            ui.draggable.clone().removeClass('trayItem').attr('id', 'wrapper_'+id).append(field).appendTo(this).addClass('editing').find('.control').addClass('trigger');
             jQuery('.trigger').baldrick({
                 request: ajaxurl
             });
@@ -504,13 +461,11 @@ resetSortables();
 
 
 function toggleConfig(element){
-    console.log(element);
     var field = jQuery(element).parent().parent();
     jQuery('.formField').not(field).removeClass('editing');
     field.toggleClass('editing');
 }
 function instaLable(element){
-    console.log(this);
     var fieldbox = jQuery(element);
     var label = jQuery('#'+fieldbox.data('parent')).find('.fieldName');
     jQuery('#'+fieldbox.data('parent')).find('.fieldType').addClass('description');
@@ -518,7 +473,6 @@ function instaLable(element){
     //console.log(fieldbox.data('parent'));
 }
 function removeField(element){
-    console.log(this);
     var field = jQuery(element).parent().parent();
     field.fadeOut(200, function(){
         jQuery(this).remove();
@@ -531,7 +485,6 @@ function bindtriggers(){
 }
 
 jQuery(function($){
-    alert('a');
     bindtriggers();
 })
 

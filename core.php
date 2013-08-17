@@ -137,7 +137,7 @@ class DisplayPod {
 		if($action == 'edit'){
 			return $this->render_editor_page();//DisplayPod_builder(array(&$this));				
 		}
-		$displaypods = get_option('displayPods_registry');		
+		$displaypods = get_option('displayPods_registry');
 
 		// actual admin
         echo '<div class="displaypods-wrap">';
@@ -177,6 +177,39 @@ class DisplayPod {
 					echo '<h2>'.__('Layouts', self::slug).' ';
 						echo '<a href="admin.php?page='.DisplayPod::slug.'&action=edit&type=layout" class="button">'.__('Create new layout', DisplayPod::slug).'</a>';
 					echo '</h2>';
+                    //list and admin here
+                	echo '<table class="wp-list-table widefat fixed pages" >';
+                		echo '<thead>';
+                			echo '<tr>';
+                				echo '<th>'.__('Name', self::slug).'</th>';
+                				echo '<th>'.__('Shortcode', self::slug).'</th>';
+                				//echo '<th>'.__('Pod', self::slug).'</th>';
+                				//echo '<th>'.__('Edit this form', self::slug).'Author</th>';
+                				//echo '<th>'.__('Submissions', self::slug).'</th>';
+                			echo '</tr>';
+                		echo '</thead>';
+                		echo '<tbody>';
+                				$class = '';
+                				if(!empty($displaypods)){
+                					
+									foreach($displaypods as $id=>$displaypod){
+										if($displaypod['displaypod_type'] !== 'layout'){ continue; }
+										if($class=='alternate'){$class='';}else{$class='alternate';}
+										echo '<tr class="'.$class.'">';
+											echo '<td>'.$displaypod['name'];
+												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
+											echo '</td>';
+											echo '<td>[displaypod dp='.$id.']</td>';
+											//echo '<td>'.$displaypod['pod'].'</td>';
+											//echo '<td>0</td>';
+										echo '<tr>';
+									}
+								}else{
+									echo '<tr><td colspan="3">You have no forms, Create one now.</td></tr>';
+								}
+                		echo '</tbody>';
+                	echo '</table>';
+
             	echo '</div>';
                 echo '<div class="admin-panel hidden" id="forms-tab">';
                 	echo '<h2>'.__('Forms', self::slug).' ';
@@ -198,12 +231,13 @@ class DisplayPod {
                 				if(!empty($displaypods)){
                 					
 									foreach($displaypods as $id=>$displaypod){
+										if($displaypod['displaypod_type'] !== 'form'){ continue; }
 										if($class=='alternate'){$class='';}else{$class='alternate';}
 										echo '<tr class="'.$class.'">';
 											echo '<td>'.$displaypod['name'];
 												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
 											echo '</td>';
-											echo '<td>[displaypod fm='.$id.'] <span class="description">add id=itemid for an edit entry</span></td>';
+											echo '<td>[displaypod dp='.$id.'] <span class="description">add id=itemid for an edit entry</span></td>';
 											//echo '<td>'.$displaypod['pod'].'</td>';
 											echo '<td>0</td>';
 										echo '<tr>';
@@ -262,15 +296,15 @@ class DisplayPod {
 				if(self::shortcode === $this->displaypods_usedcodes[2][$_POST['_displaypods_inst']['reference']]){
 					$atts = shortcode_parse_atts($this->displaypods_usedcodes[3][$_POST['_displaypods_inst']['reference']]);
 					
-					if(wp_verify_nonce($_POST[self::slug.'-'.$atts['fm']], 'displaypod-form')){
+					if(wp_verify_nonce($_POST[self::slug.'-'.$atts['dp']], 'displaypod-form')){
 						$referer = parse_url($_POST['_wp_http_referer']);
 						
-						unset($_POST[self::slug.'-'.$atts['fm']]);
+						unset($_POST[self::slug.'-'.$atts['dp']]);
 						unset($_POST['_displaypods_inst']);
 						unset($_POST['_wp_http_referer']);
 						// MAYBE SOME CLEANUPS TO VERYFY ALL FIELDS ARE THERE
 						// I COULD GO OVER THE FIELDS IN THE FORM TO BE SURE. hmm maybe later.
-						$displaypod = get_option($atts['fm']);
+						$displaypod = get_option($atts['dp']);
 						$pod = pods($displaypod['base_pod']);
 						$poditem = null;
 						$processtype = 'insert';
@@ -349,33 +383,46 @@ class DisplayPod {
 				$this->load_file( self::slug . '-frontend', 'css/display.css' );
 				
 				// add a filter for the content
-				add_filter('the_content',array($this, 'render_displaypod'));
+				add_filter('the_content',array($this, 'render_displaypod_from_content'));
 			}
 		}
 	}
 
   	// Render out the displaypod
-	function render_displaypod($content){
+	function render_displaypod_from_content($content){
 
 		if(empty($this->displaypods_usedcodes[0])){return $content;};
 
 		foreach($this->displaypods_usedcodes[0] as $index=>&$code){
-			//$post->post_content = $this->render_shortcode($used[2][$index], $used[3][$index]);
 
-			// parse them atts!
 			$atts = shortcode_parse_atts($this->displaypods_usedcodes[3][$index]);
-
-			if(empty($atts['fm'])){continue;} // continue if the id is not there.
-
-
-			//$podform = new pods();
-			//$podform->pods_form();
-			//dump($podform); 
-
-			$displaypod = get_option($atts['fm']);
-			$layout = new calderaLayout();
-			$layout->setLayout(implode('|',$displaypod['form_layout']));
 			
+			$displaypodOut = $this->render_displaypod($atts, $index);
+			
+			$content = str_replace($code, $displaypodOut, $content);
+		}
+		return $content;
+		// you can now access the attribute values using $attr1 and $attr2
+	}
+  
+	function render_displaypod($atts, $index=0){
+			
+
+		// parse them atts!
+		
+		if(empty($atts['dp'])){return;} // continue if the id is not there.
+
+
+		//$podform = new pods();
+		//$podform->pods_form();
+		//dump($podform); 
+
+		$displaypod = get_option($atts['dp']);
+		$layout = new calderaLayout();
+		$layout->setLayout(implode('|',$displaypod['form_layout']));
+		switch($displaypod['displaypod_type']){
+			case 'form':
+		
 			$typeConfigs = array();
 
 			// LOAD UP POD
@@ -423,7 +470,7 @@ class DisplayPod {
 				$displaypodOut .= '<form class="form" method="POST">';
 
 
-					$displaypodOut .= wp_nonce_field('displaypod-form', self::slug.'-'.$atts['fm'], true);
+					$displaypodOut .= wp_nonce_field('displaypod-form', self::slug.'-'.$atts['dp'], true);
 					$displaypodOut .= '<input type="hidden" name="_'.self::slug.'_inst[displaypod]" value="'.$displaypod['displaypod_id'].'">';
 					$displaypodOut .= '<input type="hidden" name="_'.self::slug.'_inst[reference]" value="'.$index.'">';
 
@@ -451,14 +498,29 @@ class DisplayPod {
 				    $displaypodOut .= '</div>';
 				$displaypodOut .= '</form>';
 			$displaypodOut .= '</div>';
+			break;
+			case 'layout':
+				// LAYOUT RENDER
+				$displaypodOut = '<div class="display-pods">';
+				foreach($displaypod['layout_elements'] as $id=>$element){
+					$args = array(
+						'dp' => $element['dp']
+						/// HERE WILL BE THE CONFIG OPTIONS LIKE id of a specific pod.
+					);
+					$layout->append($this->render_displaypod($args, $index), $element['position']);
+				}
+				$displaypodOut .= $layout->renderLayout();
+				$displaypodOut .= '</div>';
+			break;
+			case 'template':
+			// TEMPLATE RENDER
 
-			$content = str_replace($code, $displaypodOut, $content);
-			//return $displaypodOut;
+			break;
 		}
-		return $content;
-		// you can now access the attribute values using $attr1 and $attr2
-	}
-  
+
+		return $displaypodOut;
+		//return $displaypodOut;
+  	}
 
 	function ajax_handler($a){
 		
@@ -491,7 +553,11 @@ class DisplayPod {
 					}
 				}
 				break;
+			case 'elementConfig':
 
+				echo 'Element config. Things like permissions, display preferences. perhaps a preview';
+
+				break;
 			case 'form-detail':
 				if(!empty($_POST['form'])){
 					$displaypod = get_option($_POST['form']);
@@ -533,6 +599,7 @@ class DisplayPod {
 			$this->load_file( self::slug . '-admin-script', 'js/admin.js', true );
 			//$this->load_file( self::slug . '-admin-style', '/css/lib/bootstrap.css' );
 			$this->load_file( self::slug . '-admin-style', 'css/admin.css' );
+			$this->load_file( self::slug . '-render-style', 'css/display.css' );
 		} else { 
 			//echo 'asdasdasdasdasd';
 			$this->load_file( self::slug . '-script', 'js/widget.js', true );

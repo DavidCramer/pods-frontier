@@ -8,14 +8,15 @@
         
         // get the edited ID, or make a new one.
         $id = uniqid();
-        $displaypod = array();
+        $displaypods = get_option('displayPods_registry');
+
         if(!empty($_GET['displaypodid'])){
             $id=$_GET['displaypodid'];
             $displaypod = get_option($id);
             //dump($displaypod,0);
         }
         echo '<input type="hidden" name="displaypod_id" value="'.$id.'" />';
-        echo '<input type="hidden" name="displaypod_type" value="form" />';
+        echo '<input type="hidden" name="displaypod_type" value="layout" />';
         echo '<div class="displaypods-wrap">';
 
             // Header
@@ -47,7 +48,7 @@
             echo '<div class="editor-pane">';
                 // editor tab
                 echo '<div class="editor-panel" id="builder-tab">';
-                    echo '<h3>'.__('Form Builder', self::slug).' <small>'.__('Design and build your form', self::slug).'.</small></h3>';
+                    echo '<h3>'.__('Layout Builder', self::slug).' <small>'.__('Design and build your page layout', self::slug).'.</small></h3>';
                     // pull in the editor - easier to keep it separate.
                     include plugin_dir_path(__FILE__) . 'layout-editor.php';
                 echo '</div>';
