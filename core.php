@@ -459,74 +459,8 @@ class DisplayPod {
 
 				}
 			}
-			//dump($fields);
-			//dump($displaypod);
 			add_filter('pods_view_inc', array(&$this, 'render_form'),10,3);			
 			$displaypodOut = $pod->form($fields);
-			//dump($form);
-
-
-				
-/*				$form = form ( $params = null, $label = null, $thank_you = null ) 
-				add_filter('pods_view_inc', function($a,$b,$c){
-					if('form.php' != basename($a)){return $a;}
-					return plugin_dir_path(__FILE__).'ui/front/form.php';
-				},10,3);
-*/
-			/*
-			//dump($pod);
-			if(!empty($displaypod['form_fields'])){
-				foreach($displaypod['form_fields'] as $id=>$field){
-					//dump($field,0);
-					$value = '';
-					$type = 'text';
-					$pod = pods($field['pod']);
-					//$pod = $pod->load_pod($field['pod']);
-					//$pod->load_fields();
-					if(!empty($pod->pod_data['object_fields'][$field['field']])){
-						$type = $pod->pod_data['object_fields'][$field['field']]['type'];
-					}elseif(!empty($pod->pod_data['fields'][$field['field']])){
-						$type = $pod->pod_data['fields'][$field['field']]['type'];
-					}
-					$layout->append(PodsForm::field ( $field['field'], $value, $type, array('class'=>'input-block-level')), $field['position']);
-				}
-			}
-			//dump($displaypod,0);
-			// render the output
-
-			$displaypodOut = '<div class="display-pods">';
-				$displaypodOut .= '<form class="form" method="POST">';
-
-
-					$displaypodOut .= wp_nonce_field('displaypod-form', self::slug.'-'.$atts['dp'], true);
-					$displaypodOut .= '<input type="hidden" name="_'.self::slug.'_inst[displaypod]" value="'.$displaypod['displaypod_id'].'">';
-					$displaypodOut .= '<input type="hidden" name="_'.self::slug.'_inst[reference]" value="'.$index.'">';
-
-					// Catch messages
-					if(!empty($_GET[self::slug.'_success_update'])){
-						$displaypodOut .= '<div class="alert alert-success">'.$displaypod['success_update_message'].'</div>';
-					}
-					if(!empty($_GET[self::slug.'_error_update'])){
-						$displaypodOut .= '<div class="alert alert-error">'.$displaypod['error_uppdate_message'].'</div>';
-					}
-					if(!empty($_GET[self::slug.'_success_insert'])){
-						$displaypodOut .= '<div class="alert alert-success">'.$displaypod['success_insert_message'].'</div>';
-					}
-					if(!empty($_GET[self::slug.'_error_insert'])){
-						$displaypodOut .= '<div class="alert alert-error">'.$displaypod['error_insert_message'].'</div>';
-					}
-
-					$displaypodOut .= $layout->renderLayout();
-					if($displaypod['actions_wrap'] === 'hr'){
-						$displaypodOut .= '<hr>';
-					}
-				    $displaypodOut .= '<div class="'.$displaypod['actions_wrap'].'">';
-				    	$displaypodOut .= '<button type="submit" class="btn btn-primary">'.$displaypod['submit_text'].'</button>';
-				    	//$displaypodOut .= '<button type="button" class="btn">Cancel</button>';
-				    $displaypodOut .= '</div>';
-				$displaypodOut .= '</form>';
-			$displaypodOut .= '</div>';
-			*/
 			break;
 			case 'layout':
 				// LAYOUT RENDER
