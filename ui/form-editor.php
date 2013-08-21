@@ -20,7 +20,7 @@
 
         <div id="fieldTray" class="fieldTray">
             <?php
-            //dump($displaypod);
+            
             if(!empty($displaypod['pod'])){
                 foreach($displaypod['pod'] as $pod){
                     $pods[$pod] = self::load_pods_fields($pod);
@@ -161,32 +161,28 @@
                                 echo '<input type="hidden" value="'.$displaypod['form_fields'][$displaypodField]['field'].'" name="form_fields['.$displaypodField.'][field]">';
                                 echo '<div id="'.$displaypodField.'_panel"class="config-panel hidden">';
 
-                                    /*
-                                    //$type = explode('-', $_POST['type']);
-                                    if(empty($typeConfigs[$type[0]])){
-                                        if(file_exists(plugin_dir_path(dirname(__FILE__)).'fields/'.$type[0].'/config.json')){
-                                            $data = json_decode(file_get_contents(plugin_dir_path(dirname(__FILE__)).'fields/'.$type[0].'/config.json'),true);
-                                            $typeConfigs[$type[0]] = $data['fields'];
-                                        }
+                                    // Setups
+                                    $placeholders = array(
+                                        'label' => 'Label',
+                                        'description'   => 'Description',
+                                        'none'  => 'No Placeholder'
+                                    );
+                                    $showlabel = 0;
+                                    if(!empty($displaypod['form_fields'][$displaypodField]['config']['show_lable'])){
+                                        $showlabel = 1;
                                     }
-                                    if(!empty($typeConfigs[$type[0]][$type[1]])){
-                                        echo $this->configOption('fieldlabel_'.$displaypodField, 'form_fields['.$displaypodField.'][config][label]', 'text', 'Field Label', $displaypod['form_fields'][$displaypodField]['config']['label'], false, 'class="trigger" data-request="instaLable" data-event="keyup" data-parent="wrapper_'.$displaypodField.'" data-autoload="true"');
+                                    $showdesc = 0;
+                                    if(!empty($displaypod['form_fields'][$displaypodField]['config']['show_description'])){
+                                        $showdesc = 1;
                                     }
-                                    if(!empty($displaypod['base_pod'])){
-                                        $pod = pods($displaypod['base_pod']);
-
-                                        $podfields = $pod->fields();
-                                        $fields = array(
-                                            '_null' => _('Associate to a pod field', self::slug),
-                                        );
-                                        foreach($podfields as $field=>$details){
-                                            $fields[$field] = $details['label'];
-                                        }
-                                        if(!empty($fields)){
-                                            echo $this->configOption('podfield_'.$displaypodField, 'form_fields['.$displaypodField.'][config][pod_field]', 'dropdown', 'Pod Field', $displaypod['form_fields'][$displaypodField]['config']['pod_field'], 'Associate to Pod Field', $fields,'internal-config-option');
-                                        }
+                                    $placeholder = 'label';
+                                    if(!empty($displaypod['form_fields'][$displaypodField]['config']['placeholder'])){
+                                        $placeholder = $displaypod['form_fields'][$displaypodField]['config']['placeholder'];
                                     }
-                                    */
+                                    echo $this->configOption('showlabel_'.$displaypodField, 'form_fields['.$displaypodField.'][config][show_lable]', 'checkbox', 'Show Label', $showlabel, 'Display lable above the field', false,'internal-config-option');
+                                    echo $this->configOption('showdesc_'.$displaypodField, 'form_fields['.$displaypodField.'][config][show_description]', 'checkbox', 'Show Discription', $showdesc, 'Display lable above the field', false,'internal-config-option');
+                                    echo $this->configOption('placeholder_'.$displaypodField, 'form_fields['.$displaypodField.'][config][placeholder]', 'dropdown', 'Placeholder Text', $placeholder, 'The text displayed in empty fields', $placeholders,'internal-config-option');
+                                                       
 
                                     //$this->build_configPanel();
                                 echo '</div>';

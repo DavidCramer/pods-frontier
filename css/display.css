@@ -862,7 +862,7 @@
 .display-pods .show{display:block;}
 .display-pods .invisible{visibility:hidden;}
 .display-pods .affix{position:fixed;}
-@-ms-viewport{width:device-width;}.display-pods .hidden{display:none;visibility:hidden;}
+@-ms-viewport{width:device-width;}
 .display-pods .visible-phone{display:none !important;}
 .display-pods .visible-tablet{display:none !important;}
 .display-pods .hidden-desktop{display:none !important;}

@@ -454,7 +454,9 @@ class DisplayPod {
 				$fields = array();
 				foreach($displaypod['form_fields'] as $id=>$field){
 					$fields[] = $field['field'];
-					$pod->displayPod['fields'][$field['field']] = $field['position'];
+					$pod->displayPod['fields'][$field['field']]['location'] = $field['position'];
+					$pod->displayPod['fields'][$field['field']]['config'] = $field['config'];
+
 				}
 			}
 			//dump($fields);
@@ -630,30 +632,17 @@ class DisplayPod {
 				break;
 
 			case 'fieldConfig':
-				$type = explode('-', $_POST['type']);
-				if(empty($typeConfigs[$type[0]])){
-					if(file_exists(plugin_dir_path(__FILE__).'fields/'.$type[0].'/config.json')){
-						$data = json_decode(file_get_contents(plugin_dir_path(__FILE__).'fields/'.$type[0].'/config.json'),true);
-						$typeConfigs[$type[0]] = $data['fields'];
-					}
-				}
-				if(!empty($typeConfigs[$type[0]][$type[1]])){
-					echo $this->configOption('fieldlabel_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][label]', 'text', 'Field Label', $typeConfigs[$type[0]][$type[1]]['label'], false, 'class="trigger" data-request="instaLable" data-event="keyup" data-parent="wrapper_'.$_POST['id'].'" data-autoload="true"', 'internal-config-option');
-				}
-				if(!empty($_POST['pod'])){
-					$pod = pods($_POST['pod']);
 
-					$podfields = $pod->fields();
-					$fields = array(
-						'_null' => 'Associate to a pod field',
-					);
-					foreach($podfields as $field=>$details){
-						$fields[$field] = $details['label'];
-					}
-					if(!empty($fields)){
-						echo $this->configOption('podfield_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][pod_field]', 'dropdown', 'Pod Field', '', 'Associate to Pod Field', $fields,'internal-config-option');
-					}
-				}
+				$placeholders = array(
+					'label'	=> 'Label',
+					'description'	=> 'Description',
+					'none'	=> 'No Placeholder'
+				);
+
+				echo $this->configOption('showlabel_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][show_lable]', 'checkbox', 'Show Label', '1', 'Display lable above the field', false,'internal-config-option');
+				echo $this->configOption('showdesc_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][show_description]', 'checkbox', 'Show Discription', '1', 'Display lable above the field', false,'internal-config-option');
+				echo $this->configOption('placeholder_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][placeholder]', 'dropdown', 'Placeholder Text', '', 'The text displayed in empty fields', $placeholders,'internal-config-option');
+				
 				break;
 			case 'elementConfig':
 
@@ -793,18 +782,18 @@ class DisplayPod {
 			break;
 			case 'checkbox':
 			$sel = '';
-			if (!empty($$Value)) {
+			if (!empty($Value)) {
 				$sel = 'checked="checked"';
 			}
 
-			$Return .= '<input type="checkbox" name="' . $Name . '" id="' . $ID . '" value="1" '.$sel.' /><label for="' . $ID . '" style="margin-left: 10px; width: 570px;">'.$Title.'</label> ';
+			$Return .= '<label for="' . $ID . '"><input type="checkbox"  style="margin: -1px 5px 0 0;" class="checkbox" name="' . $Name . '" id="' . $ID . '" value="1" '.$sel.' /> '.$Title.'</label> ';
 			break;
 		}
 		$captionLine = '';
 		if(!empty($caption)){
 			$captionLine = '<div class="caldera_captionLine description">'.$caption.'</div>';
 		}
-		return '<div class="'.$wrapperclass.' '.$Type.'" id="config_'.$ID.'">' . $Return . $captionLine.'</div>';
+		return '<div class="'.$wrapperclass.'" id="config_'.$ID.'">' . $Return . $captionLine.'</div>';
 	}	
 	/**
 	 * Helper function for registering and enqueueing scripts and styles.

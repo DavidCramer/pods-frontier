@@ -395,7 +395,7 @@ body{
     display: block;
     cursor:default;
     border-top: 1px solid #efefef;
-    padding-top: 15px;
+    padding-top: 5px;
     margin-bottom: 15px;
 }
 .config-panel label{
