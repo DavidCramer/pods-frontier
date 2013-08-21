@@ -1,7 +1,7 @@
 <?php
 
 
-
+/*
 $api = pods_api();
 $_pods = $api->load_pods();
 
@@ -68,5 +68,5 @@ if(!empty($displaypod['default_status'])){
 }
 echo $this->configOption('default_status', 'default_status', 'dropdown', 'Default Status', $defaultState, _('The default status of new items', self::slug), $statusOptions);
 
-
+*/
 ?>
