@@ -22,10 +22,10 @@
             echo '<div class="header-nav">';
                 echo '<div class="logo-icon trigger" data-autoload="true" data-request="hashLoad"></div>';            
                 echo '<ul>';
-                    echo '<li><h3>'.__('DisplayPods', self::slug).'</h3></li>';
+                    echo '<li><h3>'.__('Form', self::slug).'</h3></li>';
                     echo '<li class="divider-vertical"></li>';
                     echo '<li id="form-title">'.__('Title', self::slug).': <input type="text" name="displaypod_name" value="';
-                        if(!empty($displaypod['displaypod_name'])){echo $displaypod['displaypod_name'];}else{ echo 'Untitled DisplayPod';};
+                        if(!empty($displaypod['displaypod_name'])){echo $displaypod['displaypod_name'];}else{ echo 'Untitled DisplayPod Form';};
                     echo '" /></li>';
                     echo '<li class="divider-vertical"></li>';
                     echo '<li><button type="submit" class="button-primary" value="save">'.__('Save & Close', self::slug).'</button></li>';

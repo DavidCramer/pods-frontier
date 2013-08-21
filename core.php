@@ -105,7 +105,7 @@ class DisplayPod {
 				'displaypod_type'	=> $_POST['displaypod_type']
 			);
 			update_option('displayPods_registry', $displaypods);
-			wp_redirect('admin.php?page='.DisplayPod::slug);
+			wp_redirect('admin.php?page='.DisplayPod::slug.'&tab='.$_POST['displaypod_type']);
 			exit;
 		}
 	}
@@ -158,22 +158,29 @@ class DisplayPod {
 
             // Navigation
             echo '<div id="side-controls" class="side-controls">';
-
+            	$activeTab = 'template';
+            	if(!empty($_GET['tab'])){
+            		if($_GET['tab'] === 'layout' || $_GET['tab'] === 'form'){
+            			$activeTab = $_GET['tab'];
+            		}
+            	}
                 echo '<ul class="element-config-tabs navigation-tabs">';
-                    echo '<li class="navtabtoggle active" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Templates" href="#templates-tab" class="control-templates-icon"><span>Tempaltes</span></a></li>';
-                    echo '<li class="navtabtoggle" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Layouts" href="#layouts-tab" class="control-layouts-icon"><span>Layouts</span></a></li>';
-                    echo '<li class="navtabtoggle" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Forms" href="#forms-tab" class="control-forms-icon active"><span>Forms</span></a></li>';
+                    echo '<li class="navtabtoggle '.($activeTab == 'template' ? 'active' : '').'" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Templates" href="#templates-tab" class="control-templates-icon"><span>Tempaltes</span></a></li>';
+                    echo '<li class="navtabtoggle '.($activeTab == 'layout' ? 'active' : '').'" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Layouts" href="#layouts-tab" class="control-layouts-icon"><span>Layouts</span></a></li>';
+                    echo '<li class="navtabtoggle '.($activeTab == 'form' ? 'active' : '').'" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Forms" href="#forms-tab" class="control-forms-icon active"><span>Forms</span></a></li>';
                 echo '</ul>';
             echo '</div>';
             
             // main panel
             echo '<div class="admin-pane">';
-            	echo '<div class="admin-panel" id="templates-tab">';
+            	echo '<div class="admin-panel '.($activeTab == 'template' ? '' : 'hidden').'" id="templates-tab">';
             		echo '<h2>'.__('Templates', self::slug).' ';
-            			echo '<a href="post-new.php?post_type=_pods_adv_template" class="button">'.__('Create new template', DisplayPod::slug).'</a>';
+            			//echo '<a href="post-new.php?post_type=_pods_adv_template" class="button">'.__('Create new template', DisplayPod::slug).'</a>';
+						echo '<a href="admin.php?page='.DisplayPod::slug.'&action=edit&type=template" class="button">'.__('Create new template', DisplayPod::slug).'</a>';
+
             		echo '</h2>';
             	echo '</div>';
-            	echo '<div class="admin-panel hidden" id="layouts-tab">';
+            	echo '<div class="admin-panel '.($activeTab == 'layout' ? '' : 'hidden').'" id="layouts-tab">';
 					echo '<h2>'.__('Layouts', self::slug).' ';
 						echo '<a href="admin.php?page='.DisplayPod::slug.'&action=edit&type=layout" class="button">'.__('Create new layout', DisplayPod::slug).'</a>';
 					echo '</h2>';
@@ -211,7 +218,7 @@ class DisplayPod {
                 	echo '</table>';
 
             	echo '</div>';
-                echo '<div class="admin-panel hidden" id="forms-tab">';
+                echo '<div class="admin-panel '.($activeTab == 'form' ? '' : 'hidden').'" id="forms-tab">';
                 	echo '<h2>'.__('Forms', self::slug).' ';
                 		echo '<a href="admin.php?page='.DisplayPod::slug.'&action=edit&type=form" class="button">'.__('Create new form', DisplayPod::slug).'</a>';
                 	echo '</h2>';
@@ -277,9 +284,11 @@ class DisplayPod {
 			return;	
 		}
 		if($_GET['type'] == 'form'){
-			include plugin_dir_path(__FILE__) . 'ui/builder.php';
+			include plugin_dir_path(__FILE__) . 'ui/form-builder.php';
 		}elseif($_GET['type'] == 'layout'){
 			include plugin_dir_path(__FILE__) . 'ui/layout-builder.php';
+		}elseif($_GET['type'] == 'template'){
+			include plugin_dir_path(__FILE__) . 'ui/template-builder.php';
 		}
 
 	}
@@ -404,6 +413,12 @@ class DisplayPod {
 		return $content;
 		// you can now access the attribute values using $attr1 and $attr2
 	}
+
+	function render_form($a,$b,$c){
+		if(!isset($b['pod']->displayPod)){return $a;}
+		if('form.php' != basename($a)){return $a;}
+		return plugin_dir_path(__FILE__).'ui/front/form.php';
+	}
   
 	function render_displaypod($atts, $index=0){
 			
@@ -420,9 +435,12 @@ class DisplayPod {
 		$displaypod = get_option($atts['dp']);
 		$layout = new calderaLayout();
 		$layout->setLayout(implode('|',$displaypod['form_layout']));
+		$displaypodOut = '';
 		switch($displaypod['displaypod_type']){
 			case 'form':
-		
+
+			//$view = apply_filters( 'pods_view_inc', $view, $data, $expires, $cache_mode );
+			
 			$typeConfigs = array();
 
 			// LOAD UP POD
@@ -430,42 +448,50 @@ class DisplayPod {
 			if(!empty($atts['id'])){
 				$podid = $atts['id'];
 			}
-			$pod = pods($displaypod['base_pod'], $podid);
+			$pod = pods($displaypod['pod'][0], $podid);
+			$pod->displayPod = $displaypod;
+			if(!empty($displaypod['form_fields'])){
+				$fields = array();
+				foreach($displaypod['form_fields'] as $id=>$field){
+					$fields[] = $field['field'];
+					$pod->displayPod['fields'][$field['field']] = $field['position'];
+				}
+			}
+			//dump($fields);
+			//dump($displaypod);
+			add_filter('pods_view_inc', array(&$this, 'render_form'),10,3);			
+			$displaypodOut = $pod->form($fields);
+			//dump($form);
+
+
+				
+/*				$form = form ( $params = null, $label = null, $thank_you = null ) 
+				add_filter('pods_view_inc', function($a,$b,$c){
+					if('form.php' != basename($a)){return $a;}
+					return plugin_dir_path(__FILE__).'ui/front/form.php';
+				},10,3);
+*/
+			/*
 			//dump($pod);
-
-			foreach($displaypod['form_fields'] as $id=>$field){
-				if($field['config']['pod_field'] === '_null'){continue;}
-				$podfield = '';
-				if(!empty($podid)){
-					$podfield = $pod->field($field['config']['pod_field']);
-				}
-				$type = explode('-', $field['type']);
-				if(empty($typeConfigs[$type[0]])){
-					if(file_exists(plugin_dir_path(__FILE__).'fields/'.$type[0].'/config.json')){
-						$data = json_decode(file_get_contents(plugin_dir_path(__FILE__).'fields/'.$type[0].'/config.json'),true);
-						$typeConfigs[$type[0]] = $data['fields'];
+			if(!empty($displaypod['form_fields'])){
+				foreach($displaypod['form_fields'] as $id=>$field){
+					//dump($field,0);
+					$value = '';
+					$type = 'text';
+					$pod = pods($field['pod']);
+					//$pod = $pod->load_pod($field['pod']);
+					//$pod->load_fields();
+					if(!empty($pod->pod_data['object_fields'][$field['field']])){
+						$type = $pod->pod_data['object_fields'][$field['field']]['type'];
+					}elseif(!empty($pod->pod_data['fields'][$field['field']])){
+						$type = $pod->pod_data['fields'][$field['field']]['type'];
 					}
-				}
-				if(!empty($typeConfigs[$type[0]][$type[1]])){
-					if(file_exists(plugin_dir_path(__FILE__).'fields/'.$type[0].'/'.$typeConfigs[$type[0]][$type[1]]['file'])){
-						ob_start();
-						include plugin_dir_path(__FILE__).'fields/'.$type[0].'/'.$typeConfigs[$type[0]][$type[1]]['file'];
-						$fieldHTML = ob_get_clean();
-						$fieldHTML = str_replace('{{id}}', $id, $fieldHTML);
-						$fieldHTML = str_replace('{{value}}', $podfield, $fieldHTML);
-						$fieldHTML = str_replace('{{name}}', $field['config']['pod_field'], $fieldHTML);
-
-						// Additionals that the field may have
-						foreach($field['config'] AS $key=>$value){
-							$fieldHTML = str_replace('{{'.$key.'}}', $value, $fieldHTML);
-						}
-						//echo plugin_dir_path(__FILE__).'fields/'.$type[0].'/'.$typeConfigs[$type[0]][$type[1]]['file'];
-						$layout->append($fieldHTML, $field['position']);
-					}
+					$layout->append(PodsForm::field ( $field['field'], $value, $type, array('class'=>'input-block-level')), $field['position']);
 				}
 			}
 			//dump($displaypod,0);
 			// render the output
+
 			$displaypodOut = '<div class="display-pods">';
 				$displaypodOut .= '<form class="form" method="POST">';
 
@@ -498,16 +524,19 @@ class DisplayPod {
 				    $displaypodOut .= '</div>';
 				$displaypodOut .= '</form>';
 			$displaypodOut .= '</div>';
+			*/
 			break;
 			case 'layout':
 				// LAYOUT RENDER
 				$displaypodOut = '<div class="display-pods">';
-				foreach($displaypod['layout_elements'] as $id=>$element){
-					$args = array(
-						'dp' => $element['dp']
-						/// HERE WILL BE THE CONFIG OPTIONS LIKE id of a specific pod.
-					);
-					$layout->append($this->render_displaypod($args, $index), $element['position']);
+				if(!empty($displaypod['layout_elements'])){
+					foreach($displaypod['layout_elements'] as $id=>$element){
+						$args = array(
+							'dp' => $element['dp']
+							/// HERE WILL BE THE CONFIG OPTIONS LIKE id of a specific pod.
+						);
+						$layout->append($this->render_displaypod($args, $index), $element['position']);
+					}
 				}
 				$displaypodOut .= $layout->renderLayout();
 				$displaypodOut .= '</div>';
@@ -522,11 +551,84 @@ class DisplayPod {
 		//return $displaypodOut;
   	}
 
+  	function load_pods_fields($name){
+  		//$displaypod['pod']
+		$pods = new podsAPI();
+
+		$pod = $pods->load_pod(array('name'=>$name));
+		$defaultFields = array(
+			"supports_title" 		=> array("label" => "Title"		, "name" => "post_title"),
+			"supports_editor" 		=> array("label" => "Content"	, "name" => "post_content"),
+			"supports_excerpt" 		=> array("label" => "Excerpt"	, "name" => "post_excerpt"),
+			"supports_author" 		=> array("label" => "Author"	, "name" => "post_author"),
+			"supports_thumbnail" 	=> array("label" => "Thumbnail"	, "name" => "post_thumbnail")
+		);
+
+		$html = '<div class="label pod_'.$pod['name'].' trigger" data-pod="'.$pod['name'].'" data-request="resetSortables" data-event="none" data-autoload="true">'.$pod['label'].'<i class="icon-remove-sign removePodGroup" style="float:right;"></i></div>';
+		$html .= '<div data-pod="'.$pod['name'].'">';
+		$html .= '<input name="pod[]" value="'.$pod['name'].'" type="hidden" data-pod="'.$pod['name'].'">';
+		// List default support fields
+		$labels = array();
+		foreach($defaultFields as $support=>$field){
+			if(!empty($pod['options'][$support])){
+				$labels[$field['name']] = $pod['options']['label_singular'].' '.$field['label'];
+				$html .= '<div class="trayItem formField field_'.$field['name'].' button" data-pod="'.$pod['name'].'" data-field="'.$field['name'].'">';
+				    $html .= '<i class="fieldEdit">';
+				        $html .= '<span class="control delete" data-request="removeField" data-field="field_'.$field['name'].'"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
+				        $html .= ' | ';
+				        $html .= '<span class="control edit" data-request="toggleConfig"><i class="icon-cog"></i> '.__('Edit', self::slug).'</span>';
+				        $html .= '</i>';
+				        
+				    $html .= '<span class="fieldType">'.__($pod['options']['label_singular'].' '.$field['label'], self::slug).'</span>';
+				    $html .= '<span class="fieldName"></span>';
+				$html .= '</div>';
+			}
+		}
+
+		foreach($pod['fields'] as $field=>$details){
+			//dump($details);
+			//$fields[$field] = $details['label'];
+			$labels[$details['name']] = $details['label'];
+
+            $html .= '<div class="trayItem formField field_'.$field.' button" data-field="'.$details['name'].'" data-pod="'.$pod['name'].'">';
+                $html .= '<i class="fieldEdit">';
+                    $html .= '<span class="control delete" data-request="removeField" data-field="field_'.$field.'"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
+                    $html .= ' | ';
+                    $html .= '<span class="control edit" data-request="toggleConfig"><i class="icon-cog"></i> '.__('Edit', self::slug).'</span>';
+                    $html .= '</i>';
+                    
+                $html .= '<span class="fieldType">'.__($details['label'], self::slug).'</span>';
+                $html .= '<span class="fieldName"></span>';
+            $html .= '</div>';
+            
+
+		}
+		//$html .= '<hr><div class="formField button">Remove Pod</div>';
+		$html .= '</div>';
+		return array(
+			"html"	=> $html,
+			"labels"=> $labels,
+			"pod"	=> $pod
+		);
+  	}
+
 	function ajax_handler($a){
 		
 		if(empty($_POST['process'])){ return false;}
 
 		switch ($_POST['process']) {
+			case 'podFields':
+				//dump($_POST);
+				if(!empty($_POST['pod'])){
+
+					$fields = $this->load_pods_fields($_POST['pod']);
+					echo $fields['html'];
+					if(!empty($fields)){
+						//echo $this->configOption('podfield_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][pod_field]', 'dropdown', 'Pod Field', '', 'Associate to Pod Field', $fields,'internal-config-option');
+					}
+				}
+				break;
+
 			case 'fieldConfig':
 				$type = explode('-', $_POST['type']);
 				if(empty($typeConfigs[$type[0]])){
@@ -595,16 +697,25 @@ class DisplayPod {
 					wp_enqueue_script('jquery-ui-droppable');
 					wp_enqueue_script('jquery-ui-accordion');
 				}
+				if(!empty($_GET['type'])){
+					if($_GET['type'] == 'template'){
+
+						/// PULL IN CODE EDITORS FOR TEMPLATE EDITING
+						
+						wp_enqueue_media();
+						wp_enqueue_script('media-upload');
+
+					}
+				}
 			}
 			$this->load_file( self::slug . '-admin-script', 'js/admin.js', true );
 			//$this->load_file( self::slug . '-admin-style', '/css/lib/bootstrap.css' );
 			$this->load_file( self::slug . '-admin-style', 'css/admin.css' );
-			$this->load_file( self::slug . '-render-style', 'css/display.css' );
 		} else { 
-			//echo 'asdasdasdasdasd';
-			$this->load_file( self::slug . '-script', 'js/widget.js', true );
-			$this->load_file( self::slug . '-bs-style', 'css/lib/bootstrap.css' );
-			$this->load_file( self::slug . '-style', 'css/widget.css' );
+			$this->load_file( self::slug . '-render-style', 'css/display.css' );
+			//$this->load_file( self::slug . '-script', 'js/widget.js', true );
+			//$this->load_file( self::slug . '-bs-style', 'css/lib/bootstrap.css' );
+			//$this->load_file( self::slug . '-style', 'css/widget.css' );
 		} // end if/else
 	} // end register_scripts_and_styles
 

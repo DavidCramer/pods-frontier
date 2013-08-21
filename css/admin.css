@@ -38,8 +38,9 @@ body{
     float: left;
     width: 35px;
     height: 35px;
-    background: url(img/icon-edit.png);
-    background-size: 35px;    
+    background: url(img/icon-edit.png) no-repeat;
+    background-size: 30px;    
+    background-position: 4px 4px;
 }
 .header-nav h3{
     margin: 0.9em 0 0;

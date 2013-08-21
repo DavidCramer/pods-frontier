@@ -11,6 +11,7 @@
 				var cb = (tr.data('callback') ? ((typeof window[tr.data('callback')] === 'function') ? window[tr.data('callback')] : false) : false),
 					re = (tr.data('request') ? tr.data('request') : (defaults.request ? defaults.request : cb)),
 					ta = (tr.data('target') ? (($(tr.data('target')).length < 1) ? $('<span>') : $(tr.data('target'))) : tr),
+					ti = (tr.data('targetInsert') ? tr.data('targetInsert') : 'html'),
 					lc = (tr.data('loadClass') ? tr.data('loadClass') : 'loading'),
 					ac = (tr.data('activeClass') ? tr.data('activeClass') : 'active'),
 					ae = (tr.data('activeElement') ? $(tr.data('activeElement')) : tr),
@@ -39,7 +40,12 @@
 					var source = $(tr.data('template')).html();var template = Handlebars.compile(source);$.getJSON(re, data, function(dt,st,xhr){ta.html(template(dt));$(this).parent().find('.trigger').baldrick();le.removeClass(lc);return cb(dt,st,xhr);});
 				}else{
 					//ta.load(re, data, function(tx,st,xhr){$(this).parent().find('.trigger').baldrick();le.removeClass(lc);return cb(tx,st,xhr);});
-					$.post(re, data, function(tx,st,xhr){$(ta).html(tx);$(this).parent().find('.trigger').baldrick();le.removeClass(lc);return cb(tx,st,xhr);});
+					$.post(re, data, function(tx,st,xhr){
+						$(ta)[ti](tx);
+						$(ta).parent().find('.trigger').baldrick();
+						le.removeClass(lc);
+						return cb(tx,st,xhr);
+					});
 				}
 			});
 			if(tr.data('autoload') || tr.data('poll')){(tr.data('delay') ? setTimeout(function(tr, ev){return tr.trigger(ev);}, tr.data('delay'), tr, ev) : tr.trigger(ev));}

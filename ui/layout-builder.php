@@ -24,7 +24,7 @@
             echo '<div class="header-nav">';
                 echo '<div class="logo-icon trigger" data-request="hashLoad" data-autoload="true"></div>';            
                 echo '<ul>';
-                    echo '<li><h3>'.__('DisplayPods', self::slug).'</h3></li>';
+                    echo '<li><h3>'.__('Layout', self::slug).'</h3></li>';
                     echo '<li class="divider-vertical"></li>';
                     echo '<li id="form-title">'.__('Title', self::slug).': <input type="text" name="displaypod_name" value="';
                         if(!empty($displaypod['displaypod_name'])){echo $displaypod['displaypod_name'];}else{ echo 'Untitled DisplayPod';};
@@ -49,7 +49,7 @@
             echo '<div class="editor-pane">';
                 // editor tab
                 echo '<div class="editor-panel" id="builder-tab">';
-                    echo '<h3>'.__('Layout Builder', self::slug).' <small>'.__('Design and build your page layout', self::slug).'.</small></h3>';
+                    echo '<h3>'.__('Builder', self::slug).' <small>'.__('Design and build your page layout', self::slug).'.</small></h3>';
                     // pull in the editor - easier to keep it separate.
                     include plugin_dir_path(__FILE__) . 'layout-editor.php';
                 echo '</div>';

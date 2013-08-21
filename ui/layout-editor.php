@@ -44,8 +44,10 @@
         //dump($displaypod);
         // build positioning
         $displaypodFields = array();
-        foreach($displaypod['layout_elements'] as $id=>$cfg){
-            $displaypodFields[$cfg['position']][] = $id; 
+        if(!empty($displaypod['layout_elements'])){
+            foreach($displaypod['layout_elements'] as $id=>$cfg){
+                $displaypodFields[$cfg['position']][] = $id; 
+            }
         }
     }
 
