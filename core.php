@@ -438,11 +438,6 @@ class DisplayPod {
 		$displaypodOut = '';
 		switch($displaypod['displaypod_type']){
 			case 'form':
-
-			//$view = apply_filters( 'pods_view_inc', $view, $data, $expires, $cache_mode );
-			
-			$typeConfigs = array();
-
 			// LOAD UP POD
 			$podid = null;
 			if(!empty($atts['id'])){
@@ -456,7 +451,6 @@ class DisplayPod {
 					$fields[] = $field['field'];
 					$pod->displayPod['fields'][$field['field']]['location'] = $field['position'];
 					$pod->displayPod['fields'][$field['field']]['config'] = $field['config'];
-
 				}
 			}
 			add_filter('pods_view_inc', array(&$this, 'render_form'),10,3);			
