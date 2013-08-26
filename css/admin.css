@@ -117,11 +117,43 @@ body{
     text-decoration: none;
 }
 /* Editor Wrapper */
+/* editor panels | custome highlight */
+.cm-mustache {color: #0ca;}
+.cm-mustacheinternal {color: #ff7040;}
+.cm-include {color: #ff00aa;}
+.cm-phptag{color: #20af20;font-weight: bold;}
+.cm-command{color: #20afe0;font-weight: bold;}
+
+.editor-label{
+    background-color: #525C6C;
+    color: #FFFFFF;
+    display: block;
+    font-size: 0.8em;
+    height: 20px;
+    padding-left: 5px;
+}
+.editor-code{
+    height: 100%;
+    overflow: hidden;
+}
+.editor-code label,.editor-preview label {
+    background: #ccc;
+    border: 1px solid #555;
+    border-radius: 4px;
+    margin-top: 10px;
+    opacity: 0.15;
+    padding: 0 5px 1px;
+    position: absolute;
+    right: 20px;
+}
+.settings-panel {
+    padding: 8px 15px;
+}
 .editor-pane {    
     bottom: 0;
-    left: 45px;
+    left: 35px;
     position: absolute;    
-    top: 45px;
+    top: 35px;
     right: 0;
     padding-right: 20px;
     overflow: auto;
@@ -219,8 +251,129 @@ body{
 .control-assets-icon{
     background-image: url(img/icon-assets.png);
 }
+.control-html-icon{
+    background-image: url(img/icon-html.png);
+}
+.control-css-icon{
+    background-image: url(img/icon-css.png);
+}
+.control-js-icon{
+    background-image: url(img/icon-js.png);
+}
 
 
+/* Additional Editor Styles */
+.CodeMirror-completions {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+  -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+  box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+}
+.CodeMirror-completions select {
+  background: #fafafa;
+  outline: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: monospace;
+}
+
+.CodeMirror-dialog {
+  position: absolute;
+  left: 0; right: 0;
+  background: white;
+  z-index: 15;
+  padding: .1em .8em;
+  overflow: hidden;
+  color: #333;
+}
+
+.CodeMirror-dialog-top {
+  border-bottom: 1px solid #eee;
+  top: 0;
+}
+
+.CodeMirror-dialog-bottom {
+  border-top: 1px solid #eee;
+  bottom: 0;
+}
+
+.CodeMirror-dialog input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 20em;
+  color: inherit;
+  font-family: monospace;
+}
+
+.CodeMirror-dialog button {
+  font-size: 70%;
+}
+
+
+.CodeMirror-hints {
+  position: absolute;
+  z-index: 10;
+  overflow: hidden;
+  list-style: none;
+
+  margin: 0;
+  padding: 2px;
+
+  -webkit-box-shadow: 0 3px 5px rgba(0,0,0,.2);
+  -moz-box-shadow: 0 3px 5px rgba(0,0,0,.2);
+  box-shadow: 0 3px 5px rgba(0,0,0,.2);
+  border-radius: 2px;
+  border: 1px solid #e1e1e1;
+
+  background: white;
+  font-size: 100%;
+  font-family: monospace;
+
+  max-height: 20em;
+  overflow-y: auto;
+}
+
+.CodeMirror-hint {
+  margin: 0;
+  padding: 0 4px;
+  border-radius: 1px;
+  width: auto;
+  overflow: hidden;
+  white-space: pre;
+  color: black;
+  cursor: pointer;
+}
+
+.CodeMirror-hint-active {
+  background: #4bac4b;
+  color: white;
+}
+
+/* TEMPLATE BUILDER POD FIELDS LIST STYLING*/
+
+#var-list .podfields{
+    margin: 0;
+}
+#var-list .podfields > li{
+    border-top: 1px solid #EFEFEF;
+  margin: 0;
+}
+#var-list .podfields a,
+#var-list .podfields a:link,
+#var-list .podfields a:visited {
+  color: #767676;
+  display: block;
+  padding: 5px 2px 4px 4px;
+  text-decoration: none;
+}
+#var-list .podfields a:hover,
+#var-list .podfields a.active {
+    background-color: #ededed;
+}
 
 
 

@@ -1,5 +1,20 @@
 <div class="panel">
     <button id="addRowFrom" type="button" class="button-primary"><?php echo __('Add Row', self::slug); ?></button>
+<?php
+        //Get pods
+        $api = pods_api();
+        $_pods = $api->load_pods();
+
+        
+            echo '<select name="data[pod]" id="selectPod" class="trigger" data-request="setPodSrc" data-event="change" />';
+            echo '<option value="">Select Pod to Add</option>';
+            foreach($_pods as $pod){
+                echo '<option value="'.$pod['name'].'">'.$pod['label'].'</option>';
+            }
+            echo '</select>';
+        
+    ?> <button id="addPod" type="button" class="button trigger" data-action="sfbuilder" data-before="isPodUsed" data-process="podFields" data-target="#fieldTray" data-target-insert="append" data-active-class="none"><?php echo __('Add Pod', self::slug); ?></button>
+
 </div>
 <div class="row">
     <div class="span2">
@@ -159,10 +174,6 @@
 </div>
 
 <script>
-<?php
-                //ob_start();                
-?>
-
 jQuery(document).ready(function(){
 
 
@@ -260,7 +271,15 @@ jQuery(document).ready(function(){
         //jQuery(this).parent().parent().prev().find('.fieldLocationCapture').val('');
         //jQuery(this).parent().prev().find('.formFieldElement').appendTo('#formFields');
         //jQuery(this).parent().prev().remove();
+        var fields = jQuery(this).parent().parent().find('.delete');
+        if(fields.length > 0){
+            fields.each(function(){
+                master = jQuery(this).data('field');
+                jQuery('.'+master).fadeIn(100).removeAttr('style');                
+            });
+        }
         jQuery(this).parent().parent().remove();
+        jQuery('#fieldTray').accordion("destroy").accordion();
     });
     
 
@@ -379,7 +398,8 @@ echo $footerscripts;
 ?>
                 
 
-function resetSortables(){
+resetSortables = function resetSortables(){
+
     jQuery( ".trayItem" ).draggable({
         appendTo: "body",
         placeholder: "sortHolder",
@@ -392,15 +412,16 @@ function resetSortables(){
             var id= "field" + (((1+Math.random())*0x10000)|0).toString(16).substring(1)+(((1+Math.random())*0x10000)|0).toString(16).substring(1),
                 row = parseFloat(jQuery(this).parent().parent().attr('ref')),
                 col = jQuery(this).parent().attr('ref'),
-                pod = jQuery('#base-pod').val(),
-                displaypodid = ui.draggable.data('id');
-            //var field = jQuery('<input class="fieldLocation" type="hidden" name="layout_elements['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="layout_elements['+id+'][dp]" value="'+fieldType+'" /><div class="config-panel hidden trigger" data-before="alert" data-action="sfbuilder" data-process="fieldConfig" data-type="'+fieldType+'" data-id="'+id+'" data-pod="'+pod+'" data-target="'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="null"></div>');
-            var field = jQuery('<input class="fieldLocation" type="hidden" name="layout_elements['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="layout_elements['+id+'][dp]" value="'+displaypodid+'" /><div class="config-panel hidden trigger" data-action="sfbuilder" data-process="elementConfig" data-displaypodid="'+displaypodid+'" data-id="'+id+'" data-pod="'+pod+'" data-target="#'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="load"></div>');
-            ui.draggable.clone().removeClass('trayItem').attr('id', 'wrapper_'+id).append(field).appendTo(this).addClass('editing').find('.control').addClass('trigger');
+                pod = ui.draggable.data('pod'),
+                field = ui.draggable.data('field');
+            //var field = jQuery('<input class="fieldLocation" type="hidden" name="form_fields['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="form_fields['+id+'][type]" value="'+fieldType+'" /><div class="config-panel hidden trigger" data-before="alert" data-action="sfbuilder" data-process="fieldConfig" data-type="'+fieldType+'" data-id="'+id+'" data-pod="'+pod+'" data-target="'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="null"></div>');
+            var field = jQuery('<input class="fieldLocation" type="hidden" name="form_fields['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="form_fields['+id+'][pod]" value="'+pod+'" /><input type="hidden" name="form_fields['+id+'][field]" value="'+field+'" /><div class="config-panel hidden trigger" data-action="sfbuilder" data-process="fieldConfig" data-id="'+id+'" data-pod="'+pod+'" data-target="#'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="load"></div>');
+            ui.draggable.clone().removeClass('trayItem').attr('id', 'wrapper_'+id).append(field).appendTo(this).find('.control').addClass('trigger');
             jQuery('.trigger').baldrick({
                 request: ajaxurl
             });
             toggleConfig();
+            ui.draggable.fadeOut(100);
         }
     }).sortable({
         appendTo: "body",
@@ -430,7 +451,9 @@ function resetSortables(){
             var col = jQuery(this).parent().attr('ref');
             jQuery(this).find('.fieldLocation').val(row+':'+col);
         }
-    });                
+    });        
+    jQuery('#fieldTray').accordion("destroy").accordion();//.accordion("refresh");
+    jQuery('#selectPod').val(null);
                 
 };
 
@@ -451,13 +474,21 @@ function resetSortables(){
         
     })
 
-
+    jQuery('#fieldTray').on('click','.removePodGroup', function(){
+        var clicked = jQuery(this);
+        jQuery("[data-pod='"+clicked.parent().data('pod')+"']").remove();
+        
+    })
 
 
 
 
 resetSortables();
-                
+// hide used fields
+jQuery('#formLayoutBoard').find('.delete').each(function(){
+    master = jQuery(this).data('field');
+    jQuery('.'+master).hide();
+});
 
 });
 
@@ -475,9 +506,14 @@ function instaLable(element){
     //console.log(fieldbox.data('parent'));
 }
 function removeField(element){
-    var field = jQuery(element).parent().parent();
+    var field = jQuery(element).parent().parent(),
+        master = jQuery(element).data('field');
     field.fadeOut(200, function(){
         jQuery(this).remove();
+        jQuery('.'+master).fadeIn(100, function(){
+            jQuery('#fieldTray').accordion("destroy").accordion();
+        }).removeAttr('style');
+        
     });
 }
 function bindtriggers(){
@@ -489,6 +525,17 @@ function bindtriggers(){
 jQuery(function($){
     bindtriggers();
 })
+
+function isPodUsed(el){
+    if(jQuery('.pod_'+jQuery(el).data('pod')).length){
+        return false;
+    }
+    //console.log(arguments);
+}
+
+function setPodSrc(el){
+    jQuery('#addPod').data('pod', jQuery(el).val());
+}
 
 
 </script>

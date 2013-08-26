@@ -48,7 +48,7 @@
             // Editor
             echo '<div class="editor-pane">';
                 // editor tab
-                echo '<div class="editor-panel" id="builder-tab">';
+                echo '<div class="editor-panel settings-panel" id="builder-tab">';
                     echo '<h3>'.__('Builder', self::slug).' <small>'.__('Design and build your page layout', self::slug).'.</small></h3>';
                     // pull in the editor - easier to keep it separate.
                     include plugin_dir_path(__FILE__) . 'layout-editor.php';

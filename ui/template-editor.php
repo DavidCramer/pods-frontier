@@ -1,75 +1,3 @@
-<?php
-
-    $Title = '<span><strong id="templateTitle">Untitled Template</strong></span>';
-    $podTemplate = array();
-    if(!empty($_GET['edit'])){
-        // load the stuffs
-        $post = get_post($_GET['edit']);        
-        $podTemplate = get_post_meta($_GET['edit'],'_pods_adv_template', true);
-        $Title = '<span><strong id="templateTitle">'.$post->post_title.'</strong> - '.$post->post_name.'</span>';
-        $podTemplate['ID'] = $post->ID;
-    }else{
-        $podTemplate['ID'] = false;
-        $podTemplate['slug'] = uniqid('pt');
-    }
-    if(!isset($podTemplate['_showhelp__'])){
-        $podTemplate['_showhelp__'] = 0;
-    }    
-?>
-    <form action="admin.php?page=pods-component-advanced-templates" method="post" id="editor-form">
-    <?php wp_nonce_field('pat-edit-template'); ?>
-        <div class="header-nav">
-            <div class="pat-logo-icon" style="background: url('<?php echo PODS_URL . 'ui/images/icon32.png'; ?>') center center no-repeat;"></div>
-            <ul class="editor-section-tabs navigation-tabs">
-                <li><a href="#php">PHP</a></li>
-                <li><a href="#css">CSS</a></li>
-                <li><a href="#html">HTML</a></li>
-                <li><a href="#js">JS</a></li>
-                <li class="divider-vertical"></li>
-                <li><?php echo $Title; ?></li>
-                <li class="divider-vertical"></li>
-                <li class="fbutton"><button id="element-apply" type="button" class="button"><?php echo __( 'Apply', 'pods'); ?></button></li>
-                <li class="fbutton"><button type="submit" class="button"><?php echo __( 'Save', 'pods'); ?></button></li>
-                <li class="divider-vertical"></li><?php
-                /*
-                <li class="fbutton"><button id="help-toggle" type="button" class="button <?php if(!empty($podTemplate['_showhelp__'])){ echo 'active'; } ?>">Revisions</button></li>
-                <li class="divider-vertical"></li> */
-                ?>
-                <li class="fbutton"><button id="help-toggle" type="button" class="button <?php if(!empty($podTemplate['_showhelp__'])){ echo 'active'; } ?>"><?php echo __( 'Help', 'pods'); ?></button></li>
-                <li class="divider-vertical"></li>
-                <li><span id="saveIndicator"><progress>Saving</progress></span></li>
-            </ul>
-        </div>
-        <div class="side-controls">
-            <ul class="element-config-tabs navigation-tabs">
-                <li class="active"><a class="control-settings-icon" href="#config" title="Settings"><span>Settings</span></a></li>                
-                <li><a class="control-libraries-icon" href="#libraries" title="Libraries"><span>Libraries</span></a></li>
-                <li><a class="control-assets-icon" href="#assets" title="Assets"><span>Assets</span></a></li>
-            </ul>
-        </div>
-        <div class="editor-pane" style="<?php if(empty($podTemplate['_showhelp__'])){ echo 'right:0;'; }; ?>">            
-            <div id="config" class="editor-tab active editor-setting editor-config">
-                <div class="editor-tab-content">
-                    <h3><?php echo __( 'Template Config', 'pods'); ?> <small>Settings and template display options</small></h3>
-                    <?php include plugin_dir_path(__FILE__) . '/settings.php'; ?>
-                </div>
-            </div>
-            <div id="libraries" class="editor-tab editor-setting editor-libraries">
-                <div class="editor-tab-content">
-                    <h3><?php echo __( 'Libraries', 'pods'); ?> <small>Scripts and styles to be included in the header</small></h3>                    
-                    <?php include plugin_dir_path(__FILE__) . '/libraries.php'; ?>
-                </div>
-            </div>
-            <div id="assets" class="editor-tab editor-setting editor-assets">
-                <div class="editor-tab-content">
-                    <h3><?php echo __( 'Assets', 'pods'); ?> <small>Additional files and scripts to be used by your template.</small></h3>                    
-                    <?php include plugin_dir_path(__FILE__) . '/assets.php'; ?>
-                </div>
-            </div>
-            <div id="php" class="editor-tab editor-code editor-php">
-                <label for="code-php">PHP</label>
-                <textarea id="code-php" name="data[phpCode]"><?php if(!empty($podTemplate['phpCode'])){ echo htmlspecialchars($podTemplate['phpCode']); } ;?></textarea>
-            </div>
             <div id="css" class="editor-tab editor-code editor-css">
                 <label for="code-css">CSS</label>
                 <textarea id="code-css" name="data[cssCode]"><?php if(!empty($podTemplate['cssCode'])){ echo $podTemplate['cssCode']; } ;?></textarea>
@@ -81,8 +9,8 @@
             <div id="js" class="editor-tab editor-code editor-js">
                 <label for="code-js">JavaScript</label>
                 <textarea id="code-js" name="data[javascriptCode]"><?php if(!empty($podTemplate['javascriptCode'])){ echo $podTemplate['javascriptCode']; } ;?></textarea>
-            </div>            
-        </div>
+            </div>
+        
         <?php
         /*
         <div class="editor-revisions">
@@ -113,4 +41,6 @@
                 <p><span class="cm-command">[/loop]</span> : ends the loop</p>                
             </div>
         </div>
-    </form>
+        <script type="text/javascript">
+        var htmleditor = CodeMirror.fromTextArea(document.getElementById("code-html"));
+        </script>

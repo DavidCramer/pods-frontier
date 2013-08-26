@@ -226,9 +226,6 @@
 </div>
 
 <script>
-<?php
-                //ob_start();                
-?>
 
 jQuery(document).ready(function(){
 
@@ -594,18 +591,4 @@ function setPodSrc(el){
 }
 
 </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
