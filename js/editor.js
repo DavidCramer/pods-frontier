@@ -10,11 +10,13 @@
 		if(option === 'fields'){
 			var typeclass = '.pod-field-row',
 				wrap = {start: "{@", end: "}"},
-				prefix = token.string.split('@')[1];
+				prefix = token.string.split('@')[1],
+				start = ((token.start-1)+token.string.split('@')[0].length);
 		}else if(option === 'loop'){
 			var typeclass = '.pod-field-loop',
 				wrap = {start: "[loop ", end: "]"},
-				prefix = token.string.slice(6);
+				prefix = token.string.slice(6),
+				start = token.start;
 		}
 		console.log(prefix);
 		jQuery(typeclass).each(function(){
@@ -31,7 +33,7 @@
 		}
 		return {
 			list: result,
-			from: Pos(cur.line, ((token.start-1)+token.string.split('@')[0].length)),
+			from: Pos(cur.line, start),
 			to: Pos(cur.line, token.end)
 		};
 	}
@@ -58,7 +60,7 @@ function podFields(cm, e) {
 					if(hidehints === false){
 						CodeMirror.showHint(cm, CodeMirror.hint.podfield, 'fields');
 					}
-				}else if(prefix.indexOf('[l') == 0){
+				}else if(prefix.indexOf('[l') == 0 || prefix.indexOf('[@') == 0){
 					if(hidehints === false){
 						CodeMirror.showHint(cm, CodeMirror.hint.podfield, 'loop');
 					}					
