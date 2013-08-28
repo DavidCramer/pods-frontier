@@ -464,43 +464,55 @@ class DisplayPod {
 		return plugin_dir_path(__FILE__).'ui/front/form.php';
 	}
   
-	function recursive_matching($regex, $content, $return = array()){
-
+	function recursive_matching($regex, $content, $pod){
+		//echo $level.' - ';
 		preg_match_all('/' . $regex . '/s', $content, $found);
-		/*if(!empty($return)){        
-			if(!empty($found[2][0])){
-				foreach($found[2] as $elkey=>$el){                
-					$found[7][$elkey] = $shortcodeKey[$found[2][$elkey]];
-				}
-			}
-		}*/
-		if(!empty($found[5])){
-			foreach($found[5] as $innerContent){
-				if(!empty($innerContent)){
-				   $new = $this->recursive_matching($regex, $innerContent, $found);
-					if(!empty($new)){
-						foreach($new as $key=>$val){
-							$found[$key] = array_merge($found[$key], $val);
+		if(!empty($found[0])){
+			// send back for a deaper check
+			//dump($found);
+
+			foreach($found[2] as $key=>$command){
+				if(!empty($found[5])){
+
+					$field_name = trim($found[3][$key]);
+					$params = array(
+						'name' 		=> $field_name,
+						'output'	=> 'pods'
+					);
+					$relations = $pod->field($params);
+					$codeblock = null;
+				
+					foreach($relations as $entry){
+						foreach($found[5] as $codekey=>$innerContent){
+
+							$innerContent = str_replace('{@'.$field_name.'.', '{@', $innerContent);
+							$innerContent = str_replace('loop '.$field_name.'.', 'loop ', $innerContent);
+							$codeblock .= $pod->do_magic_tags( $this->recursive_matching($regex, $innerContent, $entry) );
+							//$codeblock .= $this->recursive_matching($regex, $innerContent, $entry);
 						}
 					}
 				}
+
+				$content = str_replace($found[0][$key], $codeblock, $content);
 			}
 		}
-
-		return $found;
+		// Maunal approace to prevent removing lower tags.
+		preg_match_all( '/({@(.*?)})/m', $content, $tags );
+		if(!empty($tags[2])){
+			foreach ($tags[2] as $tagkey => $tagvalue) {
+				if(isset($pod->fields[$tagvalue]) || isset($pod->pod_data['object_fields'][$tagvalue])){
+					$content = str_replace($tags[1][$tagkey], $pod->display($tagvalue), $content);
+				}
+			}
+		}
+		return $content;
 	}
 
 	function render_displaypod($atts, $index=0){
 			
 
-		// parse them atts!
-		
+		// parse them atts!		
 		if(empty($atts['dp'])){return;} // continue if the id is not there.
-
-
-		//$podform = new pods();
-		//$podform->pods_form();
-		//dump($podform); 
 
 		$displaypod = get_option($atts['dp']);
 		$displaypodOut = '';
@@ -554,100 +566,41 @@ class DisplayPod {
 				$pod = pods($displaypod['pod'], $podid);
 				if(empty($podid)){
 					$pod->find();
-					while ( $pod->fetch() ) {
-
-
-						// Command Replacments
-						$commands = array(
-							'loop',
-							'if',
-						);
-						$commandindex = array();
-						foreach($commands as $command){
-							$commandcount = substr_count($displaypod['template']['htmlCode'], "[".$command." ");
-							$key = 'a';
-							for($i=0; $i<$commandcount;$i++){
-								$commandindex[] = $command.'__'.$i;
-								$displaypod['template']['htmlCode'] = preg_replace("/(\[".$command." )/m", "[".$command.'__'.$i." ", $displaypod['template']['htmlCode'],1);
-							}
-							$commandcount = substr_count($displaypod['template']['htmlCode'], "[/".$command."]");
-							for($i=$commandcount-1; $i>=0; $i--){
-								$displaypod['template']['htmlCode'] = preg_replace("/(\[\/".$command."\])/m", "[/".$command.'__'.$i."]", $displaypod['template']['htmlCode'],1);
-							}							
-						}
-						$regex = $this->get_regex($commandindex);
-						$commandblocks = $this->recursive_matching($regex, $displaypod['template']['htmlCode']);
-						//dump($commandblocks,0);
-						if(!empty($commandblocks)){
-							foreach($commandblocks[2] as $key=>$command){
-								$command = substr($command,0, strpos($command, '__'));
-								//echo $pod->do_magic_tags("{@orders}");
-								//echo $command.' - ';
-								echo $pod->do_magic_tags("{@orders}"); //WONT RUN IN THE SWITCH !!?
-								switch ($command) {
-									case 'loop':
-										echo $pod->do_magic_tags("{@orders}");
-										$commandArgs = shortcode_parse_atts($commandblocks[3][$key]);
-										if(empty($commandArgs[0])){
-											$displaypod['template']['htmlCode'] = str_replace($commandblocks[3][$key], $commandblocks[5][$key], $displaypod['template']['htmlCode']);
-											continue;
-										} // no field to loop by
-										$field = $commandArgs[0];
-										unset($commandArgs[0]); // remove field and keep the params
-										//dump($pod->fields[$field]);
-										//preg_match_all('/({@(.*?)})/m', $commands[5][$key], $tags);
-										
-										//$entries = $pod->fields($field);
-										if(!empty($entries)){
-											//dump($entries['table_info'],0);
-										}
-										//dump($pod->field('orders.items.post_title'),0);
-										/*
-										foreach($entries as $entry){
-											dump($entry->field('product'));
-										}
-										//dump($tags[2],0);
-										foreach ($tags[2] as $value) {
-											$allfields[] = $value;
-										}
-										dump($allfields);
-										dump($pod->field($tags[2][0]),0);
-										//dump($pod->field($tags[2][0]));
-										//dump($pod->field($tags[]));
-										$codeblock = $commands[5][$key];
-										for($l=0; $l < count($entries); $l++){
-											foreach($tags[2] as $tag){
-												//dump($tag);
-												//dump($pod->field($tag),0);	
-											}
-										}
-										//dump($field);
-										//echo $field;
-										//dump($args);
-										$loopcode = str_replace($field.'.', '', $commands[5][$key]);
-										//dump($pod);
-										//$displaypod['template']['htmlCode'] = $this->run_loop_code($pod->fields[$field]['table_info']['pod']['name'], $commandArgs, $loopcode);
-										*/
-										break;
-								}
-							}
-							
-						}
-
-						$displaypodOut .= $pod->do_magic_tags($displaypod['template']['htmlCode']);
-
-
-					}
-				}else{
-					$displaypodOut .= $pod->do_magic_tags($displaypod['template']['htmlCode']);
 				}
 
+				$commands = array(
+					'loop',
+					//'if',
+				);
+				$regex = $this->get_regex($commands);
+				preg_match_all('/' . $regex . '/s', $displaypod['template']['htmlCode'], $used);
 				
-				//echo $pod->template(null, $displaypod['template']['htmlCode']);
-				//echo $displaypod['template']['htmlCode'];
-				//$pod->displayPod = $displaypod;
-				//dump($pod);
-				//dump($displaypod,0);
+				$used_codes = array();
+				foreach($used[2] as $shortcode){
+					if(!empty($used_codes[$shortcode])){continue;} // this code has been done already, continue on.
+					$used_codes[$shortcode] = 1;
+
+					preg_match_all("/(\[".$shortcode."[ |\]]|\[\/".$shortcode."\])/m", $displaypod['template']['htmlCode'], $matches);
+					$aliases = array();
+					foreach($matches[0] as $index=>$code){
+						if(substr($code,0,2) !== '[/'){
+							$alias = '_'.$index.$shortcode;
+							$displaypod['template']['htmlCode'] = preg_replace("/(".preg_quote($code).")/m", "[".$alias.substr($code,(strlen($code)-1),1), $displaypod['template']['htmlCode'],1);
+							$aliases[] = $alias;
+							$commandindex[] = $alias;
+						}else{
+							$alias = array_pop($aliases);
+							$displaypod['template']['htmlCode'] = preg_replace("/(".preg_quote($code,'/').")/m", "[/".$alias."]", $displaypod['template']['htmlCode'],1);
+						}
+					}
+				}
+
+				while( $pod->fetch()){
+					$regex = $this->get_regex($commandindex);
+					$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
+					//$displaypodOut .= $pod->do_magic_tags( $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod) );
+				}
+				
 			break;
 		}
 
@@ -672,12 +625,18 @@ class DisplayPod {
 
 		$labels = array();
 		$html = null;
-
+		$isParent = false;
 		foreach($fields as $field=>$details){
 
 			if(!empty($list)){
 				// Output a list only
-				$html .= '<tr class="pod-field-row"><td class="pod-field-label">'.strtolower($prefix.$details['label']).'</td><td>{@'.$recursive.$details['name'].'}</td><td class="pod-field-name" data-tag="'.$recursive.$details['name'].'">'.$details['type'].'</td></tr>';
+				$loopkey = '';
+				if('pick' == $details['type']){
+					if(!empty($details['pod_id'])){
+						$loopkey = ' pod-field-loop';
+					}
+				}
+				$html .= '<tr class="pod-field-row'.$loopkey.'"><td class="pod-field-label">'.strtolower($prefix.$details['label']).'</td><td>{@'.$recursive.$details['name'].'}</td><td class="pod-field-name" data-tag="'.$recursive.$details['name'].'">'.$details['type'].'</td></tr>';
 				if('pick' == $details['type']){
 					if(!empty($details['table_info']['pod'])){
 						if(!in_array($details['table_info']['pod']['name'], $this->traversed_pods)){

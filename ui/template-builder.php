@@ -31,7 +31,6 @@
                     echo '<li><button type="submit" class="button-primary" value="save">'.__('Save & Close', self::slug).'</button></li>';
                     //echo '<li><button type="submit" class="button" value="close">'.__('Close', self::slug).'</button></li>';
                     echo '<li class="divider-vertical"></li>';
-                    echo '<li><label><input id="toggle-lables" type="checkbox" value="1"> Toggle field name </label></li>';
                     echo '<li id="save-status"></li>';
                 echo '</ul>';
             echo '</div>';
