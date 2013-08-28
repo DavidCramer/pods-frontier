@@ -23,12 +23,16 @@ class DisplayPod {
 	*/
 	var $displaypods_usedcodes = array();
 	 
-	/*
+	/**
 	 * Used shortcodes on a page render
 	*/
 	var $traversed_pods = array();
 	 
-
+	/**
+	 * Styles and Scripts
+	 */
+	var $style_queue = null;
+	var $js_queue = null;
 	/**
 	 * Constructor
 	 */
@@ -431,13 +435,46 @@ class DisplayPod {
 			preg_match_all('/' . $regex . '/s', $post->post_content, $used);
 			if(!empty($used[0])){
 				$this->displaypods_usedcodes = array_merge($this->displaypods_usedcodes, $used);
-				// if set to return used, the return the used array rather than process.
-				//indicates that a display pod is used and we can pull in the css
 				$this->load_file( self::slug . '-frontend', 'css/display.css' );
-				
+
+				foreach($used[3] as $dpod){
+					
+					$atts = shortcode_parse_atts($dpod);
+					//dump($atts);
+					$prepod = get_option($atts['dp']);
+					if(!empty($prepod['template']['cssCode'])){
+						$this->style_queue .= $prepod['template']['cssCode']."\r\n";
+					}
+					if(!empty($prepod['template']['javascriptCode'])){
+						$this->js_queue .= $prepod['template']['javascriptCode']."\r\n";
+					}
+
+				}
+				if(!empty($this->style_queue)){
+					add_action('wp_head',array($this, 'render_displaypod_head'));	
+				}
+				if(!empty($this->js_queue)){
+					add_action('wp_footer',array($this, 'render_displaypod_footer'));	
+				}
 				// add a filter for the content
 				add_filter('the_content',array($this, 'render_displaypod_from_content'));
 			}
+		}
+	}
+
+	function render_displaypod_head(){
+		if(!empty($this->style_queue)){
+			echo "<style type=\"text/css\">\r\n";
+			echo $this->style_queue;
+			echo "</style>\r\n";
+		}		
+	}
+
+	function render_displaypod_footer(){
+		if(!empty($this->js_queue)){
+			echo "<script type=\"text/javascript\">\r\n";
+			echo $this->js_queue;
+			echo "</script>\r\n";
 		}
 	}
 
@@ -487,8 +524,8 @@ class DisplayPod {
 
 							$innerContent = str_replace('{@'.$field_name.'.', '{@', $innerContent);
 							$innerContent = str_replace('loop '.$field_name.'.', 'loop ', $innerContent);
-							$codeblock .= $pod->do_magic_tags( $this->recursive_matching($regex, $innerContent, $entry) );
-							//$codeblock .= $this->recursive_matching($regex, $innerContent, $entry);
+							//$codeblock .= $pod->do_magic_tags( $this->recursive_matching($regex, $innerContent, $entry) );
+							$codeblock .= $this->recursive_matching($regex, $innerContent, $entry);
 						}
 					}
 				}
@@ -502,7 +539,15 @@ class DisplayPod {
 			foreach ($tags[2] as $tagkey => $tagvalue) {
 				if(isset($pod->fields[$tagvalue]) || isset($pod->pod_data['object_fields'][$tagvalue])){
 					$content = str_replace($tags[1][$tagkey], $pod->display($tagvalue), $content);
+				}else{
+					if(false !== strpos($tagvalue, '.')){
+						$parts = explode('.', $tagvalue);
+						if(isset($pod->fields[$parts[0]])){
+							$content = str_replace($tags[1][$tagkey], $pod->display($tagvalue), $content);
+						}
+					}
 				}
+
 			}
 		}
 		return $content;
@@ -524,6 +569,7 @@ class DisplayPod {
 				$podid = $atts['id'];
 			}
 			$pod = pods($displaypod['pod'][0], $podid);
+			if(empty($pod)){ return; }
 			$pod->displayPod = $displaypod;
 			if(!empty($displaypod['form_fields'])){
 				$fields = array();
@@ -597,8 +643,8 @@ class DisplayPod {
 
 				while( $pod->fetch()){
 					$regex = $this->get_regex($commandindex);
-					$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
-					//$displaypodOut .= $pod->do_magic_tags( $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod) );
+					//$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
+					$displaypodOut .= $pod->do_magic_tags( $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod) );
 				}
 				
 			break;
@@ -660,8 +706,9 @@ class DisplayPod {
 			}else{
 
 				$labels[$details['name']] = $details['label'];
+				//dump($details);
 
-	            $html .= '<div class="trayItem formField field_'.$field.' button" data-field="'.$details['name'].'" data-pod="'.$pod['name'].'">';
+	            $html .= '<div class="trayItem formField field_'.$field.' button" data-field="'.$details['name'].'">';
 	                $html .= '<i class="fieldEdit">';
 	                    $html .= '<span class="control delete" data-request="removeField" data-field="field_'.$field.'"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
 	                    $html .= ' | ';
@@ -684,8 +731,7 @@ class DisplayPod {
 		$html .= '</div>';
 		return array(
 			"html"	=> $html,
-			"labels"=> $labels,
-			"pod"	=> $pod
+			"labels"=> $labels
 		);
   	}
 
@@ -695,9 +741,9 @@ class DisplayPod {
 		if(empty($pod)){return;}
 
 		if(empty($list)){
-			$html = '<div class="label pod_'.$pod['name'].' trigger" data-pod="'.$pod['name'].'" data-request="resetSortables" data-event="none" data-autoload="true">'.$pod['label'].'<i class="icon-remove-sign removePodGroup" style="float:right;"></i></div>';
-			$html .= '<div data-pod="'.$pod['name'].'">';
-			$html .= '<input name="pod[]" value="'.$pod['name'].'" type="hidden" data-pod="'.$pod['name'].'">';
+			$html = '<div class="label pod_'.$pod->pod_data['name'].' trigger" data-pod="'.$pod->pod_data['name'].'" data-request="resetSortables" data-event="none" data-autoload="true">'.$pod->pod_data['label'].'<i class="icon-remove-sign removePodGroup" style="float:right;"></i></div>';
+			$html .= '<div data-pod="'.$pod->pod_data['name'].'">';
+			$html .= '<input name="pod[]" value="'.$pod->pod_data['name'].'" type="hidden" data-pod="'.$pod->pod_data['name'].'">';
 		}else{
 			$html = '<table class="wp-list-table widefat"><thead><tr><th>Field</th><th>Magic Tag</th><th>Field Type</th></tr></thead><tbody>';
 		}
