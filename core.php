@@ -502,55 +502,64 @@ class DisplayPod {
 	}
   
 	function recursive_matching($regex, $content, $pod){
-		//echo $level.' - ';
 		preg_match_all('/' . $regex . '/s', $content, $found);
 		if(!empty($found[0])){
-			// send back for a deaper check
-			//dump($found);
-
 			foreach($found[2] as $key=>$command){
-				if(!empty($found[5])){
-
-					$field_name = trim($found[3][$key]);
-					$params = array(
-						'name' 		=> $field_name,
-						'output'	=> 'pods'
-					);
-					$relations = $pod->field($params);
-					$codeblock = null;
-				
-					foreach($relations as $entry){
-						foreach($found[5] as $codekey=>$innerContent){
-
-							$innerContent = str_replace('{@'.$field_name.'.', '{@', $innerContent);
-							$innerContent = str_replace('loop '.$field_name.'.', 'loop ', $innerContent);
-							//$codeblock .= $pod->do_magic_tags( $this->recursive_matching($regex, $innerContent, $entry) );
-							$codeblock .= $this->recursive_matching($regex, $innerContent, $entry);
-						}
-					}
+				$field = trim($found[3][$key]);
+				$fields = explode('.', $field);
+				// render like tags in this template part.
+				if(false !== strpos($found[5][$key], '{@'.$field.'}')){
+					$found[5][$key] = str_replace('{@'.$field.'}', $pod->display($field), $found[5][$key], $like_tags);
+					unset($pod->row[$field]);
 				}
 
-				$content = str_replace($found[0][$key], $codeblock, $content);
-			}
-		}
-		// Maunal approace to prevent removing lower tags.
-		preg_match_all( '/({@(.*?)})/m', $content, $tags );
-		if(!empty($tags[2])){
-			foreach ($tags[2] as $tagkey => $tagvalue) {
-				if(isset($pod->fields[$tagvalue]) || isset($pod->pod_data['object_fields'][$tagvalue])){
-					$content = str_replace($tags[1][$tagkey], $pod->display($tagvalue), $content);
-				}else{
-					if(false !== strpos($tagvalue, '.')){
-						$parts = explode('.', $tagvalue);
-						if(isset($pod->fields[$parts[0]])){
-							$content = str_replace($tags[1][$tagkey], $pod->display($tagvalue), $content);
+				$codeblocks = null;
+				foreach($fields as $field_name){
+					if(!empty($found[5])){
+						$params = array(
+							'name' 		=> $field_name,
+							'output'	=> 'pods'
+						);
+
+						$relations = $pod->field($params);						
+						$codeblock = null;
+						foreach($relations as $entry){
+
+								$innerContent = $found[5][$key];								
+								if(isset($fields[1])){
+									$innerContent = '['.$command.' '.$fields[1].']'.$innerContent.'[/'.$command.']';
+								}
+								preg_match_all( '/({@(.*?)})/m', $innerContent, $tags );
+								if(!empty($tags[2])){
+									foreach ($tags[2] as $tagkey => $tagvalue) {
+										if(false !== strpos($tagvalue, '.')){
+											$parts = explode('.', $tagvalue);
+											if($parts[0] == $field_name && count($parts) == 2){
+												if(!in_array($parts[1], $fields)){
+													$innerContent = str_replace($tags[1][$tagkey], $entry->display($parts[1]), $innerContent);
+													unset($pod->row[$tagvalue]);
+												}
+											}
+										}
+									}
+								}
+								// Rename tags to upper level
+								$innerContent = str_replace('{@'.$field_name.'.', '{@', $innerContent);
+								$innerContent = str_replace('loop '.$field_name.'.', 'loop ', $innerContent);
+								$codeblock .= $this->recursive_matching($regex, $innerContent, $entry);
+
 						}
+						$codeblocks .= $codeblock;
+						// clear relation from pod.
+						unset($pod->row[$field_name]);
 					}
 				}
-
+				$content = str_replace($found[0][$key], $codeblocks, $content);
+				//break;
 			}
 		}
-		return $content;
+		//return $content;
+		return $pod->do_magic_tags( $content );
 	}
 
 	function render_displaypod($atts, $index=0){
@@ -624,6 +633,7 @@ class DisplayPod {
 				$used_codes = array();
 				foreach($used[2] as $shortcode){
 					if(!empty($used_codes[$shortcode])){continue;} // this code has been done already, continue on.
+					
 					$used_codes[$shortcode] = 1;
 
 					preg_match_all("/(\[".$shortcode."[ |\]]|\[\/".$shortcode."\])/m", $displaypod['template']['htmlCode'], $matches);
@@ -640,31 +650,25 @@ class DisplayPod {
 						}
 					}
 				}
-
-				while( $pod->fetch()){
+				if(empty($podid)){
+					while( $pod->fetch()){					
+						if(!empty($commandindex)){
+							$regex = $this->get_regex($commandindex);
+							$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
+							//$displaypodOut .= $pod->do_magic_tags( $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod) );
+						}else{
+							$displaypodOut .= $pod->do_magic_tags( $displaypod['template']['htmlCode'] );
+						}
+					}
+				}else{
 					$regex = $this->get_regex($commandindex);
-					//$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
-					$displaypodOut .= $pod->do_magic_tags( $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod) );
+					$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
 				}
-				
 			break;
 		}
 
 		return $displaypodOut;
 		//return $displaypodOut;
-  	}
-
-  	function run_loop_code($podname, $commandArgs, $code){
-  		//dump($code);
-  		$pod = pods($podname, $commandArgs, true);
-  		if(false === $pod){return null;}
-		if(0 === $pod->total()){ return null;}
-		$out = null;
-		while ( $pod->fetch() ) {
-			echo $pod->do_magic_tags($code);
-		}
-  		//dump($pod);
-  		//dump($pod->field($field, true, false));
   	}
 
   	function build_pod_fieldList($fields, $list = false, $recursive = null, $prefix = null){

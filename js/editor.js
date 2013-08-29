@@ -18,7 +18,6 @@
 				prefix = token.string.slice(6),
 				start = token.start;
 		}
-		console.log(prefix);
 		jQuery(typeclass).each(function(){
 			var label = jQuery(this).find('.pod-field-label').html(),
 			field = jQuery(this).find('.pod-field-name').data('tag');
