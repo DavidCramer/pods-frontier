@@ -523,31 +523,33 @@ class DisplayPod {
 
 						$relations = $pod->field($params);						
 						$codeblock = null;
-						foreach($relations as $entry){
+						if(is_array($relations)){
+							foreach($relations as $entry){
 
-								$innerContent = $found[5][$key];								
-								if(isset($fields[1])){
-									$innerContent = '['.$command.' '.$fields[1].']'.$innerContent.'[/'.$command.']';
-								}
-								preg_match_all( '/({@(.*?)})/m', $innerContent, $tags );
-								if(!empty($tags[2])){
-									foreach ($tags[2] as $tagkey => $tagvalue) {
-										if(false !== strpos($tagvalue, '.')){
-											$parts = explode('.', $tagvalue);
-											if($parts[0] == $field_name && count($parts) == 2){
-												if(!in_array($parts[1], $fields)){
-													$innerContent = str_replace($tags[1][$tagkey], $entry->display($parts[1]), $innerContent);
-													unset($pod->row[$tagvalue]);
+									$innerContent = $found[5][$key];								
+									if(isset($fields[1])){
+										$innerContent = '['.$command.' '.$fields[1].']'.$innerContent.'[/'.$command.']';
+									}
+									preg_match_all( '/({@(.*?)})/m', $innerContent, $tags );
+									if(!empty($tags[2])){
+										foreach ($tags[2] as $tagkey => $tagvalue) {
+											if(false !== strpos($tagvalue, '.')){
+												$parts = explode('.', $tagvalue);
+												if($parts[0] == $field_name && count($parts) == 2){
+													if(!in_array($parts[1], $fields)){
+														$innerContent = str_replace($tags[1][$tagkey], $entry->display($parts[1]), $innerContent);
+														unset($pod->row[$tagvalue]);
+													}
 												}
 											}
 										}
 									}
-								}
-								// Rename tags to upper level
-								$innerContent = str_replace('{@'.$field_name.'.', '{@', $innerContent);
-								$innerContent = str_replace('loop '.$field_name.'.', 'loop ', $innerContent);
-								$codeblock .= $this->recursive_matching($regex, $innerContent, $entry);
+									// Rename tags to upper level
+									$innerContent = str_replace('{@'.$field_name.'.', '{@', $innerContent);
+									$innerContent = str_replace('loop '.$field_name.'.', 'loop ', $innerContent);
+									$codeblock .= $this->recursive_matching($regex, $innerContent, $entry);
 
+							}
 						}
 						$codeblocks .= $codeblock;
 						// clear relation from pod.
@@ -569,6 +571,7 @@ class DisplayPod {
 		if(empty($atts['dp'])){return;} // continue if the id is not there.
 
 		$displaypod = get_option($atts['dp']);
+		unset($atts['dp']);
 		$displaypodOut = '';
 		switch($displaypod['displaypod_type']){
 			case 'form':
@@ -614,12 +617,8 @@ class DisplayPod {
 			break;
 			case 'template':
 				// TEMPLATE RENDER
-				$podid = null;
-				if(!empty($atts['id'])){
-					$podid = $atts['id'];
-				}
-				$pod = pods($displaypod['pod'], $podid);
-				if(empty($podid)){
+				$pod = pods($displaypod['pod'], $atts);
+				if(empty($atts['id'])){
 					$pod->find();
 				}
 
@@ -650,7 +649,7 @@ class DisplayPod {
 						}
 					}
 				}
-				if(empty($podid)){
+				if(empty($atts['id'])){
 					while( $pod->fetch()){					
 						if(!empty($commandindex)){
 							$regex = $this->get_regex($commandindex);
