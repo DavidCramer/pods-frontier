@@ -456,8 +456,7 @@ class DisplayPod {
 				if(!empty($this->js_queue)){
 					add_action('wp_footer',array($this, 'render_displaypod_footer'));	
 				}
-				// add a filter for the content
-				add_filter('the_content',array($this, 'render_displaypod_from_content'));
+				add_shortcode('displaypod', array($this, 'render_displaypod'));
 			}
 		}
 	}
@@ -476,23 +475,6 @@ class DisplayPod {
 			echo $this->js_queue;
 			echo "</script>\r\n";
 		}
-	}
-
-  	// Render out the displaypod
-	function render_displaypod_from_content($content){
-
-		if(empty($this->displaypods_usedcodes[0])){return $content;};
-
-		foreach($this->displaypods_usedcodes[0] as $index=>&$code){
-
-			$atts = shortcode_parse_atts($this->displaypods_usedcodes[3][$index]);
-			
-			$displaypodOut = $this->render_displaypod($atts, $index);
-			
-			$content = str_replace($code, $displaypodOut, $content);
-		}
-		return $content;
-		// you can now access the attribute values using $attr1 and $attr2
 	}
 
 	function render_form($a,$b,$c){
@@ -519,18 +501,16 @@ class DisplayPod {
 						$params = array(
 							'name' 		=> $field_name,
 							'output'	=> 'pods'
-						);
-
+						);						
 						$relations = $pod->field($params);						
 						$codeblock = null;
 						if(is_array($relations)){
-							foreach($relations as $entry){
-
+							foreach($relations as $entry){									
 									$innerContent = $found[5][$key];								
 									if(isset($fields[1])){
 										$innerContent = '['.$command.' '.$fields[1].']'.$innerContent.'[/'.$command.']';
 									}
-									preg_match_all( '/({@(.*?)})/m', $innerContent, $tags );
+									preg_match_all( '/({@(.*?)})/m', $innerContent, $tags );									
 									if(!empty($tags[2])){
 										foreach ($tags[2] as $tagkey => $tagvalue) {
 											if(false !== strpos($tagvalue, '.')){
@@ -543,7 +523,7 @@ class DisplayPod {
 												}
 											}
 										}
-									}
+									}									
 									// Rename tags to upper level
 									$innerContent = str_replace('{@'.$field_name.'.', '{@', $innerContent);
 									$innerContent = str_replace('loop '.$field_name.'.', 'loop ', $innerContent);
