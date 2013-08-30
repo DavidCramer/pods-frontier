@@ -83,8 +83,8 @@ if ( isset( $_POST[ '_pods_nonce' ] ) ) {
                         // control group
                         $layout->append('<div class="control-group">', $pod->displayPod['fields'][$field['name']]['location']);
                         // Label
-                        //if($pod->displayPod['fields'][$field['name']]['config'])
-                        if(!empty($pod->displayPod['fields'][$field['name']]['config']['show_lable'])){
+                        //if($pod->displayPod['fields'][$field['name']]['params'])
+                        if(!empty($pod->displayPod['fields'][$field['name']]['params']['show_lable'])){
                             $fieldlabel = array_merge($field, array('class' => 'control-label'));
                             $layout->append(PodsForm::label( 'pods_field_' . $field[ 'name' ], $field[ 'label' ], $field[ 'help' ], $fieldlabel ), $pod->displayPod['fields'][$field['name']]['location']);
                         }
@@ -100,13 +100,13 @@ if ( isset( $_POST[ '_pods_nonce' ] ) ) {
                         if(!in_array($field[ 'type' ], $smallFields)){
                             $formfield['class'] = 'input-block-level';
                         }
-                        if('none' != $pod->displayPod['fields'][$field['name']]['config']['placeholder']){
-                            $formfield['attributes']['placeholder'] = $field[$pod->displayPod['fields'][$field['name']]['config']['placeholder']];
+                        if('none' != $pod->displayPod['fields'][$field['name']]['params']['placeholder']){
+                            $formfield['attributes']['placeholder'] = $field[$pod->displayPod['fields'][$field['name']]['params']['placeholder']];
                         }
                         $layout->append(PodsForm::field( 'pods_field_' . $field[ 'name' ], $pod->field( array( 'name' => $field[ 'name' ], 'in_form' => true ) ), $field[ 'type' ], $formfield, $pod, $pod->id() ), $pod->displayPod['fields'][$field['name']]['location']);
                         
                         // form caption
-                        if(!empty($pod->displayPod['fields'][$field['name']]['config']['show_description'])){
+                        if(!empty($pod->displayPod['fields'][$field['name']]['params']['show_description'])){
                             $formcaption = array_merge($field, array('class' => 'help-block'));
                             $layout->append(PodsForm::comment( 'pods_field_' . $field[ 'name' ], null, $formcaption ), $pod->displayPod['fields'][$field['name']]['location']);
                         }

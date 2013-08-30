@@ -1,48 +1,64 @@
 <div class="panel">
     <button id="addRowFrom" type="button" class="button-primary"><?php echo __('Add Row', self::slug); ?></button>
 <?php
+    if($_GET['type'] == 'form'){
+        //accordian style
+        $trayClass = 'forms';
         //Get pods
         $api = pods_api();
         $_pods = $api->load_pods();
 
         
-            echo '<select name="data[pod]" id="selectPod" class="trigger" data-request="setPodSrc" data-event="change" />';
-            echo '<option value="">Select Pod to Add</option>';
+            echo '<select name="data[pod]" id="selectPod" class="trigger pod-selector" data-request="setPodSrc" data-event="change" />';
+            echo '<option value="">Select Pod to Use</option>';
             foreach($_pods as $pod){
                 echo '<option value="'.$pod['name'].'">'.$pod['label'].'</option>';
             }
             echo '</select>';
         
-    ?> <button id="addPod" type="button" class="button trigger" data-action="sfbuilder" data-before="isPodUsed" data-process="podFields" data-target="#fieldTray" data-target-insert="append" data-active-class="none"><?php echo __('Add Pod', self::slug); ?></button>
-
+    ?> <button id="addPod" type="button" class="button trigger" data-action="sfbuilder" data-before="isPodUsed" data-process="podFields" data-target="#fieldTray" data-target-insert="html" data-active-class="none"><?php echo __('Use Pod', self::slug); ?></button> <?php
+    }else{
+        $trayClass = 'fieldAccordian';
+    }
+?>
 </div>
 <div class="row">
     <div class="span2">
-        <div id="fieldTray" class="fieldTray">
+        <div id="fieldTray" class="fieldTray <?php echo $trayClass; ?>">
             <?php
-            foreach($displaypods as $id=>$element){
-                $displaypodelements[$element['displaypod_type']][$id] = $element['name'];
-            }
-            
-            foreach($displaypodelements as $base=>$displaypodelement){
-
-                echo '<div class="label">'.__(ucwords($base), self::slug).'</div>';
-                echo '<div>';
-                foreach($displaypodelement as $key=>$field){
-                    if($key === $displaypod['displaypod_id']){continue;}
-
-                    echo '<div class="trayItem formField button" data-id="'.$key.'">';
-                        echo '<i class="fieldEdit">';
-                            echo '<span class="control delete" data-request="removeField"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
-                            echo ' | ';
-                            echo '<span class="control edit" data-request="toggleConfig"><i class="icon-cog"></i> '.__('Edit', self::slug).'</span>';
-                            echo '</i>';
-                        echo '<span class="fieldType description">'.__(ucwords($base), self::slug).'</span>';    
-                        echo '<span class="fieldName">'.__($field, self::slug).'</span>';
-                        
-                    echo '</div>';
+            if($_GET['type'] == 'form'){
+                if(!empty($displaypod['pod'])){
+                    $fields = self::load_pods_fields($displaypod['pod']);
+                    echo $fields['html'];
+                    $displaypods = $fields['field'];
+                }                
+            }else{
+                foreach($displaypods as $id=>$element){
+                    $layoutElements[$element['displaypod_type']][$id] = $element['name'];
                 }
-                echo '&nbsp;</div>';
+                
+                foreach($layoutElements as $base=>$displaypodelement){
+
+                    echo '<div class="label">'.__(ucwords($base), self::slug).'</div>';
+                    echo '<div>';
+                    foreach($displaypodelement as $key=>$field){
+                        if($key === $displaypod['displaypod_id']){continue;}
+                        $pod = null;
+                        if(isset($displaypods[$key]['pod'])){
+                            $pod = ' for '.$displaypods[$key]['pod'];
+                        }
+                        echo '<div class="trayItem formField button" data-id="'.$key.'" data-type="'.$base.'">';
+                            echo '<i class="fieldEdit">';
+                                echo '<span class="control delete" data-request="removeField"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
+                                echo ' | ';
+                                echo '<span class="control edit" data-request="toggleConfig"><i class="icon-cog"></i> '.__('Edit', self::slug).'</span>';
+                                echo '</i>';
+                            echo '<span class="fieldType description">'.__(ucwords($base), self::slug).$pod.'</span>';    
+                            echo '<span class="fieldName">'.__($field, self::slug).'</span>';                        
+                        echo '</div>';
+                    }
+                    echo '&nbsp;</div>';
+                }
             }
             ?>
         </div>
@@ -58,10 +74,10 @@
         $Rows = $displaypod['form_layout'];
         //dump($displaypod);
         // build positioning
-        $displaypodFields = array();
+        $layoutStructure = array();
         if(!empty($displaypod['layout_elements'])){
             foreach($displaypod['layout_elements'] as $id=>$cfg){
-                $displaypodFields[$cfg['position']][] = $id; 
+                $layoutStructure[$cfg['position']][] = $id; 
             }
         }
     }
@@ -84,14 +100,16 @@
                     }
                     echo "<div class=\"fieldHolder\">";
                     // the elements for that row here
-                    if(!empty($displaypodFields[$rowIndex.':'.$colindex])){
-                        foreach($displaypodFields[$rowIndex.':'.$colindex] as $displaypodField){
-                            
-                            $displaypodelement=explode('-',$displaypod['layout_elements'][$displaypodField]['dp']);
+                    if(!empty($layoutStructure[$rowIndex.':'.$colindex])){
+                        foreach($layoutStructure[$rowIndex.':'.$colindex] as $displaypodElement){
 
-                            echo '<div data-type="standard-address" class="formField button ui-draggable" id="wrapper_'.$displaypodField.'" style="display: block;">';
+                            $pod = null;
+                            if(isset($displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['pod'])){
+                                $pod = ' for '.$displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['pod'];
+                            }                            
+                            echo '<div data-type="standard-address" class="formField button ui-draggable" id="wrapper_'.$displaypodElement.'" style="display: block;">';
                                 echo '<i class="fieldEdit">';
-                                    echo '<span data-request="removeField" class="delete trigger">';
+                                    echo '<span data-request="removeField" class="delete trigger" data-field="field_'.$displaypod['layout_elements'][$displaypodElement]['element'].'">';
                                         echo '<i class="icon-remove"></i> Remove';
                                     echo '</span>';
                                     echo ' | ';
@@ -99,40 +117,30 @@
                                         echo '<i class="icon-cog"></i> Edit';
                                     echo '</span>';
                                 echo '</i>';
-                                echo '<span class="fieldType description">'.__(ucwords($displaypods[$displaypod['layout_elements'][$displaypodField]['dp']]['displaypod_type']), self::slug).'</span>';
-                                echo '<span class="fieldName">'.$displaypods[$displaypod['layout_elements'][$displaypodField]['dp']]['name'].'</span>';
-                                echo '<input type="hidden" value="'.$displaypod['layout_elements'][$displaypodField]['position'].'" id="'.$displaypodField.'" name="layout_elements['.$displaypodField.'][position]" class="fieldLocation">';
-                                echo '<input type="hidden" value="'.$displaypod['layout_elements'][$displaypodField]['dp'].'" name="layout_elements['.$displaypodField.'][dp]">';
-                                echo '<div id="'.$displaypodField.'_panel"class="config-panel hidden">';
+                                echo '<span class="fieldType description">'.__(ucwords($displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['displaypod_type']), self::slug).$pod.'</span>';
+                                echo '<span class="fieldName">'.$displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['name'].'</span>';
+                                echo '<input type="hidden" value="'.$displaypod['layout_elements'][$displaypodElement]['position'].'" id="'.$displaypodElement.'" name="layout_elements['.$displaypodElement.'][position]" class="fieldLocation">';
+                                echo '<input type="hidden" value="'.$displaypod['layout_elements'][$displaypodElement]['element'].'" name="layout_elements['.$displaypodElement.'][element]">';
+                                echo '<div id="'.$displaypodElement.'_panel" class="config-panel hidden">';
+
+                                    // TEMPLATE SETUP
+                                switch ($displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['displaypod_type']) {
+                                    case 'template':
+
+                                        echo $this->template_config_form($displaypodElement,$displaypod['layout_elements'][$displaypodElement], $displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['pod']);
+                                        break;
+                                    
+                                    case 'field':
+                                        echo $this->field_config_form($displaypodElement,$displaypod['layout_elements'][$displaypodElement]);
+                                        break;
+
+                                    default:
+                                        # code...
+                                        break;
+                                }
+                                    //dump($displaypods[$displaypod['layout_elements'][$displaypodElement]['element']],0);
 
 
-                                    //$displaypodelement = explode('-', $_POST['dp']);
-                                    if(empty($displaypodelementConfigs[$displaypodelement[0]])){
-                                        if(file_exists(plugin_dir_path(dirname(__FILE__)).'fields/'.$displaypodelement[0].'/config.json')){
-                                            $data = json_decode(file_get_contents(plugin_dir_path(dirname(__FILE__)).'fields/'.$displaypodelement[0].'/config.json'),true);
-                                            $displaypodelementConfigs[$displaypodelement[0]] = $data['fields'];
-                                        }
-                                    }
-                                    if(!empty($displaypodelementConfigs[$displaypodelement[0]][$displaypodelement[1]])){
-                                        echo $this->configOption('fieldlabel_'.$displaypodField, 'layout_elements['.$displaypodField.'][config][label]', 'text', 'Field Label', $displaypod['layout_elements'][$displaypodField]['config']['label'], false, 'class="trigger" data-request="instaLable" data-event="keyup" data-parent="wrapper_'.$displaypodField.'" data-autoload="true"');
-                                    }
-                                    if(!empty($displaypod['base_pod'])){
-                                        $pod = pods($displaypod['base_pod']);
-
-                                        $podfields = $pod->fields();
-                                        $fields = array(
-                                            '_null' => _('Associate to a pod field', self::slug),
-                                        );
-                                        foreach($podfields as $field=>$details){
-                                            $fields[$field] = $details['label'];
-                                        }
-                                        if(!empty($fields)){
-                                            echo $this->configOption('podfield_'.$displaypodField, 'layout_elements['.$displaypodField.'][config][pod_field]', 'dropdown', 'Pod Field', $displaypod['layout_elements'][$displaypodField]['config']['pod_field'], 'Associate to Pod Field', $fields,'internal-config-option');
-                                        }
-                                    }
-
-
-                                    //$this->build_configPanel();
                                 echo '</div>';
                              echo '</div>';
                         }
@@ -177,7 +185,7 @@
 jQuery(document).ready(function(){
 
 
-    jQuery('#fieldTray').accordion();
+    jQuery('.fieldAccordian').accordion();
 
 
     jQuery('#addRowFrom').click(function(){
@@ -279,7 +287,7 @@ jQuery(document).ready(function(){
             });
         }
         jQuery(this).parent().parent().remove();
-        jQuery('#fieldTray').accordion("destroy").accordion();
+        jQuery('.fieldAccordian').accordion("destroy").accordion();
     });
     
 
@@ -409,19 +417,21 @@ resetSortables = function resetSortables(){
     jQuery( ".fieldHolder" ).droppable({
         accept: ".trayItem",
         drop: function( event, ui ) {
-            var id= "field" + (((1+Math.random())*0x10000)|0).toString(16).substring(1)+(((1+Math.random())*0x10000)|0).toString(16).substring(1),
+            var id= "element" + (((1+Math.random())*0x10000)|0).toString(16).substring(1)+(((1+Math.random())*0x10000)|0).toString(16).substring(1),
                 row = parseFloat(jQuery(this).parent().parent().attr('ref')),
                 col = jQuery(this).parent().attr('ref'),
-                pod = ui.draggable.data('pod'),
-                field = ui.draggable.data('field');
+                type = ui.draggable.data('type'),
+                element = ui.draggable.data('id');
             //var field = jQuery('<input class="fieldLocation" type="hidden" name="form_fields['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="form_fields['+id+'][type]" value="'+fieldType+'" /><div class="config-panel hidden trigger" data-before="alert" data-action="sfbuilder" data-process="fieldConfig" data-type="'+fieldType+'" data-id="'+id+'" data-pod="'+pod+'" data-target="'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="null"></div>');
-            var field = jQuery('<input class="fieldLocation" type="hidden" name="form_fields['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="form_fields['+id+'][pod]" value="'+pod+'" /><input type="hidden" name="form_fields['+id+'][field]" value="'+field+'" /><div class="config-panel hidden trigger" data-action="sfbuilder" data-process="fieldConfig" data-id="'+id+'" data-pod="'+pod+'" data-target="#'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="load"></div>');
+            var field = jQuery('<input class="fieldLocation" type="hidden" name="layout_elements['+id+'][position]" id="'+id+'" value="'+row+':'+col+'" /><input type="hidden" name="layout_elements['+id+'][element]" value="'+element+'" /><div class="config-panel hidden trigger" data-action="sfbuilder" data-process="fieldConfig" data-id="'+id+'" data-type="'+type+'" data-target="#'+id+'_panel" data-autoload="true" id="'+id+'_panel" data-event="load"></div>');
             ui.draggable.clone().removeClass('trayItem').attr('id', 'wrapper_'+id).append(field).appendTo(this).find('.control').addClass('trigger');
             jQuery('.trigger').baldrick({
                 request: ajaxurl
             });
             toggleConfig();
-            ui.draggable.fadeOut(100);
+            if(type !== 'template' && type !== 'pod'){
+                ui.draggable.fadeOut(100);
+            }
         }
     }).sortable({
         appendTo: "body",
@@ -452,9 +462,9 @@ resetSortables = function resetSortables(){
             jQuery(this).find('.fieldLocation').val(row+':'+col);
         }
     });        
-    jQuery('#fieldTray').accordion("destroy").accordion();//.accordion("refresh");
+    jQuery('.fieldAccordian').accordion("destroy").accordion();//.accordion("refresh");
     jQuery('#selectPod').val(null);
-                
+    
 };
 
 
@@ -474,7 +484,7 @@ resetSortables = function resetSortables(){
         
     })
 
-    jQuery('#fieldTray').on('click','.removePodGroup', function(){
+    jQuery('.fieldAccordian').on('click','.removePodGroup', function(){
         var clicked = jQuery(this);
         jQuery("[data-pod='"+clicked.parent().data('pod')+"']").remove();
         
@@ -485,8 +495,9 @@ resetSortables = function resetSortables(){
 
 resetSortables();
 // hide used fields
-jQuery('#formLayoutBoard').find('.delete').each(function(){
+jQuery('#formLayoutBoard').find('.delete').each(function(){ 
     master = jQuery(this).data('field');
+    console.log(master);
     jQuery('.'+master).hide();
 });
 
@@ -511,7 +522,7 @@ function removeField(element){
     field.fadeOut(200, function(){
         jQuery(this).remove();
         jQuery('.'+master).fadeIn(100, function(){
-            jQuery('#fieldTray').accordion("destroy").accordion();
+            jQuery('.fieldAccordian').accordion("destroy").accordion();
         }).removeAttr('style');
         
     });
@@ -524,6 +535,17 @@ function bindtriggers(){
 
 jQuery(function($){
     bindtriggers();
+    jQuery('#formLayoutBoard').on('click', '.config-tab li a', function(e){
+        e.preventDefault();
+        var clicked = $(this),
+            parent = $('#'+clicked.data('ref')+'_panel'),
+            mode = $('#'+clicked.data('ref')+'_mode');
+        parent.find('.config-tab li').removeClass('active');
+        parent.find('.config-tab-content').hide();
+        $(clicked.attr('href')).show();
+        clicked.parent().addClass('active');
+        mode.val(clicked.data('mode'));
+    });
 })
 
 function isPodUsed(el){
@@ -536,6 +558,7 @@ function isPodUsed(el){
 function setPodSrc(el){
     jQuery('#addPod').data('pod', jQuery(el).val());
 }
+
 
 
 </script>

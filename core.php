@@ -115,6 +115,9 @@ class DisplayPod {
 				'name' 				=> $postdata['displaypod_name'],
 				'displaypod_type'	=> $postdata['displaypod_type']
 			);
+			if(isset($postdata['pod'])){
+				$displaypods[$postdata['displaypod_id']]['pod'] = $postdata['pod'];
+			}
 			update_option('displayPods_registry', $displaypods);
 			wp_redirect('admin.php?page='.DisplayPod::slug.'&tab='.$postdata['displaypod_type']);
 			exit;
@@ -209,7 +212,7 @@ class DisplayPod {
 										if($class=='alternate'){$class='';}else{$class='alternate';}
 										echo '<tr class="'.$class.'">';
 											echo '<td>'.$displaypod['name'];
-												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
+												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&tab='.$displaypod['displaypod_type'].'&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
 											echo '</td>';
 											echo '<td>[displaypod dp='.$id.']</td>';
 											//echo '<td>'.$displaypod['pod'].'</td>';
@@ -246,7 +249,7 @@ class DisplayPod {
 										if($class=='alternate'){$class='';}else{$class='alternate';}
 										echo '<tr class="'.$class.'">';
 											echo '<td>'.$displaypod['name'];
-												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
+												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&tab='.$displaypod['displaypod_type'].'&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
 											echo '</td>';
 											echo '<td>[displaypod dp='.$id.']</td>';
 											//echo '<td>'.$displaypod['pod'].'</td>';
@@ -284,7 +287,7 @@ class DisplayPod {
 										if($class=='alternate'){$class='';}else{$class='alternate';}
 										echo '<tr class="'.$class.'">';
 											echo '<td>'.$displaypod['name'];
-												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
+												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&tab='.$displaypod['displaypod_type'].'&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
 											echo '</td>';
 											echo '<td>[displaypod dp='.$id.'] <span class="description">add id=itemid for an edit entry</span></td>';
 											//echo '<td>'.$displaypod['pod'].'</td>';
@@ -434,20 +437,38 @@ class DisplayPod {
 		foreach($wp_query->posts as &$post){
 			preg_match_all('/' . $regex . '/s', $post->post_content, $used);
 			if(!empty($used[0])){
-				$this->displaypods_usedcodes = array_merge($this->displaypods_usedcodes, $used);
-				$this->load_file( self::slug . '-frontend', 'css/display.css' );
+				$this->displaypods_usedcodes = array_merge($this->displaypods_usedcodes, $used);				
 
 				foreach($used[3] as $dpod){
 					
-					$atts = shortcode_parse_atts($dpod);
-					//dump($atts);
+					$atts = shortcode_parse_atts($dpod);					
 					$prepod = get_option($atts['dp']);
-					if(!empty($prepod['template']['cssCode'])){
-						$this->style_queue .= $prepod['template']['cssCode']."\r\n";
+					if($prepod['displaypod_type'] == 'layout'){
+						if(!empty($prepod['layout_elements'])){
+							foreach($prepod['layout_elements'] as $element){
+								$elementconfig = get_option($element['element']);
+								if(!empty($elementconfig)){
+									if(!empty($elementconfig['template']['cssCode'])){
+										$this->style_queue .= $elementconfig['template']['cssCode']."\r\n";
+									}
+									if(!empty($elementconfig['template']['javascriptCode'])){
+										$this->js_queue .= $elementconfig['template']['javascriptCode']."\r\n";
+									}
+								}
+							}
+
+						}
+					}elseif($prepod['displaypod_type'] == 'template'){
+						if(!empty($prepod['template']['cssCode'])){
+							$this->style_queue .= $prepod['template']['cssCode']."\r\n";
+						}
+						if(!empty($prepod['template']['javascriptCode'])){
+							$this->js_queue .= $prepod['template']['javascriptCode']."\r\n";
+						}
+					}elseif($prepod['displaypod_type'] == 'form'){
+						$this->load_file( self::slug . '-frontend', 'css/display.css' );
 					}
-					if(!empty($prepod['template']['javascriptCode'])){
-						$this->js_queue .= $prepod['template']['javascriptCode']."\r\n";
-					}
+
 
 				}
 				if(!empty($this->style_queue)){
@@ -546,7 +567,6 @@ class DisplayPod {
 
 	function render_displaypod($atts, $index=0){
 			
-
 		// parse them atts!		
 		if(empty($atts['dp'])){return;} // continue if the id is not there.
 
@@ -560,15 +580,17 @@ class DisplayPod {
 			if(!empty($atts['id'])){
 				$podid = $atts['id'];
 			}
-			$pod = pods($displaypod['pod'][0], $podid);
+			$pod = pods($displaypod['pod'], $podid);
 			if(empty($pod)){ return; }
 			$pod->displayPod = $displaypod;
-			if(!empty($displaypod['form_fields'])){
+
+			if(!empty($displaypod['layout_elements'])){
 				$fields = array();
-				foreach($displaypod['form_fields'] as $id=>$field){
-					$fields[] = $field['field'];
-					$pod->displayPod['fields'][$field['field']]['location'] = $field['position'];
-					$pod->displayPod['fields'][$field['field']]['config'] = $field['config'];
+
+				foreach($displaypod['layout_elements'] as $id=>$field){
+					$fields[] = $field['element'];
+					$pod->displayPod['fields'][$field['element']]['location'] = $field['position'];
+					$pod->displayPod['fields'][$field['element']]['params'] = $field['params'];
 				}
 			}
 			add_filter('pods_view_inc', array(&$this, 'render_form'),10,3);			
@@ -576,19 +598,22 @@ class DisplayPod {
 			break;
 			case 'layout':
 				// LAYOUT RENDER
+
 				$layout = new calderaLayout();
 				$layout->setLayout(implode('|',$displaypod['form_layout']));
 
 				$displaypodOut = '<div class="display-pods">';
 				if(!empty($displaypod['layout_elements'])){
 					foreach($displaypod['layout_elements'] as $id=>$element){
-						$args = array(
-							'dp' => $element['dp']
-							/// HERE WILL BE THE CONFIG OPTIONS LIKE id of a specific pod.
-						);
-						if(!empty($atts['id'])){
-							$args['id'] = $atts['id'];
+
+						$args = array();
+
+						if(!empty($element['params'])){
+							$args = $element['params'];
 						}
+						$args['dp'] = $element['element'];
+						$args = array_merge($args, $atts);
+						
 						$layout->append($this->render_displaypod($args, $index), $element['position']);
 					}
 				}
@@ -597,10 +622,21 @@ class DisplayPod {
 			break;
 			case 'template':
 				// TEMPLATE RENDER
-				$pod = pods($displaypod['pod'], $atts);
-				if(empty($atts['id'])){
-					$pod->find();
+				
+				$pod = pods($displaypod['pod']);
+
+				if((!empty($atts['id']) || !empty($atts['current_user'])) && $atts['mode'] == 'ind'){
+					unset($atts['mode']);
+					if(!empty($atts['current_user'])){
+						
+						if(!is_user_logged_in()){return;}
+
+						$atts['id'] = get_current_user_id();
+						unset($atts['current_user']);
+					}
 				}
+
+				$pod->find($atts);
 
 				$commands = array(
 					'loop',
@@ -630,7 +666,7 @@ class DisplayPod {
 					}
 				}
 				if(empty($atts['id'])){
-					while( $pod->fetch()){					
+					while( $pod->fetch()){
 						if(!empty($commandindex)){
 							$regex = $this->get_regex($commandindex);
 							$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
@@ -640,13 +676,17 @@ class DisplayPod {
 						}
 					}
 				}else{
-					$regex = $this->get_regex($commandindex);
-					$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
+					if(!empty($commandindex)){
+						$regex = $this->get_regex($commandindex);
+						$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
+					}else{
+						$displaypodOut .= $pod->do_magic_tags( $displaypod['template']['htmlCode'] );
+					}
 				}
 			break;
 		}
 
-		return $displaypodOut;
+		return do_shortcode($displaypodOut);
 		//return $displaypodOut;
   	}
 
@@ -688,18 +728,20 @@ class DisplayPod {
 				}
 			}else{
 
-				$labels[$details['name']] = $details['label'];
+				$labels[$details['name']]['name'] = $details['label'];
+				$labels[$details['name']]['displaypod_type'] = 'field';
 				//dump($details);
 
-	            $html .= '<div class="trayItem formField field_'.$field.' button" data-field="'.$details['name'].'">';
+	            $html .= '<div class="trayItem formField field_'.$details['name'].' button" data-id="'.$details['name'].'" data-type="field">';
 	                $html .= '<i class="fieldEdit">';
-	                    $html .= '<span class="control delete" data-request="removeField" data-field="field_'.$field.'"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
+	                    $html .= '<span class="control delete" data-request="removeField" data-field="field_'.$details['name'].'"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
 	                    $html .= ' | ';
 	                    $html .= '<span class="control edit" data-request="toggleConfig"><i class="icon-cog"></i> '.__('Edit', self::slug).'</span>';
 	                    $html .= '</i>';
 	                    
-	                $html .= '<span class="fieldType">'.__($details['label'], self::slug).'</span>';
-	                $html .= '<span class="fieldName"></span>';
+	                $html .= '<span class="fieldType description">'.$details['name'].' : '.$details['type'].'</span>';
+	                $html .= '<span class="fieldName">'.$details['label'].'</span>';
+
 	            $html .= '</div>';
 	        }
 		}
@@ -711,7 +753,7 @@ class DisplayPod {
 			return $html;
 		}
 
-		$html .= '</div>';
+		//$html .= '</div>';
 		return array(
 			"html"	=> $html,
 			"labels"=> $labels
@@ -724,27 +766,192 @@ class DisplayPod {
 		if(empty($pod)){return;}
 
 		if(empty($list)){
-			$html = '<div class="label pod_'.$pod->pod_data['name'].' trigger" data-pod="'.$pod->pod_data['name'].'" data-request="resetSortables" data-event="none" data-autoload="true">'.$pod->pod_data['label'].'<i class="icon-remove-sign removePodGroup" style="float:right;"></i></div>';
-			$html .= '<div data-pod="'.$pod->pod_data['name'].'">';
-			$html .= '<input name="pod[]" value="'.$pod->pod_data['name'].'" type="hidden" data-pod="'.$pod->pod_data['name'].'">';
+			$html = '<div class="label pod_'.$pod->pod_data['name'].' trigger" data-pod="'.$pod->pod_data['name'].'" data-request="resetSortables" data-event="none" data-autoload="true">'.$pod->pod_data['label'].'</div>';
+			$html .= '<div>';
+			$html .= '<input name="pod" value="'.$pod->pod_data['name'].'" type="hidden" data-pod="'.$pod->pod_data['name'].'">';
 		}else{
 			$html = '<table class="wp-list-table widefat"><thead><tr><th>Field</th><th>Magic Tag</th><th>Field Type</th></tr></thead><tbody>';
 		}
 		$this->traversed_pods[] = $name;
-		$object_fields = $this->build_pod_fieldList($pod->pod_data['object_fields'], $list);
+		if(!empty($list)){			
+			$object_fields = $this->build_pod_fieldList($pod->pod_data['object_fields'], $list);
+		}else{
+			$return['field'] = array();
+			$object_fields = null;
+			if(isset($pod->pod_data['object_fields'])){
+				$supported = array();
+				if(!empty($pod->pod_data['options']['supports_title'])){
+					$supported['post_title'] = $pod->pod_data['object_fields']['post_title'];
+					//$return['field']['post_title'] = $pod->pod_data['object_fields']['post_title']['label'];
+				}
+				if(!empty($pod->pod_data['options']['supports_editor'])){
+					$supported['post_content'] = $pod->pod_data['object_fields']['post_content'];
+					//$return['field']['post_content'] = $pod->pod_data['object_fields']['post_content']['label'];
+				}
+				if(!empty($supported)){
+					$object_fields = $this->build_pod_fieldList($supported, $list);
+					$return['field'] = $object_fields['labels'];
+					$object_fields = $object_fields['html'];
+				}
+			}
+		}
 		$pod_fields = $this->build_pod_fieldList($pod->fields, $list);
 		
 		if(!empty($list)){
 			return array('html' => $html.$object_fields.$pod_fields.'</tbody></table>');
 		}
 
-		$return['html'] = $html.$object_fields['html'].$pod_fields['html'];
-		if(!empty($object_fields['labels']))
-			$return['labels'] = array_merge($object_fields['labels'], $pod_fields['labels']);
-		if(!empty($object_fields['pod']))
-			$return['pod'] = array_merge($object_fields['pod'], $pod_fields['pod']);
-
+		$return['html'] = $html.$object_fields.$pod_fields['html'].'</div>';
+		$return['field'] = array_merge($return['field'], $pod_fields['labels']);
 		return $return;
+  	}
+
+  	function field_config_form($id, $element = null){
+		
+		$default_params = array(
+			'show_label'		=> 'true',
+			'show_description'	=> 'true',
+			'placeholder' 		=> 'none'
+		);
+		if(!empty($element['params'])){
+			$default_params = array_merge($default_params, (array) $element['params']);
+		}
+		$instid = uniqid($id);
+
+		echo '<div class="param-group">';
+		    echo '<label class="inline-label" for="label_'.$instid.'">Labels</label>';
+		    echo '<input type="hidden" value="false" name="layout_elements['.$id.'][params][show_lable]">';
+		    echo '<input type="checkbox" id="label_'.$instid.'" class="checkbox" value="true"'.($default_params['show_label'] == 'true' ? ' checked="checked" ' : '').' name="layout_elements['.$id.'][params][show_lable]">';
+
+		    echo '<label class="inline-label" for="desc_'.$instid.'" style="margin-right: 10px;">Descriptions</label>';
+		    echo '<input type="hidden" value="false" name="layout_elements['.$id.'][params][show_description]">';
+		    echo '<input type="checkbox" id="desc_'.$instid.'" class="checkbox" value="true"'.($default_params['show_description'] == 'true' ? ' checked="checked" ' : '').' name="layout_elements['.$id.'][params][show_description]">';
+
+		echo '</div>';
+
+		echo '<div class="param-group">';
+		    echo '<label class="inline-label" for="place_'.$instid.'">Placeholder</label>';
+		    echo '<select class="text large" id="place_'.$instid.'" name="layout_elements['.$id.'][params][placeholder]">';
+		        echo '<option value="label"'.($default_params['placeholder'] == 'label' ? ' selected="selected" ' : '').'>Label</option>';
+		        echo '<option value="description"'.($default_params['placeholder'] == 'description' ? ' selected="selected" ' : '').'>Description</option>';
+		        echo '<option value="none"'.($default_params['placeholder'] == 'none' ? ' selected="selected" ' : '').'>No Placeholder</option>';
+		    echo '</select>';
+
+		echo '</div>';
+
+
+  	}
+  	function template_config_form($id, $element = null, $pod = null){
+
+		$default_params = array(
+			'id'	=> null,
+			'mode'	=> 'find',
+		    'where' => '',
+		    'orderby' => '',
+		    'limit' => '',
+		    'offset' => '',
+		    'search' => 'true',
+		    'pagination' => 'false',
+		    'page' => null,
+		    'cache' => 'cache',
+		    'expires' => null,
+		    'join' => null,
+		    'current_user' => false
+		);
+
+		if(!empty($element['params'])){
+		    $default_params = array_merge($default_params, (array) $element['params']);
+		}
+		
+		$instid = uniqid($id);
+
+		echo '<input type="hidden" id="'.$id.'_mode" name="layout_elements['.$id.'][params][mode]" value="'.$default_params['mode'].'">';
+		echo '<ul class="config-tab">';
+		    echo '<li class="'.($default_params['mode'] == 'find' ? 'active' : '').'"><a href="#find'.$id.'" data-ref="'.$id.'" data-mode="find">Find / Query</a></li>';
+		    echo '<li class="'.($default_params['mode'] == 'ind' ? 'active' : '').'"><a href="#ind'.$id.'" data-ref="'.$id.'" data-mode="ind">Specific Item</a></li>';
+		echo '</ul>';
+		echo '<div id="find'.$id.'" class="config-tab-content '.($default_params['mode'] == 'ind' ? 'hidden' : '').'">';		
+		//echo '<div class="display-pods">';
+
+		    echo '<div class="param-group">';
+		        echo '<label>Where</label>';
+		        echo '<input type="text" class="text" value="'.$default_params['where'].'" name="layout_elements['.$id.'][params][where]">';
+		    echo '</div>';
+
+		    echo '<div class="param-group">';
+		        echo '<label>Order by</label>';
+		        echo '<input type="text" class="text" value="'.$default_params['orderby'].'" name="layout_elements['.$id.'][params][orderby]">';
+		    echo '</div>';
+
+		    echo '<div class="param-group">';
+		        echo '<label class="inline-label">Limit</label>';
+		        echo '<input type="text" class="text mini" value="'.$default_params['limit'].'" name="layout_elements['.$id.'][params][limit]">';
+
+		        echo '<label class="inline-label" style="margin-left: 10px;">Offset</label>';
+		        echo '<input type="text" class="text mini" value="'.$default_params['offset'].'" name="layout_elements['.$id.'][params][offset]">';
+
+		    echo '</div>';
+
+		    echo '<div class="param-group">';
+		        echo '<label class="inline-label">Search</label>';
+		        echo '<input type="hidden" value="false" name="layout_elements['.$id.'][params][search]">';
+		        echo '<input type="checkbox" class="checkbox" value="true"'.($default_params['search'] == 'true' ? ' checked="checked" ' : '').' name="layout_elements['.$id.'][params][search]">';
+
+		        echo '<label class="inline-label" style="margin-right: 10px;">Pagination</label>';
+		        echo '<input type="hidden" value="false" name="layout_elements['.$id.'][params][pagination]">';
+		        echo '<input type="checkbox" class="checkbox" value="true"'.($default_params['pagination'] == 'true' ? ' checked="checked" ' : '').' name="layout_elements['.$id.'][params][pagination]">';
+
+		    echo '</div>';
+
+		    echo '<div class="param-group">';
+		        echo '<label class="inline-label">Page</label>';
+		        echo '<input type="text" class="text mini" value="'.$default_params['page'].'" name="layout_elements['.$id.'][params][page]">';
+
+		    echo '</div>';
+
+		    echo '<h3>Advanced</h3>';
+
+		    echo '<div class="param-group">';
+		        echo '<label class="inline-label">Caching</label>';
+		        echo '<select class="text medium" name="layout_elements['.$id.'][params][cache]">';
+		            echo '<option value="cache"'.($default_params['cache'] == 'cache' ? ' selected="selected" ' : '').'>Cache</option>';
+		            echo '<option value="transient"'.($default_params['cache'] == 'transient' ? ' selected="selected" ' : '').'>Transient</option>';
+		            echo '<option value="site-transient"'.($default_params['cache'] == 'site-transient' ? ' selected="selected" ' : '').'>Site Transient</option>';
+		        echo '</select>';
+
+		        echo '<label class="inline-label" style="margin-right: 10px;">Expires</label>';
+		        echo '<input type="text" class="text mini" value="'.$default_params['expires'].'" name="layout_elements['.$id.'][params][expires]">';
+
+		    echo '</div>';
+
+		    echo '<div class="param-group">';
+		        echo '<label>Join</label>';
+		        echo '<textarea class="text" name="layout_elements['.$id.'][params][join]">'.htmlentities($default_params['join']).'</textarea>';
+
+		    echo '</div>';
+
+		echo '</div>';
+    //echo '</div>';
+		if($pod !== 'user'){
+		    echo '<div id="ind'.$id.'" class="config-tab-content '.($default_params['mode'] == 'find' ? 'hidden' : '').'">';
+		        echo '<div class="param-group">';
+		            echo '<label class="inline-label">Item ID</label>';
+		            echo '<input type="text" class="text medium" value="'.$default_params['id'].'" name="layout_elements['.$id.'][params][id]">';
+		        echo '</div>';
+		    echo '</div>';
+		}else{
+		    echo '<div id="ind'.$id.'" class="config-tab-content '.($default_params['mode'] == 'find' ? 'hidden' : '').'">';
+		        echo '<div class="param-group">';
+		            echo '<label class="inline-label">User ID</label>';
+		            echo '<input type="text" class="text medium" value="'.$default_params['id'].'" name="layout_elements['.$id.'][params][id]">';
+
+		            echo '<label class="inline-label" for="currentid_'.$instid.'" style="margin-right: 10px;">Current User</label>';
+		            echo '<input type="checkbox" id="currentid_'.$instid.'" class="checkbox" value="true"'.($default_params['current_user'] == 'true' ? ' checked="checked" ' : '').' name="layout_elements['.$id.'][params][current_user]">';
+
+		        echo '</div>';
+		    echo '</div>';
+		}
+
   	}
 
 	function ajax_handler($a){
@@ -752,10 +959,8 @@ class DisplayPod {
 		if(empty($_POST['process'])){ return false;}
 
 		switch ($_POST['process']) {
-			case 'podFields':
-				//dump($_POST);
+			case 'podFields':				
 				if(!empty($_POST['pod'])){
-
 					$fields = $this->load_pods_fields($_POST['pod']);
 					echo $fields['html'];
 
@@ -764,15 +969,22 @@ class DisplayPod {
 
 			case 'fieldConfig':
 
-				$placeholders = array(
-					'label'	=> 'Label',
-					'description'	=> 'Description',
-					'none'	=> 'No Placeholder'
-				);
 
-				echo $this->configOption('showlabel_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][show_lable]', 'checkbox', 'Show Label', '1', 'Display lable above the field', false,'internal-config-option');
-				echo $this->configOption('showdesc_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][show_description]', 'checkbox', 'Show Discription', '1', 'Display lable above the field', false,'internal-config-option');
-				echo $this->configOption('placeholder_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][placeholder]', 'dropdown', 'Placeholder Text', '', 'The text displayed in empty fields', $placeholders,'internal-config-option');
+				if(empty($_POST['type']) || empty($_POST['id'])){
+					return;
+				}
+
+				switch ($_POST['type']) {
+					case 'template':
+							echo $this->template_config_form($_POST['id']);
+						break;
+					case 'field':
+							echo $this->field_config_form($_POST['id']);
+						break;
+					default:
+						
+						break;
+				}
 				
 				break;
 			case 'viewFieldConfig':
@@ -783,9 +995,9 @@ class DisplayPod {
 					'none'	=> 'No Placeholder'
 				);
 
-				echo $this->configOption('showlabel_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][show_lable]', 'checkbox', 'Show Label', '1', 'Display lable above the field', false,'internal-config-option');
-				echo $this->configOption('showdesc_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][show_description]', 'checkbox', 'Show Discription', '1', 'Display lable above the field', false,'internal-config-option');
-				echo $this->configOption('placeholder_'.$_POST['id'], 'form_fields['.$_POST['id'].'][config][placeholder]', 'dropdown', 'Placeholder Text', '', 'The text displayed in empty fields', $placeholders,'internal-config-option');
+				echo $this->configOption('showlabel_'.$_POST['id'], 'form_fields['.$_POST['id'].'][params][show_lable]', 'checkbox', 'Show Label', '1', 'Display lable above the field', false,'internal-config-option');
+				echo $this->configOption('showdesc_'.$_POST['id'], 'form_fields['.$_POST['id'].'][params][show_description]', 'checkbox', 'Show Discription', '1', 'Display lable above the field', false,'internal-config-option');
+				echo $this->configOption('placeholder_'.$_POST['id'], 'form_fields['.$_POST['id'].'][params][placeholder]', 'dropdown', 'Placeholder Text', '', 'The text displayed in empty fields', $placeholders,'internal-config-option');
 				
 				break;
 			case 'elementConfig':
@@ -851,6 +1063,7 @@ class DisplayPod {
 			$this->load_file( self::slug . '-admin-script', 'js/admin.js', true );
 			//$this->load_file( self::slug . '-admin-style', '/css/lib/bootstrap.css' );
 			$this->load_file( self::slug . '-admin-style', 'css/admin.css' );
+			$this->load_file( self::slug . '-render-style', 'css/display.css' );
 			if(!empty($_GET['action']) && !empty($_GET['type'])){
 				if('edit' == $_GET['action'] && 'template' == $_GET['type']){
 					$this->load_file( self::slug . '-codemirror-style', 'css/codemirror.css');
@@ -944,7 +1157,7 @@ class DisplayPod {
 				$sel = 'checked="checked"';
 			}
 
-			$Return .= '<label for="' . $ID . '"><input type="checkbox"  style="margin: -1px 5px 0 0;" class="checkbox" name="' . $Name . '" id="' . $ID . '" value="1" '.$sel.' /> '.$Title.'</label> ';
+			$Return .= '<label for="' . $ID . '"><input type="hidden" name="' . $Name . '" value="0" /><input type="checkbox"  style="margin: -1px 5px 0 0;" class="checkbox" name="' . $Name . '" id="' . $ID . '" value="1" '.$sel.' /> '.$Title.'</label> ';
 			break;
 		}
 		$captionLine = '';

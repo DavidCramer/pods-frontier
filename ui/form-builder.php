@@ -51,7 +51,8 @@
                 echo '<div class="editor-panel settings-panel" id="builder-tab">';
                     echo '<h3>'.__('Form Builder', self::slug).' <small>'.__('Design and build your form', self::slug).'.</small></h3>';
                     // pull in the editor - easier to keep it separate.
-                    include plugin_dir_path(__FILE__) . 'form-editor.php';
+                    //include plugin_dir_path(__FILE__) . 'form-editor.php';
+                    include plugin_dir_path(__FILE__) . 'layout-editor.php';
                 echo '</div>';        
 
                 // config tab
