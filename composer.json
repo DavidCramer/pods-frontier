@@ -1,0 +1,34 @@
+{
+        "name"         : "pods-framework/pods-frontier",
+        "description"  : "Pods Frontier — Advanced Templating, Form Builder, Layout Builder",
+        "type"         : "wordpress-plugin",
+        "keywords"     : ["pods", "wordpress", "templates", "forms", "page-layout"],
+        "homepage"     : "https://github.com/pods-framework/pods-frontier",
+        "require"      : {
+            "php": ">=5.3"
+        },
+        "license"      : "GPL-2.0",
+        "authors"      : [
+            {
+                "name"    : "Pods Framework Team",
+                "email"   : "contact@pods.io",
+                "homepage": "http://pods.io/"
+            },
+            {
+                "name"    : "Scott Kingsley Clark",
+                "email"   : "lol@scottkclark.com",
+                "homepage": "http://scottkclark.com"
+            },
+            {
+                "name"    : "David Cramer",
+                "homepage": "http://cramer.co.za"
+            }
+        ],
+        "support"    : {
+            "issues": "https://github.com/pods-framework/pods-frontier/issues",
+            "source": "https://github.com/pods-framework/pods-frontier"
+        },
+        "require": {
+            "composer/installers": "~1.0"
+        }
+}
