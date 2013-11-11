@@ -10,18 +10,13 @@
         "license"      : "GPL-2.0",
         "authors"      : [
             {
+                "name"    : "David Cramer",
+                "homepage": "http://cramer.co.za"
+            },
+            {
                 "name"    : "Pods Framework Team",
                 "email"   : "contact@pods.io",
                 "homepage": "http://pods.io/"
-            },
-            {
-                "name"    : "Scott Kingsley Clark",
-                "email"   : "lol@scottkclark.com",
-                "homepage": "http://scottkclark.com"
-            },
-            {
-                "name"    : "David Cramer",
-                "homepage": "http://cramer.co.za"
             }
         ],
         "support"    : {
