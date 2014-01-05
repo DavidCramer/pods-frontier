@@ -4,31 +4,49 @@
     
     // Start editor Wrapper
     echo '<form id="calderaEditor" method="POST">';
-        wp_nonce_field('displaypod-editor', self::slug.'-builder');
+        wp_nonce_field('podfrontier-editor', self::slug.'-builder');
         
         // get the edited ID, or make a new one.
-        $displaypods = get_option('displayPods_registry');
+        $podsfrontier = get_option('podsFrontier_registry');
         // some defaults for new
-        $displaypod = array(
-            'displaypod_id' => uniqid()
+        $podfrontier = array(
+            'podfrontier_id' => uniqid()
         );
-        if(!empty($_GET['displaypodid'])){
-            $displaypod = get_option($_GET['displaypodid']);
-            //dump($displaypod,0);
+        if(!empty($_GET['podfrontierid'])){
+            $podfrontier = get_option($_GET['podfrontierid']);
+            //dump($podfrontier,0);
         }
-        echo '<input type="hidden" name="displaypod_id" value="'.$displaypod['displaypod_id'].'" />';
-        echo '<input type="hidden" name="displaypod_type" value="layout" />';
-        echo '<div class="displaypods-wrap">';
+        echo '<input type="hidden" name="podfrontier_id" value="'.$podfrontier['podfrontier_id'].'" />';
+        echo '<input type="hidden" name="podfrontier_type" value="layout" />';
+        echo '<div class="podsfrontier-wrap">';
 
             // Header
             echo '<div class="header-nav">';
                 echo '<div class="logo-icon trigger" data-request="hashLoad" data-autoload="true"></div>';            
                 echo '<ul>';
-                    echo '<li><h3>'.__('Layout', self::slug).'</h3></li>';
+                    echo '<li class="editor-title">'.__('Frontier Layout', self::slug).'</li>';
                     echo '<li class="divider-vertical"></li>';
-                    echo '<li id="form-title">'.__('Title', self::slug).': <input type="text" name="displaypod_name" value="';
-                        if(!empty($displaypod['displaypod_name'])){echo $displaypod['displaypod_name'];}else{ echo 'Untitled DisplayPod';};
+                    echo '<li id="form-title">'.__('Title', self::slug).': <input type="text" name="podfrontier_name" value="';
+                        if(!empty($podfrontier['podfrontier_name'])){echo $podfrontier['podfrontier_name'];}else{ echo 'Untitled Frontier View';};
                     echo '" /></li>';
+                    echo '<li class="divider-vertical"></li>';
+                    echo '<li>Base Pod ';
+                        //accordian style
+                        $trayClass = 'forms';
+                        //Get pods
+                        $api = pods_api();
+                        $_pods = $api->load_pods();
+
+                    
+                        echo '<select name="pod" id="selectPod" class="trigger" data-event="change" data-action="sfbuilder" data-before="isPodUsed" data-process="podTemplateSelect" data-target="#var-list" data-active-class="none" autocomplete="off"/>';
+                        echo '<option value="">Select Pod to Use</option>';
+                        foreach($_pods as $pod){
+                            echo '<option value="'.$pod['name'].'">'.$pod['label'].'</option>';
+                        }
+                        echo '</select>';
+                    echo '</li>';                    
+                    echo '<li class="divider-vertical"></li>';
+                    echo '<li><button id="addRowFrom" type="button" class="button-primary">'.__('Add Row', self::slug).'</button></li>';
                     echo '<li class="divider-vertical"></li>';
                     echo '<li><button type="submit" class="button-primary" value="save">'.__('Save & Close', self::slug).'</button></li>';
                     //echo '<li><button type="submit" class="button" value="close">'.__('Close', self::slug).'</button></li>';
@@ -37,16 +55,8 @@
                 echo '</ul>';
             echo '</div>';
             
-            // Navigation
-            echo '<div id="side-controls" class="side-controls">';
-
-                echo '<ul class="element-config-tabs navigation-tabs">';
-                    echo '<li class="trigger active" data-callback="panelTab" data-request="null" data-group="leftnav"><a title="Builder" href="#builder-tab" class="control-builder-icon"><span>Builder</span></a></li>';
-                echo '</ul>';
-            echo '</div>';
-
             // Editor
-            echo '<div class="editor-pane">';
+            echo '<div class="editor-pane full">';
                 // editor tab
                 echo '<div class="editor-panel settings-panel" id="builder-tab">';
                     echo '<h3>'.__('Builder', self::slug).' <small>'.__('Design and build your page layout', self::slug).'.</small></h3>';
@@ -59,6 +69,7 @@
         // End Wrapper
             echo '<div style="clear:both;"></div>';
         echo '</div>';
+        echo '<div id="var-list" style="display:none;"></div>';
     echo '</form>';
 
 

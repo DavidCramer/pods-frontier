@@ -4,31 +4,31 @@
     
     // Start editor Wrapper
     echo '<form id="calderaEditor" method="POST">';
-        wp_nonce_field('displaypod-editor', self::slug.'-builder');
+        wp_nonce_field('podfrontier-editor', self::slug.'-builder');
         
         // get the edited ID, or make a new one.
         $id = uniqid();
-        $displaypod = array();
-        if(!empty($_GET['displaypodid'])){
-            $id=$_GET['displaypodid'];
-            $displaypod = get_option($id);
-            //dump($displaypod,0);
+        $podfrontier = array();
+        if(!empty($_GET['podfrontierid'])){
+            $id=$_GET['podfrontierid'];
+            $podfrontier = get_option($id);
+            //dump($podfrontier,0);
         }
-        echo '<input type="hidden" name="displaypod_id" value="'.$id.'" />';
-        echo '<input type="hidden" name="displaypod_type" value="template" />';
-        echo '<div class="displaypods-wrap">';
+        echo '<input type="hidden" name="podfrontier_id" value="'.$id.'" />';
+        echo '<input type="hidden" name="podfrontier_type" value="template" />';
+        echo '<div class="podsfrontier-wrap">';
 
             // Header
             echo '<div class="header-nav">';
                 echo '<div class="logo-icon trigger" data-autoload="true" data-request="hashLoad"></div>';            
                 echo '<ul>';
-                    echo '<li><h3>'.__('Template', self::slug).'</h3></li>';
+                    echo '<li class="editor-title">'.__('Frontier View', self::slug).'</li>';
                     echo '<li class="divider-vertical"></li>';
-                    echo '<li id="form-title">'.__('Title', self::slug).': <input type="text" name="displaypod_name" value="';
-                        if(!empty($displaypod['displaypod_name'])){echo $displaypod['displaypod_name'];}else{ echo 'Untitled Template';};
+                    echo '<li id="form-title">'.__('Title', self::slug).': <input type="text" name="podfrontier_name" value="';
+                        if(!empty($podfrontier['podfrontier_name'])){echo $podfrontier['podfrontier_name'];}else{ echo 'Untitled View';};
                     echo '" /></li>';
                     echo '<li class="divider-vertical"></li>';
-                    echo '<li><button type="submit" class="button-primary" value="save">'.__('Save & Close', self::slug).'</button></li>';
+                    echo '<li><button type="submit" class="button-primary control-button" value="save">'.__('Save & Close', self::slug).'</button></li>';
                     //echo '<li><button type="submit" class="button" value="close">'.__('Close', self::slug).'</button></li>';
                     echo '<li class="divider-vertical"></li>';
                     echo '<li id="save-status"></li>';
@@ -51,7 +51,7 @@
                 // editor tab
 
                 echo '<div class="editor-panel settings-panel" id="config-tab">';
-                    echo '<h3>'.__('DisplayPod Settings', self::slug).' <small>'.__('Configure form basics', self::slug).'</small></h3>';
+                    echo '<h3>'.__('Frontier View Settings', self::slug).'</h3>';
                     // pull in the settings
                     include plugin_dir_path(__FILE__) . 'general-settings.php';
 
@@ -60,15 +60,15 @@
                 ?>
                 <div id="editcss" class="editor-panel editor-code editor-css hide">
                     <label for="code-css">CSS</label>
-                    <textarea id="code-css" name="template[cssCode]"><?php if(!empty($displaypod['template']['cssCode'])){ echo $displaypod['template']['cssCode']; } ;?></textarea>
+                    <textarea id="code-css" name="template[cssCode]"><?php if(!empty($podfrontier['template']['cssCode'])){ echo $podfrontier['template']['cssCode']; } ;?></textarea>
                 </div>
                 <div id="edithtml" class="editor-panel editor-code editor-html hide">
                     <label for="code-html">HTML</label>
-                    <textarea id="code-html" name="template[htmlCode]"><?php if(!empty($displaypod['template']['htmlCode'])){ echo htmlspecialchars($displaypod['template']['htmlCode']); } ;?></textarea>
+                    <textarea id="code-html" name="template[htmlCode]"><?php if(!empty($podfrontier['template']['htmlCode'])){ echo htmlspecialchars($podfrontier['template']['htmlCode']); } ;?></textarea>
                 </div>
                 <div id="editjs" class="editor-panel editor-code editor-js hide">
                     <label for="code-js">JavaScript</label>
-                    <textarea id="code-js" name="template[javascriptCode]"><?php if(!empty($displaypod['template']['javascriptCode'])){ echo $displaypod['template']['javascriptCode']; } ;?></textarea>
+                    <textarea id="code-js" name="template[javascriptCode]"><?php if(!empty($podfrontier['template']['javascriptCode'])){ echo $podfrontier['template']['javascriptCode']; } ;?></textarea>
                 </div>
 
 

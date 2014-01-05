@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: DisplayPods
+Plugin Name: Pods Frontier
 Plugin URI: http://pods.io
 Description: Simple, front-end builder for the Pods Framework.
 Version: 1.0.0
@@ -9,19 +9,28 @@ Author URI: http://cramer.co.za
 Author Email: david@digilab.co.za  
 */
 
-class DisplayPod {
+class PodsFrontier {
 	
 	/*--------------------------------------------*
 	 * Constants
 	 *--------------------------------------------*/
-	const name 		= 'DisplayPods';
-	const slug 		= 'displaypods';
-	const shortcode = 'displaypod';
+	const name 		= 'PodsFrontier';
+	const slug 		= 'podsfrontier';
+	const shortcode = 'frontier';
+    
+    /**
+     * Object type
+     *
+     * @var string
+     *
+     * @since 2.0
+     */
+    private $object_type = '_pods_frontier';
 
 	/*
 	 * Used shortcodes on a page render
 	*/
-	var $displaypods_usedcodes = array();
+	var $podsfrontier_usedcodes = array();
 	 
 	/**
 	 * Used shortcodes on a page render
@@ -42,8 +51,11 @@ class DisplayPod {
     
     		//Create an init action
     		add_action( 'init', array( &$this, 'init_plugin' ) );
+			
+			
+
 	}
-  
+
 	/**
 	 * Runs when the plugin is activated
 	 */  
@@ -61,24 +73,46 @@ class DisplayPod {
 		// On page load, detect a display pod
 		add_action('wp', array(&$this, 'detect_pod'));
 
+        $args = array(
+            'label' => 'Frontier',
+            'labels' => array( 'singular_name' => 'Frontier' ),
+            'public' => false,
+            'can_export' => false,
+            'show_ui' => false,
+            'show_in_menu' => false,
+            'query_var' => false,
+            'rewrite' => false,
+            'has_archive' => false,
+            'hierarchical' => false,
+            'supports' => array( 'title', 'author', 'revisions' ),
+            'menu_icon' => PODS_URL . 'ui/images/icon16.png'
+        );
+
+        if ( !pods_is_admin() )
+            $args[ 'capability_type' ] = 'pods_frontier';
+
+        $args = PodsInit::object_label_fix( $args, 'post_type' );
+
+        register_post_type( $this->object_type, apply_filters( 'pods_internal_register_post_type_object_template', $args ) );
+
 		// Hook into a submit // after detect pod so we can have used codes registered
 		if(!empty($_POST) && !is_admin()){
 			add_action('wp', array(&$this, 'handle_form_submit'));
 		}
-		
+
 		if ( is_admin() ) {
 			// Catch Saving
 			//dump($_GET);
-			if(!empty($_POST['displaypods-builder'])){
+			if(!empty($_POST['podsfrontier-builder'])){
 				$this->processSave();
 			}
 			if(!empty($_GET['action'])){
 				if($_GET['action'] == 'delete'){
-					if(!empty($_GET['displaypodid'])){
-						$displaypods = get_option('displayPods_registry');
-						if(!empty($_GET['displaypodid'])){
-							unset($displaypods[$_GET['displaypodid']]);
-							update_option('displayPods_registry', $displaypods);
+					if(!empty($_GET['podfrontierid'])){
+						$podsfrontier = get_option('podsFrontier_registry');
+						if(!empty($_GET['podfrontierid'])){
+							unset($podsfrontier[$_GET['podfrontierid']]);
+							update_option('podsFrontier_registry', $podsfrontier);
 						}
 					}
 				}
@@ -104,28 +138,28 @@ class DisplayPod {
 	function processSave(){
 		// Process the save.
 
-		if (!empty($_POST) && check_admin_referer('displaypod-editor', self::slug.'-builder')){
+		if (!empty($_POST) && check_admin_referer('podfrontier-editor', self::slug.'-builder')){
 			unset($_POST[self::slug.'-builder']);
 			unset($_POST['_wp_http_referer']);
 
-			$displaypods = get_option('displayPods_registry');
+			$podsfrontier = get_option('podsFrontier_registry');
 			$postdata = stripslashes_deep($_POST);
-			update_option($postdata['displaypod_id'], $postdata);
-			$displaypods[$postdata['displaypod_id']] = array(
-				'name' 				=> $postdata['displaypod_name'],
-				'displaypod_type'	=> $postdata['displaypod_type']
+			update_option($postdata['podfrontier_id'], $postdata);
+			$podsfrontier[$postdata['podfrontier_id']] = array(
+				'name' 				=> $postdata['podfrontier_name'],
+				'podfrontier_type'	=> $postdata['podfrontier_type']
 			);
 			if(isset($postdata['pod'])){
-				$displaypods[$postdata['displaypod_id']]['pod'] = $postdata['pod'];
+				$podsfrontier[$postdata['podfrontier_id']]['pod'] = $postdata['pod'];
 			}
-			update_option('displayPods_registry', $displaypods);
-			wp_redirect('admin.php?page='.DisplayPod::slug.'&tab='.$postdata['displaypod_type']);
+			update_option('podsFrontier_registry', $podsfrontier);
+			wp_redirect('admin.php?page='.PodsFrontier::slug.'&tab='.$postdata['podfrontier_type']);
 			exit;
 		}
 	}
 
 	function admin_menu(){
-		$coreadmin = add_menu_page( __('DisplayPods Admin', self::slug), __('DisplayPods', self::slug), 'read', self::slug, array($this, 'render_admin_page'), false, '26.911' );		
+		$coreadmin = add_menu_page( __('Frontier', self::slug), __('Frontier', self::slug), 'read', self::slug, array($this, 'render_admin_page'), false, '26.911' );		
 		// Load JavaScript and stylesheets only on its pages.
 		add_action('admin_print_styles-'.$coreadmin, array(&$this, 'register_scripts_and_styles'));
 
@@ -143,24 +177,28 @@ class DisplayPod {
 	function render_admin_page(){
 
 		// Bring in the admin System
-		//include plugin_dir_path(__FILE__) . 'libs/caldera-layout.php';		
+		//return;
 		$action = false;
 		if(isset($_GET['action']))
 			$action = $_GET['action'];
 
 		if($action == 'edit'){
-			return $this->render_editor_page();//DisplayPod_builder(array(&$this));				
+			return $this->render_editor_page();//PodsFrontier_builder(array(&$this));				
 		}
-		$displaypods = get_option('displayPods_registry');
+		$podsfrontier = get_option('podsFrontier_registry');
 
+		
+		include plugin_dir_path(__FILE__) . 'ui/admin.php';
+
+		return;
 		// actual admin
-        echo '<div class="displaypods-wrap">';
+        echo '<div class="podsfrontier-wrap">';
 
             // Header
             echo '<div class="header-nav">';
                 echo '<div class="logo-icon trigger" data-request="true" data-callback="hashLoad"></div>';            
                 echo '<ul>';
-                    echo '<li><h3>'.__('DisplayPods', DisplayPod::slug).'</h3></li>';
+                    echo '<li><h3>'.__('PodsFrontier', PodsFrontier::slug).'</h3></li>';
                     echo '<li class="divider-vertical"></li>';
                     echo '<li id="form-title">V1.0.0</li>';
                     //echo '<li class="divider-vertical"></li>';
@@ -189,8 +227,8 @@ class DisplayPod {
             echo '<div class="admin-pane">';
             	echo '<div class="admin-panel '.($activeTab == 'template' ? '' : 'hidden').'" id="templates-tab">';
             		echo '<h2>'.__('Templates', self::slug).' ';
-            			//echo '<a href="post-new.php?post_type=_pods_adv_template" class="button">'.__('Create new template', DisplayPod::slug).'</a>';
-						echo '<a href="admin.php?page='.DisplayPod::slug.'&action=edit&type=template" class="button">'.__('Create new template', DisplayPod::slug).'</a>';
+            			//echo '<a href="post-new.php?post_type=_pods_adv_template" class="button">'.__('Create new template', PodsFrontier::slug).'</a>';
+						echo '<a href="admin.php?page='.PodsFrontier::slug.'&action=edit&type=template" class="button">'.__('Create new template', PodsFrontier::slug).'</a>';
             		echo '</h2>';
 					//list and admin here
                 	echo '<table class="wp-list-table widefat fixed pages" >';
@@ -205,17 +243,17 @@ class DisplayPod {
                 		echo '</thead>';
                 		echo '<tbody>';
                 				$class = '';
-                				if(!empty($displaypods)){
+                				if(!empty($podsfrontier)){
                 					
-									foreach($displaypods as $id=>$displaypod){
-										if($displaypod['displaypod_type'] !== 'template'){ continue; }
+									foreach($podsfrontier as $id=>$podfrontier){
+										if($podfrontier['podfrontier_type'] !== 'template'){ continue; }
 										if($class=='alternate'){$class='';}else{$class='alternate';}
 										echo '<tr class="'.$class.'">';
-											echo '<td>'.$displaypod['name'];
-												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&tab='.$displaypod['displaypod_type'].'&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
+											echo '<td>'.$podfrontier['name'];
+												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this PodsFrontier', self::slug).'" href="?page=podsfrontier&action=edit&type='.$podfrontier['podfrontier_type'].'&podfrontierid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=podsfrontier&action=delete&tab='.$podfrontier['podfrontier_type'].'&podfrontierid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete PodsFrontier?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
 											echo '</td>';
-											echo '<td>[displaypod dp='.$id.']</td>';
-											//echo '<td>'.$displaypod['pod'].'</td>';
+											echo '<td>[podfrontier view='.$id.']</td>';
+											//echo '<td>'.$podfrontier['pod'].'</td>';
 											//echo '<td>0</td>';
 										echo '<tr>';
 									}
@@ -227,7 +265,7 @@ class DisplayPod {
             	echo '</div>';
             	echo '<div class="admin-panel '.($activeTab == 'layout' ? '' : 'hidden').'" id="layouts-tab">';
 					echo '<h2>'.__('Layouts', self::slug).' ';
-						echo '<a href="admin.php?page='.DisplayPod::slug.'&action=edit&type=layout" class="button">'.__('Create new layout', DisplayPod::slug).'</a>';
+						echo '<a href="admin.php?page='.PodsFrontier::slug.'&action=edit&type=layout" class="button">'.__('Create new layout', PodsFrontier::slug).'</a>';
 					echo '</h2>';
                     //list and admin here
                 	echo '<table class="wp-list-table widefat fixed pages" >';
@@ -242,17 +280,17 @@ class DisplayPod {
                 		echo '</thead>';
                 		echo '<tbody>';
                 				$class = '';
-                				if(!empty($displaypods)){
+                				if(!empty($podsfrontier)){
                 					
-									foreach($displaypods as $id=>$displaypod){
-										if($displaypod['displaypod_type'] !== 'layout'){ continue; }
+									foreach($podsfrontier as $id=>$podfrontier){
+										if($podfrontier['podfrontier_type'] !== 'layout'){ continue; }
 										if($class=='alternate'){$class='';}else{$class='alternate';}
 										echo '<tr class="'.$class.'">';
-											echo '<td>'.$displaypod['name'];
-												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&tab='.$displaypod['displaypod_type'].'&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
+											echo '<td>'.$podfrontier['name'];
+												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this PodsFrontier', self::slug).'" href="?page=podsfrontier&action=edit&type='.$podfrontier['podfrontier_type'].'&podfrontierid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=podsfrontier&action=delete&tab='.$podfrontier['podfrontier_type'].'&podfrontierid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete PodsFrontier?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
 											echo '</td>';
-											echo '<td>[displaypod dp='.$id.']</td>';
-											//echo '<td>'.$displaypod['pod'].'</td>';
+											echo '<td>[podfrontier view='.$id.']</td>';
+											//echo '<td>'.$podfrontier['pod'].'</td>';
 											//echo '<td>0</td>';
 										echo '<tr>';
 									}
@@ -265,7 +303,7 @@ class DisplayPod {
             	echo '</div>';
                 echo '<div class="admin-panel '.($activeTab == 'form' ? '' : 'hidden').'" id="forms-tab">';
                 	echo '<h2>'.__('Forms', self::slug).' ';
-                		echo '<a href="admin.php?page='.DisplayPod::slug.'&action=edit&type=form" class="button">'.__('Create new form', DisplayPod::slug).'</a>';
+                		echo '<a href="admin.php?page='.PodsFrontier::slug.'&action=edit&type=form" class="button">'.__('Create new form', PodsFrontier::slug).'</a>';
                 	echo '</h2>';
                     //list and admin here
                 	echo '<table class="wp-list-table widefat fixed pages" >';
@@ -280,17 +318,17 @@ class DisplayPod {
                 		echo '</thead>';
                 		echo '<tbody>';
                 				$class = '';
-                				if(!empty($displaypods)){
+                				if(!empty($podsfrontier)){
                 					
-									foreach($displaypods as $id=>$displaypod){
-										if($displaypod['displaypod_type'] !== 'form'){ continue; }
+									foreach($podsfrontier as $id=>$podfrontier){
+										if($podfrontier['podfrontier_type'] !== 'form'){ continue; }
 										if($class=='alternate'){$class='';}else{$class='alternate';}
 										echo '<tr class="'.$class.'">';
-											echo '<td>'.$displaypod['name'];
-												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this DisplayPod', self::slug).'" href="?page=displaypods&action=edit&type='.$displaypod['displaypod_type'].'&displaypodid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=displaypods&action=delete&tab='.$displaypod['displaypod_type'].'&displaypodid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete DisplayPod?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
+											echo '<td>'.$podfrontier['name'];
+												echo '<div class="row-actions"><span class="edit"><a title="'.__('Edit this PodsFrontier', self::slug).'" href="?page=podsfrontier&action=edit&type='.$podfrontier['podfrontier_type'].'&podfrontierid='.$id.'">'.__('Edit', self::slug).'</a> | </span><span class="view"><a rel="permalink" title="View “(no title)”" href="">'.__('View', self::slug).'</a> | </span><span class="trash"><a href="?page=podsfrontier&action=delete&tab='.$podfrontier['podfrontier_type'].'&podfrontierid='.$id.'" title="'.__('Delete Form', self::slug).'" class="submitdelete" onclick="return confirm(\''.__('Delete PodsFrontier?', self::slug).'\');">'.__('Delete', self::slug).'</a></span></div>';
 											echo '</td>';
-											echo '<td>[displaypod dp='.$id.'] <span class="description">add id=itemid for an edit entry</span></td>';
-											//echo '<td>'.$displaypod['pod'].'</td>';
+											echo '<td>[podfrontier view='.$id.'] <span class="description">add id=itemid for an edit entry</span></td>';
+											//echo '<td>'.$podfrontier['pod'].'</td>';
 											echo '<td>0</td>';
 										echo '<tr>';
 									}
@@ -342,24 +380,24 @@ class DisplayPod {
 		
 		if (!empty($_POST)){
 
-			if(!isset($_POST['_displaypods_inst']['reference'])){
+			if(!isset($_POST['_podsfrontier_inst']['reference'])){
 				return;
 			}
-			if(isset($this->displaypods_usedcodes[2][$_POST['_displaypods_inst']['reference']])){
+			if(isset($this->podsfrontier_usedcodes[2][$_POST['_podsfrontier_inst']['reference']])){
 				//_'.self::slug.'_inst
-				if(self::shortcode === $this->displaypods_usedcodes[2][$_POST['_displaypods_inst']['reference']]){
-					$atts = shortcode_parse_atts($this->displaypods_usedcodes[3][$_POST['_displaypods_inst']['reference']]);
+				if(self::shortcode === $this->podsfrontier_usedcodes[2][$_POST['_podsfrontier_inst']['reference']]){
+					$atts = shortcode_parse_atts($this->podsfrontier_usedcodes[3][$_POST['_podsfrontier_inst']['reference']]);
 					
-					if(wp_verify_nonce($_POST[self::slug.'-'.$atts['dp']], 'displaypod-form')){
+					if(wp_verify_nonce($_POST[self::slug.'-'.$atts['view']], 'podfrontier-form')){
 						$referer = parse_url($_POST['_wp_http_referer']);
 						
-						unset($_POST[self::slug.'-'.$atts['dp']]);
-						unset($_POST['_displaypods_inst']);
+						unset($_POST[self::slug.'-'.$atts['view']]);
+						unset($_POST['_podsfrontier_inst']);
 						unset($_POST['_wp_http_referer']);
 						// MAYBE SOME CLEANUPS TO VERYFY ALL FIELDS ARE THERE
 						// I COULD GO OVER THE FIELDS IN THE FORM TO BE SURE. hmm maybe later.
-						$displaypod = get_option($atts['dp']);
-						$pod = pods($displaypod['base_pod']);
+						$podfrontier = get_option($atts['view']);
+						$pod = pods($podfrontier['base_pod']);
 						$poditem = null;
 						$processtype = 'insert';
 						if(!empty($atts['id'])){
@@ -367,7 +405,7 @@ class DisplayPod {
 							$processtype = 'update';
 						}
 						$data = $_POST;
-						$data['post_status'] = $displaypod['default_status'];
+						$data['post_status'] = $podfrontier['default_status'];
 						$res = $pod->save($data, null, $poditem);
 						if(!empty($referer['query'])){
 							parse_str($referer['query'], $query);
@@ -386,14 +424,14 @@ class DisplayPod {
 	}
 
 	function get_regex($codes){
-		// A custom version of the shortcode regex as to only use displaypods codes.
+		// A custom version of the shortcode regex as to only use podsfrontier codes.
 		// this makes it easier to cycle through and get the used codes for inclusion
 		$validcodes = join( '|', array_map('preg_quote', $codes) );
 
 		return
 				  '\\['                              // Opening bracket
 				. '(\\[?)'                           // 1: Optional second opening bracket for escaping shortcodes: [[tag]]
-				. "($validcodes)"                    // 2: DisplayPods only shortcodes to not waste time looping
+				. "($validcodes)"                    // 2: PodsFrontier only shortcodes to not waste time looping
 				. '\\b'                              // Word boundary
 				. '('                                // 3: Unroll the loop: Inside the opening shortcode tag
 				.     '[^\\]\\/]*'                   // Not a closing bracket or forward slash
@@ -437,13 +475,13 @@ class DisplayPod {
 		foreach($wp_query->posts as &$post){
 			preg_match_all('/' . $regex . '/s', $post->post_content, $used);
 			if(!empty($used[0])){
-				$this->displaypods_usedcodes = array_merge($this->displaypods_usedcodes, $used);				
+				$this->podsfrontier_usedcodes = array_merge($this->podsfrontier_usedcodes, $used);				
 
 				foreach($used[3] as $dpod){
 					
 					$atts = shortcode_parse_atts($dpod);					
-					$prepod = get_option($atts['dp']);
-					if($prepod['displaypod_type'] == 'layout'){
+					$prepod = get_option($atts['view']);
+					if($prepod['podfrontier_type'] == 'layout'){
 						if(!empty($prepod['layout_elements'])){
 							foreach($prepod['layout_elements'] as $element){
 								$elementconfig = get_option($element['element']);
@@ -458,31 +496,31 @@ class DisplayPod {
 							}
 
 						}
-					}elseif($prepod['displaypod_type'] == 'template'){
+					}elseif($prepod['podfrontier_type'] == 'template'){
 						if(!empty($prepod['template']['cssCode'])){
 							$this->style_queue .= $prepod['template']['cssCode']."\r\n";
 						}
 						if(!empty($prepod['template']['javascriptCode'])){
 							$this->js_queue .= $prepod['template']['javascriptCode']."\r\n";
 						}
-					}elseif($prepod['displaypod_type'] == 'form'){
+					}elseif($prepod['podfrontier_type'] == 'form'){
 						$this->load_file( self::slug . '-frontend', 'css/display.css' );
 					}
 
 
 				}
 				if(!empty($this->style_queue)){
-					add_action('wp_head',array($this, 'render_displaypod_head'));	
+					add_action('wp_head',array($this, 'render_podfrontier_head'));	
 				}
 				if(!empty($this->js_queue)){
-					add_action('wp_footer',array($this, 'render_displaypod_footer'));	
+					add_action('wp_footer',array($this, 'render_podfrontier_footer'));	
 				}
-				add_shortcode('displaypod', array($this, 'render_displaypod'));
+				add_shortcode(self::shortcode, array($this, 'render_podfrontier'));
 			}
 		}
 	}
 
-	function render_displaypod_head(){
+	function render_podfrontier_head(){
 		if(!empty($this->style_queue)){
 			echo "<style type=\"text/css\">\r\n";
 			echo $this->style_queue;
@@ -490,7 +528,7 @@ class DisplayPod {
 		}		
 	}
 
-	function render_displaypod_footer(){
+	function render_podfrontier_footer(){
 		if(!empty($this->js_queue)){
 			echo "<script type=\"text/javascript\">\r\n";
 			echo $this->js_queue;
@@ -499,7 +537,7 @@ class DisplayPod {
 	}
 
 	function render_form($a,$b,$c){
-		if(!isset($b['pod']->displayPod)){return $a;}
+		if(!isset($b['pod']->PodsFrontier)){return $a;}
 		if('form.php' != basename($a)){return $a;}
 		return plugin_dir_path(__FILE__).'ui/front/form.php';
 	}
@@ -565,72 +603,72 @@ class DisplayPod {
 		return $pod->do_magic_tags( $content );
 	}
 
-	function render_displaypod($atts, $index=0){
+	function render_podfrontier($atts, $index=0){
 			
 		// parse them atts!		
-		if(empty($atts['dp'])){return;} // continue if the id is not there.
+		if(empty($atts['view'])){return;} // continue if the id is not there.
 
-		$displaypod = get_option($atts['dp']);
-		unset($atts['dp']);
-		$displaypodOut = '';
-		switch($displaypod['displaypod_type']){
+		$podfrontier = get_option($atts['view']);
+		unset($atts['view']);
+		$podfrontierOut = '';
+		switch($podfrontier['podfrontier_type']){
 			case 'form':
 			// LOAD UP POD
 			$podid = null;
 			if(!empty($atts['id'])){
 				$podid = $atts['id'];
 			}
-			$pod = pods($displaypod['pod'], $podid);
+			$pod = pods($podfrontier['pod'], $podid);
 			if(empty($pod)){ return; }
-			$pod->displayPod = $displaypod;
+			$pod->PodsFrontier = $podfrontier;
 
-			if(!empty($displaypod['layout_elements'])){
+			if(!empty($podfrontier['layout_elements'])){
 				$fields = array();
 
-				foreach($displaypod['layout_elements'] as $id=>$field){
+				foreach($podfrontier['layout_elements'] as $id=>$field){
 					$fields[] = $field['element'];
-					$pod->displayPod['fields'][$field['element']]['location'] = $field['position'];
-					$pod->displayPod['fields'][$field['element']]['params'] = $field['params'];
+					$pod->PodsFrontier['fields'][$field['element']]['location'] = $field['position'];
+					$pod->PodsFrontier['fields'][$field['element']]['params'] = $field['params'];
 				}
 			}
 			add_filter('pods_view_inc', array(&$this, 'render_form'),10,3);			
-			$displaypodOut = $pod->form($fields);
+			$podfrontierOut = $pod->form($fields);
 			break;
 			case 'layout':
 				// LAYOUT RENDER
 
 				$layout = new calderaLayout();
-				$layout->setLayout(implode('|',$displaypod['form_layout']));
+				$layout->setLayout(implode('|',$podfrontier['form_layout']));
 
-				$displaypodOut = '<div class="display-pods">';
-				if(!empty($displaypod['layout_elements'])){
-					foreach($displaypod['layout_elements'] as $id=>$element){
+				$podfrontierOut = '<div class="display-pods">';
+				if(!empty($podfrontier['layout_elements'])){
+					foreach($podfrontier['layout_elements'] as $id=>$element){
 
 						$args = array();
 
 						if(!empty($element['params'])){
 							$args = $element['params'];
 						}
-						$args['dp'] = $element['element'];
+						$args['view'] = $element['element'];
 						$args = array_merge($args, $atts);
 						
-						$layout->append($this->render_displaypod($args, $index), $element['position']);
+						$layout->append($this->render_podfrontier($args, $index), $element['position']);
 					}
 				}
-				$displaypodOut .= $layout->renderLayout();
-				$displaypodOut .= '</div>';
+				$podfrontierOut .= $layout->renderLayout();
+				$podfrontierOut .= '</div>';
 			break;
 			case 'template':
 				// TEMPLATE RENDER
 				
-				$pod = pods($displaypod['pod']);
-
-				if((!empty($atts['id']) || !empty($atts['current_user'])) && $atts['mode'] == 'ind'){
-					unset($atts['mode']);
+				$pod = pods($podfrontier['pod']);
+				if(empty($pod)){
+					return;
+				}
+				if((!empty($atts['id']) || !empty($atts['current_user']))){
+					
 					if(!empty($atts['current_user'])){
-						
 						if(!is_user_logged_in()){return;}
-
 						$atts['id'] = get_current_user_id();
 						unset($atts['current_user']);
 					}
@@ -643,7 +681,7 @@ class DisplayPod {
 					//'if',
 				);
 				$regex = $this->get_regex($commands);
-				preg_match_all('/' . $regex . '/s', $displaypod['template']['htmlCode'], $used);
+				preg_match_all('/' . $regex . '/s', $podfrontier['template']['htmlCode'], $used);
 				
 				$used_codes = array();
 				foreach($used[2] as $shortcode){
@@ -651,17 +689,17 @@ class DisplayPod {
 					
 					$used_codes[$shortcode] = 1;
 
-					preg_match_all("/(\[".$shortcode."[ |\]]|\[\/".$shortcode."\])/m", $displaypod['template']['htmlCode'], $matches);
-					$aliases = array();
-					foreach($matches[0] as $index=>$code){
+					preg_match_all("/(\[".$shortcode."[ |\]]|\[\/".$shortcode."\])/m", $podfrontier['template']['htmlCode'], $matches);
+					$aliases = array();					
+					foreach($matches[0] as $index=>$code){						
 						if(substr($code,0,2) !== '[/'){
 							$alias = '_'.$index.$shortcode;
-							$displaypod['template']['htmlCode'] = preg_replace("/(".preg_quote($code).")/m", "[".$alias.substr($code,(strlen($code)-1),1), $displaypod['template']['htmlCode'],1);
+							$podfrontier['template']['htmlCode'] = preg_replace("/(".preg_quote($code).")/m", "[".$alias.substr($code,(strlen($code)-1),1), $podfrontier['template']['htmlCode'],1);
 							$aliases[] = $alias;
 							$commandindex[] = $alias;
 						}else{
 							$alias = array_pop($aliases);
-							$displaypod['template']['htmlCode'] = preg_replace("/(".preg_quote($code,'/').")/m", "[/".$alias."]", $displaypod['template']['htmlCode'],1);
+							$podfrontier['template']['htmlCode'] = preg_replace("/(".preg_quote($code,'/').")/m", "[/".$alias."]", $podfrontier['template']['htmlCode'],1);
 						}
 					}
 				}
@@ -669,25 +707,25 @@ class DisplayPod {
 					while( $pod->fetch()){
 						if(!empty($commandindex)){
 							$regex = $this->get_regex($commandindex);
-							$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
-							//$displaypodOut .= $pod->do_magic_tags( $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod) );
+							$podfrontierOut .= $this->recursive_matching($regex, $podfrontier['template']['htmlCode'], $pod);
+							//$podfrontierOut .= $pod->do_magic_tags( $this->recursive_matching($regex, $podfrontier['template']['htmlCode'], $pod) );
 						}else{
-							$displaypodOut .= $pod->do_magic_tags( $displaypod['template']['htmlCode'] );
+							$podfrontierOut .= $pod->do_magic_tags( $podfrontier['template']['htmlCode'] );
 						}
 					}
-				}else{
-					if(!empty($commandindex)){
+				}else{					
+					if(!empty($commandindex)){						
 						$regex = $this->get_regex($commandindex);
-						$displaypodOut .= $this->recursive_matching($regex, $displaypod['template']['htmlCode'], $pod);
+						$podfrontierOut .= $this->recursive_matching($regex, $podfrontier['template']['htmlCode'], $pod);
 					}else{
-						$displaypodOut .= $pod->do_magic_tags( $displaypod['template']['htmlCode'] );
+						$podfrontierOut .= $pod->do_magic_tags( $podfrontier['template']['htmlCode'] );
 					}
 				}
 			break;
 		}
 
-		return do_shortcode($displaypodOut);
-		//return $displaypodOut;
+		return do_shortcode($podfrontierOut);
+		//return $podfrontierOut;
   	}
 
   	function build_pod_fieldList($fields, $list = false, $recursive = null, $prefix = null){
@@ -729,10 +767,10 @@ class DisplayPod {
 			}else{
 
 				$labels[$details['name']]['name'] = $details['label'];
-				$labels[$details['name']]['displaypod_type'] = 'field';
+				$labels[$details['name']]['podfrontier_type'] = 'field';
 				//dump($details);
 
-	            $html .= '<div class="trayItem formField field_'.$details['name'].' button" data-id="'.$details['name'].'" data-type="field">';
+	            $html .= '<div class="trayItem formField field_'.$details['name'].'" data-id="'.$details['name'].'" data-type="field">';
 	                $html .= '<i class="fieldEdit">';
 	                    $html .= '<span class="control delete" data-request="removeField" data-field="field_'.$details['name'].'"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
 	                    $html .= ' | ';
@@ -767,7 +805,7 @@ class DisplayPod {
 
 		if(empty($list)){
 			$html = '<div class="label pod_'.$pod->pod_data['name'].' trigger" data-pod="'.$pod->pod_data['name'].'" data-request="resetSortables" data-event="none" data-autoload="true">'.$pod->pod_data['label'].'</div>';
-			$html .= '<div>';
+			$html .= '<div class="tray-body">';
 			$html .= '<input name="pod" value="'.$pod->pod_data['name'].'" type="hidden" data-pod="'.$pod->pod_data['name'].'">';
 		}else{
 			$html = '<table class="wp-list-table widefat"><thead><tr><th>Field</th><th>Magic Tag</th><th>Field Type</th></tr></thead><tbody>';
@@ -801,7 +839,7 @@ class DisplayPod {
 			return array('html' => $html.$object_fields.$pod_fields.'</tbody></table>');
 		}
 
-		$return['html'] = $html.$object_fields.$pod_fields['html'].'</div>';
+		$return['html'] = $html.$object_fields.$pod_fields['html'].'&nbsp;</div>';
 		$return['field'] = array_merge($return['field'], $pod_fields['labels']);
 		return $return;
   	}
@@ -869,19 +907,10 @@ class DisplayPod {
 		echo '<ul class="config-tab">';
 		    echo '<li class="'.($default_params['mode'] == 'find' ? 'active' : '').'"><a href="#find'.$id.'" data-ref="'.$id.'" data-mode="find">Find / Query</a></li>';
 		    echo '<li class="'.($default_params['mode'] == 'ind' ? 'active' : '').'"><a href="#ind'.$id.'" data-ref="'.$id.'" data-mode="ind">Specific Item</a></li>';
+		    echo '<li class="'.($default_params['mode'] == 'adv' ? 'active' : '').'"><a href="#adv'.$id.'" data-ref="'.$id.'" data-mode="ind">Advanced</a></li>';
 		echo '</ul>';
-		echo '<div id="find'.$id.'" class="config-tab-content '.($default_params['mode'] == 'ind' ? 'hidden' : '').'">';		
+		echo '<div id="find'.$id.'" class="config-tab-content '.($default_params['mode'] == 'find' ? '' : 'hidden').'">';
 		//echo '<div class="display-pods">';
-
-		    echo '<div class="param-group">';
-		        echo '<label>Where</label>';
-		        echo '<input type="text" class="text" value="'.$default_params['where'].'" name="layout_elements['.$id.'][params][where]">';
-		    echo '</div>';
-
-		    echo '<div class="param-group">';
-		        echo '<label>Order by</label>';
-		        echo '<input type="text" class="text" value="'.$default_params['orderby'].'" name="layout_elements['.$id.'][params][orderby]">';
-		    echo '</div>';
 
 		    echo '<div class="param-group">';
 		        echo '<label class="inline-label">Limit</label>';
@@ -908,8 +937,19 @@ class DisplayPod {
 		        echo '<input type="text" class="text mini" value="'.$default_params['page'].'" name="layout_elements['.$id.'][params][page]">';
 
 		    echo '</div>';
+		echo '</div>';
+		echo '<div id="adv'.$id.'" class="config-tab-content '.($default_params['mode'] == 'adv' ? '' : 'hidden').'">';
+		    echo '<div class="param-group">';
+		        echo '<label>Where</label>';
+		        echo '<input type="text" class="text" value="'.$default_params['where'].'" name="layout_elements['.$id.'][params][where]">';
+		    echo '</div>';
 
-		    echo '<h3>Advanced</h3>';
+		    echo '<div class="param-group">';
+		        echo '<label>Order by</label>';
+		        echo '<input type="text" class="text" value="'.$default_params['orderby'].'" name="layout_elements['.$id.'][params][orderby]">';
+		    echo '</div>';
+
+
 
 		    echo '<div class="param-group">';
 		        echo '<label class="inline-label">Caching</label>';
@@ -981,6 +1021,15 @@ class DisplayPod {
 					case 'field':
 							echo $this->field_config_form($_POST['id']);
 						break;
+					case 'html':
+
+					?>
+				           <div class="editor-inline  editor-html trigger" data-before="init_editor" data-event="none" data-autoload="true">
+				                <textarea class="html-editor" name="data[]"></textarea>
+				            </div>
+				    <?php
+							//echo $this->field_config_form($_POST['id']);
+						break;
 					default:
 						
 						break;
@@ -1007,11 +1056,11 @@ class DisplayPod {
 				break;
 			case 'form-detail':
 				if(!empty($_POST['form'])){
-					$displaypod = get_option($_POST['form']);
-					//dump($displaypod);
+					$podfrontier = get_option($_POST['form']);
+					//dump($podfrontier);
 					echo '<div class="admin-panel">';
-						echo '<h2><small>'.$displaypod['form_name'];
-						echo '<a class="button pull-right" style="float:right;" href="?page=displaypods&action=edit&formid='.$displaypod['form_id'].'">Edit Form</a>';
+						echo '<h2><small>'.$podfrontier['form_name'];
+						echo '<a class="button pull-right" style="float:right;" href="?page=podsfrontier&action=edit&formid='.$podfrontier['form_id'].'">Edit Form</a>';
 						echo '</small></h2>';
 					echo '</div>';
 				}else{
@@ -1063,12 +1112,16 @@ class DisplayPod {
 			$this->load_file( self::slug . '-admin-script', 'js/admin.js', true );
 			//$this->load_file( self::slug . '-admin-style', '/css/lib/bootstrap.css' );
 			$this->load_file( self::slug . '-admin-style', 'css/admin.css' );
-			$this->load_file( self::slug . '-render-style', 'css/display.css' );
+			//$this->load_file( self::slug . '-render-style', 'css/display.css' );
+			$this->load_file( self::slug . '-editor-icons', 'css/icons.css');
+			$this->load_file( self::slug . '-editor-editor', 'css/editor.css');
 			if(!empty($_GET['action']) && !empty($_GET['type'])){
-				if('edit' == $_GET['action'] && 'template' == $_GET['type']){
+				if('edit' == $_GET['action']){
 					$this->load_file( self::slug . '-codemirror-style', 'css/codemirror.css');
 					$this->load_file( self::slug . '-codemirror-script', 'js/codemirror.js', true );
 					$this->load_file( self::slug . '-editor-script', 'js/editor.js', true , true);
+					$this->load_file( self::slug . '-editor-code-complete', 'css/code-complete.css');
+
 				}
 			}
 		} else { 
@@ -1192,6 +1245,15 @@ class DisplayPod {
 	} // end load_file
   
 } // end class
-new DisplayPod();
+new PodsFrontier();
 
+/*
+add_filter( 'pods_components_register', 'register_pods_frontier' );
+function register_pods_frontier($a){
+	//dump($a);
+	$a[] = '../../'.basename(dirname(__FILE__)).'/component.php';
+
+	return $a;
+
+}*/
 ?>

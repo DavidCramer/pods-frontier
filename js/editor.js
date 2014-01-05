@@ -19,6 +19,7 @@
 				start = token.start;
 		}
 		jQuery(typeclass).each(function(){
+			console.log(this);
 			var label = jQuery(this).find('.pod-field-label').html(),
 			field = jQuery(this).find('.pod-field-name').data('tag');
 			if (label.indexOf(prefix) == 0 || field.indexOf(prefix) == 0){
@@ -43,6 +44,7 @@ var hidehints   = false,
 	display = 'fields';
 
 function podFields(cm, e) {
+
 	var cur = cm.getCursor();
 	if(e.keyCode === 27){
 		hidehints = (hidehints ? false : true);
@@ -50,6 +52,11 @@ function podFields(cm, e) {
 	if(e.keyCode === 18){
 		display = (display == 'label' ? 'fields' : 'label');
 	}
+	
+	if(e.keyCode === 8){
+		return;
+	}
+
 	if (typeof pred === 'undefined' || typeof pred === 'object'){		
 		if (!cm.state.completionActive || e.keyCode === 18){			
 			var cur = cm.getCursor(), token = cm.getTokenAt(cur), prefix,

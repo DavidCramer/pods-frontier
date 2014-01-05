@@ -1,11 +1,11 @@
 <?php
 wp_enqueue_style( 'pods-form', false, array(), false, true );
 
-//dump($pod->displayPod);
+//dump($pod->PodsFrontier);
 //dump($this);
 
 $layout = new calderaLayout();
-$layout->setLayout(implode('|',$pod->displayPod['form_layout']));
+$layout->setLayout(implode('|',$pod->PodsFrontier['form_layout']));
 
 
 if ( !wp_script_is( 'pods', 'done' ) )
@@ -81,16 +81,16 @@ if ( isset( $_POST[ '_pods_nonce' ] ) ) {
                         // Toggle lable placeholders etc..
                         //$field['class'] = 'input-block-level';
                         // control group
-                        $layout->append('<div class="control-group">', $pod->displayPod['fields'][$field['name']]['location']);
+                        $layout->append('<div class="control-group">', $pod->PodsFrontier['fields'][$field['name']]['location']);
                         // Label
-                        //if($pod->displayPod['fields'][$field['name']]['params'])
-                        if(!empty($pod->displayPod['fields'][$field['name']]['params']['show_lable'])){
+                        //if($pod->PodsFrontier['fields'][$field['name']]['params'])
+                        if(!empty($pod->PodsFrontier['fields'][$field['name']]['params']['show_lable'])){
                             $fieldlabel = array_merge($field, array('class' => 'control-label'));
-                            $layout->append(PodsForm::label( 'pods_field_' . $field[ 'name' ], $field[ 'label' ], $field[ 'help' ], $fieldlabel ), $pod->displayPod['fields'][$field['name']]['location']);
+                            $layout->append(PodsForm::label( 'pods_field_' . $field[ 'name' ], $field[ 'label' ], $field[ 'help' ], $fieldlabel ), $pod->PodsFrontier['fields'][$field['name']]['location']);
                         }
-                        //$layout->append('<label class="control-label" for="{{id}}">{{label}}</label>', $pod->displayPod['fields'][$field['name']]);
+                        //$layout->append('<label class="control-label" for="{{id}}">{{label}}</label>', $pod->PodsFrontier['fields'][$field['name']]);
                         // field wrapper
-                        $layout->append('<div class="controls">', $pod->displayPod['fields'][$field['name']]['location']);
+                        $layout->append('<div class="controls">', $pod->PodsFrontier['fields'][$field['name']]['location']);
                         // Field
                         $smallFields = array(
                             'boolean'
@@ -100,22 +100,22 @@ if ( isset( $_POST[ '_pods_nonce' ] ) ) {
                         if(!in_array($field[ 'type' ], $smallFields)){
                             $formfield['class'] = 'input-block-level';
                         }
-                        if('none' != $pod->displayPod['fields'][$field['name']]['params']['placeholder']){
-                            $formfield['attributes']['placeholder'] = $field[$pod->displayPod['fields'][$field['name']]['params']['placeholder']];
+                        if('none' != $pod->PodsFrontier['fields'][$field['name']]['params']['placeholder']){
+                            $formfield['attributes']['placeholder'] = $field[$pod->PodsFrontier['fields'][$field['name']]['params']['placeholder']];
                         }
-                        $layout->append(PodsForm::field( 'pods_field_' . $field[ 'name' ], $pod->field( array( 'name' => $field[ 'name' ], 'in_form' => true ) ), $field[ 'type' ], $formfield, $pod, $pod->id() ), $pod->displayPod['fields'][$field['name']]['location']);
+                        $layout->append(PodsForm::field( 'pods_field_' . $field[ 'name' ], $pod->field( array( 'name' => $field[ 'name' ], 'in_form' => true ) ), $field[ 'type' ], $formfield, $pod, $pod->id() ), $pod->PodsFrontier['fields'][$field['name']]['location']);
                         
                         // form caption
-                        if(!empty($pod->displayPod['fields'][$field['name']]['params']['show_description'])){
+                        if(!empty($pod->PodsFrontier['fields'][$field['name']]['params']['show_description'])){
                             $formcaption = array_merge($field, array('class' => 'help-block'));
-                            $layout->append(PodsForm::comment( 'pods_field_' . $field[ 'name' ], null, $formcaption ), $pod->displayPod['fields'][$field['name']]['location']);
+                            $layout->append(PodsForm::comment( 'pods_field_' . $field[ 'name' ], null, $formcaption ), $pod->PodsFrontier['fields'][$field['name']]['location']);
                         }
 
                         //<span class="help-block">
                         // Close control
-                        $layout->append('</div>', $pod->displayPod['fields'][$field['name']]['location']);
+                        $layout->append('</div>', $pod->PodsFrontier['fields'][$field['name']]['location']);
                         // close group
-                        $layout->append('</div>', $pod->displayPod['fields'][$field['name']]['location']);
+                        $layout->append('</div>', $pod->PodsFrontier['fields'][$field['name']]['location']);
 
                     }
                 ?>

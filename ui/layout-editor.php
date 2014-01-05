@@ -1,53 +1,54 @@
-<div class="panel">
-    <button id="addRowFrom" type="button" class="button-primary"><?php echo __('Add Row', self::slug); ?></button>
 <?php
     if($_GET['type'] == 'form'){
+        echo '<div class="panel">';
         //accordian style
         $trayClass = 'forms';
         //Get pods
         $api = pods_api();
         $_pods = $api->load_pods();
 
+    
+        echo '<select name="data[pod]" id="selectPod" class="trigger pod-selector" data-request="setPodSrc" data-event="change" />';
+        echo '<option value="">Select Pod to Use</option>';
+        foreach($_pods as $pod){
+            echo '<option value="'.$pod['name'].'">'.$pod['label'].'</option>';
+        }
+        echo '</select>';
         
-            echo '<select name="data[pod]" id="selectPod" class="trigger pod-selector" data-request="setPodSrc" data-event="change" />';
-            echo '<option value="">Select Pod to Use</option>';
-            foreach($_pods as $pod){
-                echo '<option value="'.$pod['name'].'">'.$pod['label'].'</option>';
-            }
-            echo '</select>';
-        
-    ?> <button id="addPod" type="button" class="button trigger" data-action="sfbuilder" data-before="isPodUsed" data-process="podFields" data-target="#fieldTray" data-target-insert="html" data-active-class="none"><?php echo __('Use Pod', self::slug); ?></button> <?php
+    ?> <button id="addPod" type="button" class="button trigger" data-action="sfbuilder" data-before="isPodUsed" data-process="podFields" data-target="#fieldTray" data-target-insert="html" data-active-class="none"><?php echo __('Use Pod', self::slug); ?></button>
+    </div>
+    <?php
     }else{
         $trayClass = 'fieldAccordian';
     }
 ?>
-</div>
+
 <div class="row">
     <div class="span2">
         <div id="fieldTray" class="fieldTray <?php echo $trayClass; ?>">
             <?php
             if($_GET['type'] == 'form'){
-                if(!empty($displaypod['pod'])){
-                    $fields = self::load_pods_fields($displaypod['pod']);
+                if(!empty($podfrontier['pod'])){
+                    $fields = self::load_pods_fields($podfrontier['pod']);
                     echo $fields['html'];
-                    $displaypods = $fields['field'];
+                    $podsfrontier = $fields['field'];
                 }                
             }else{
-                foreach($displaypods as $id=>$element){
-                    $layoutElements[$element['displaypod_type']][$id] = $element['name'];
+                foreach($podsfrontier as $id=>$element){
+                    $layoutElements[$element['podfrontier_type']][$id] = $element['name'];
                 }
                 
-                foreach($layoutElements as $base=>$displaypodelement){
+                foreach($layoutElements as $base=>$podfrontierelement){
 
                     echo '<div class="label">'.__(ucwords($base), self::slug).'</div>';
-                    echo '<div>';
-                    foreach($displaypodelement as $key=>$field){
-                        if($key === $displaypod['displaypod_id']){continue;}
+                    echo '<div class="tray-body">';
+                    foreach($podfrontierelement as $key=>$field){
+                        if($key === $podfrontier['podfrontier_id']){continue;}
                         $pod = null;
-                        if(isset($displaypods[$key]['pod'])){
-                            $pod = ' for '.$displaypods[$key]['pod'];
+                        if(isset($podsfrontier[$key]['pod'])){
+                            $pod = ' for '.$podsfrontier[$key]['pod'];
                         }
-                        echo '<div class="trayItem formField button" data-id="'.$key.'" data-type="'.$base.'">';
+                        echo '<div class="trayItem formField" data-id="'.$key.'" data-type="'.$base.'">';
                             echo '<i class="fieldEdit">';
                                 echo '<span class="control delete" data-request="removeField"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
                                 echo ' | ';
@@ -59,6 +60,23 @@
                     }
                     echo '&nbsp;</div>';
                 }
+
+                echo '<div class="label">'.__('HTML', self::slug).'</div>';
+                echo '<div class="tray-body">';
+                
+                echo '<div class="trayItem formField" data-id="html-template" data-type="html">';
+                    echo '<i class="fieldEdit">';
+                        echo '<span class="control delete" data-request="removeField"><i class="icon-remove"></i> '.__('Remove', self::slug).'</span>';
+                        echo ' | ';
+                        echo '<span class="control edit" data-request="toggleConfig"><i class="icon-cog"></i> '.__('Edit', self::slug).'</span>';
+                        echo '</i>';
+                    echo '<span class="fieldType description">'.__('Template', self::slug).$pod.'</span>';    
+                    echo '<span class="fieldName">'.__('html', self::slug).'</span>';                        
+                echo '</div>';
+
+                echo '&nbsp;</div>';
+
+
             }
             ?>
         </div>
@@ -67,16 +85,16 @@
     <?php
     $footerscripts = '';
 
-    if(empty($displaypod['form_layout'])){
+    if(empty($podfrontier['form_layout'])){
         $pageLayout = '6:6';
         $Rows = explode('|', $pageLayout);
     }else{
-        $Rows = $displaypod['form_layout'];
-        //dump($displaypod);
+        $Rows = $podfrontier['form_layout'];
+        //dump($podfrontier);
         // build positioning
         $layoutStructure = array();
-        if(!empty($displaypod['layout_elements'])){
-            foreach($displaypod['layout_elements'] as $id=>$cfg){
+        if(!empty($podfrontier['layout_elements'])){
+            foreach($podfrontier['layout_elements'] as $id=>$cfg){
                 $layoutStructure[$cfg['position']][] = $id; 
             }
         }
@@ -90,7 +108,7 @@
 
             $columns = explode(':', $Row);
             $colindex = 1;
-            $displaypodelementConfigs = array();
+            $podfrontierelementConfigs = array();
             foreach($columns as $column){
 
                 //echo "<div class=\"formColumn span".$column."\" style=\"width:".(($column/12)*100)."%;\" ref=\"".$colindex."\">\n";
@@ -101,15 +119,15 @@
                     echo "<div class=\"fieldHolder\">";
                     // the elements for that row here
                     if(!empty($layoutStructure[$rowIndex.':'.$colindex])){
-                        foreach($layoutStructure[$rowIndex.':'.$colindex] as $displaypodElement){
+                        foreach($layoutStructure[$rowIndex.':'.$colindex] as $podfrontierElement){
 
                             $pod = null;
-                            if(isset($displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['pod'])){
-                                $pod = ' for '.$displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['pod'];
+                            if(isset($podsfrontier[$podfrontier['layout_elements'][$podfrontierElement]['element']]['pod'])){
+                                $pod = ' for '.$podsfrontier[$podfrontier['layout_elements'][$podfrontierElement]['element']]['pod'];
                             }                            
-                            echo '<div data-type="standard-address" class="formField button ui-draggable" id="wrapper_'.$displaypodElement.'" style="display: block;">';
+                            echo '<div data-type="standard-address" class="formField ui-draggable" id="wrapper_'.$podfrontierElement.'" style="display: block;">';
                                 echo '<i class="fieldEdit">';
-                                    echo '<span data-request="removeField" class="delete trigger" data-field="field_'.$displaypod['layout_elements'][$displaypodElement]['element'].'">';
+                                    echo '<span data-request="removeField" class="delete trigger" data-field="field_'.$podfrontier['layout_elements'][$podfrontierElement]['element'].'">';
                                         echo '<i class="icon-remove"></i> Remove';
                                     echo '</span>';
                                     echo ' | ';
@@ -117,28 +135,28 @@
                                         echo '<i class="icon-cog"></i> Edit';
                                     echo '</span>';
                                 echo '</i>';
-                                echo '<span class="fieldType description">'.__(ucwords($displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['displaypod_type']), self::slug).$pod.'</span>';
-                                echo '<span class="fieldName">'.$displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['name'].'</span>';
-                                echo '<input type="hidden" value="'.$displaypod['layout_elements'][$displaypodElement]['position'].'" id="'.$displaypodElement.'" name="layout_elements['.$displaypodElement.'][position]" class="fieldLocation">';
-                                echo '<input type="hidden" value="'.$displaypod['layout_elements'][$displaypodElement]['element'].'" name="layout_elements['.$displaypodElement.'][element]">';
-                                echo '<div id="'.$displaypodElement.'_panel" class="config-panel hidden">';
+                                echo '<span class="fieldType description">'.__(ucwords($podsfrontier[$podfrontier['layout_elements'][$podfrontierElement]['element']]['podfrontier_type']), self::slug).$pod.'</span>';
+                                echo '<span class="fieldName">'.$podsfrontier[$podfrontier['layout_elements'][$podfrontierElement]['element']]['name'].'</span>';
+                                echo '<input type="hidden" value="'.$podfrontier['layout_elements'][$podfrontierElement]['position'].'" id="'.$podfrontierElement.'" name="layout_elements['.$podfrontierElement.'][position]" class="fieldLocation">';
+                                echo '<input type="hidden" value="'.$podfrontier['layout_elements'][$podfrontierElement]['element'].'" name="layout_elements['.$podfrontierElement.'][element]">';
+                                echo '<div id="'.$podfrontierElement.'_panel" class="config-panel hidden">';
 
                                     // TEMPLATE SETUP
-                                switch ($displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['displaypod_type']) {
+                                switch ($podsfrontier[$podfrontier['layout_elements'][$podfrontierElement]['element']]['podfrontier_type']) {
                                     case 'template':
 
-                                        echo $this->template_config_form($displaypodElement,$displaypod['layout_elements'][$displaypodElement], $displaypods[$displaypod['layout_elements'][$displaypodElement]['element']]['pod']);
+                                        echo $this->template_config_form($podfrontierElement,$podfrontier['layout_elements'][$podfrontierElement], $podsfrontier[$podfrontier['layout_elements'][$podfrontierElement]['element']]['pod']);
                                         break;
                                     
                                     case 'field':
-                                        echo $this->field_config_form($displaypodElement,$displaypod['layout_elements'][$displaypodElement]);
+                                        echo $this->field_config_form($podfrontierElement,$podfrontier['layout_elements'][$podfrontierElement]);
                                         break;
 
                                     default:
                                         # code...
                                         break;
                                 }
-                                    //dump($displaypods[$displaypod['layout_elements'][$displaypodElement]['element']],0);
+                                    //dump($podsfrontier[$podfrontier['layout_elements'][$podfrontierElement]['element']],0);
 
 
                                 echo '</div>';
@@ -429,7 +447,7 @@ resetSortables = function resetSortables(){
                 request: ajaxurl
             });
             toggleConfig();
-            if(type !== 'template' && type !== 'pod'){
+            if(type !== 'template' && type !== 'pod'  && type !== 'html' ){
                 ui.draggable.fadeOut(100);
             }
         }
@@ -559,6 +577,29 @@ function setPodSrc(el){
     jQuery('#addPod').data('pod', jQuery(el).val());
 }
 
+function init_editor(obj){
+    var obel = jQuery(obj).find('.html-editor');
+    CodeMirror.defineMode("inline-mustache", function(config, parserConfig) {
+        var mustacheOverlay = {
+            token: mustache
+        };
+        return CodeMirror.overlayMode(CodeMirror.getMode(config, parserConfig.backdrop || "text/html"), mustacheOverlay);
+    });
+
+    var thiseditor = CodeMirror.fromTextArea(obel[0], {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "inline-mustache",
+        indentUnit: 4,
+        indentWithTabs: true,
+        enterMode: "keep",
+        tabMode: "shift",
+        lineWrapping: true
+    });
+    thiseditor.on('keyup', podFields);
+
+    return false;
+}
 
 
 </script>
