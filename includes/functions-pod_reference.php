@@ -1,13 +1,12 @@
 <?php
-/**
- * Pod Reference functions
- */
-
 add_action( 'wp_ajax_pq_loadpod', 'pq_loadpod' );
 
 function pq_loadpod($podname = false) {
 	if(!empty($_POST['pod_reference']['pod'])){
 		$podname = $_POST['pod_reference']['pod'];
+	}
+	if(!empty($_POST['pod'])){
+		$podname = $_POST['pod'];
 	}
 	$fields = array('No reference Pod selected');
 	if(!empty($podname)){
@@ -20,7 +19,7 @@ function pq_loadpod($podname = false) {
 	
 		$fields = array_merge( $fields, pq_tunnel_pod_field( $pod_fields ) );
 	}
-	if(!empty($_POST['pod_reference']['pod'])){
+	if(!empty($_POST['pod_reference']['pod']) || !empty($_POST['pod'])){
 		header("Content-Type:application/json");
 		echo json_encode($fields);
 		die;

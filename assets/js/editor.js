@@ -96,10 +96,13 @@ var mustache = function(stream, state) {
 		stream.eat("}");
 		return "mustacheinternal";
 	}
-	if (stream.match("[once]") || stream.match("[/once]") || stream.match("[/each]") || stream.match("[else]") || stream.match("[/if]")) {
+	if (stream.match("[/each]") || stream.match("[else]") || stream.match("[/if]") || stream.match("[/pod]")) {
 		return "command";
 	}
-	if (stream.match("[each") || stream.match("[if")) {
+	if (stream.match("[before]") || stream.match("[after]") || stream.match("[/before]") || stream.match("[/after]") || stream.match("[once]") || stream.match("[/once]")) {
+		return "mustacheinternal";
+	}
+	if (stream.match("[each") || stream.match("[if") || stream.match("[pod")) {
 		while ((ch = stream.next()) != null){
 			if(stream.eat("]")) break;
 		}
@@ -117,10 +120,16 @@ var mustache = function(stream, state) {
 		!stream.match("{@", false) && 
 		!stream.match("{&", false) && 
 		!stream.match("{{_", false) && 
+		!stream.match("[before]", false) && 
+		!stream.match("[/before]", false) && 
+		!stream.match("[after]", false) && 
+		!stream.match("[/after]", false) && 
 		!stream.match("[once]", false) && 
 		!stream.match("[/once]", false) && 
 		!stream.match("[each", false) && 
 		!stream.match("[/each]", false) && 
+		!stream.match("[pod", false) && 
+		!stream.match("[/pod]", false) && 
 		!stream.match("[if", false) && 
 		!stream.match("[else]", false) && 
 		!stream.match("[/if]", false) ) {}
