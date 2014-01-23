@@ -29,12 +29,6 @@ require_once( plugin_dir_path( __FILE__ ) . '/includes/functions-view_template.p
 require_once( plugin_dir_path( __FILE__ ) . '/includes/functions-pod_reference.php' );
 
 
-// Register hooks that are fired when the plugin is activated or deactivated.
-// When the plugin is deleted, the uninstall.php file is loaded.
-register_activation_hook( __FILE__, array( 'Pods_Frontier_Template_Editor', 'activate' ) );
-register_deactivation_hook( __FILE__, array( 'Pods_Frontier_Template_Editor', 'deactivate' ) );
-
 // Load instance
-//add_action( 'plugins_loaded', array( 'Pods_Frontier_Template_Editor', 'get_instance' ) );
 Pods_Frontier_Template_Editor::get_instance();
 ?>

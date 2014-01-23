@@ -268,3 +268,4 @@ function frontier_end_template($code, $base, $template, $pod){
 	return do_shortcode($code);
 }
 
+?>
