@@ -19,10 +19,13 @@ add_shortcode("pod_if_field", "frontier_if_block");
 function frontier_if_block($atts, $code, $slug){
 
 	$pod = pods($atts['pod'], $atts['id']);
-	$code = explode('[else]', base64_decode($code) );
+	$code = base64_decode( $code );
+	$code = str_replace('{@ID}', $atts['id'], $code );
+	$code = str_replace('pod="@pod"', 'pod="'.$atts['pod'].'"', $code );
+	$code = explode('[else]', $code );
 
 	if( $field_data = $pod->field( $atts['field'] ) ){
-		// theres a field - let go deeper		
+		// theres a field - let go deeper
 		if(isset($atts['value'])){
 			if( $field_data == $atts['value']){
 				return do_shortcode( $code[0] );
@@ -31,8 +34,9 @@ function frontier_if_block($atts, $code, $slug){
 					return do_shortcode( $code[1] );
 				}
 			}
+		}else{
+			return do_shortcode( $code[0] );
 		}
-		return do_shortcode( $code[0] );
 	}else{
 		if(isset($code[1])){
 			return do_shortcode( $code[1] );
