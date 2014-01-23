@@ -13,7 +13,32 @@ add_shortcode("pod_sub_template", "frontier_do_subtemplate");
 add_shortcode("pod_once_template", "frontier_template_once_blocks");
 add_shortcode("pod_after_template", "frontier_template_blocks");
 add_shortcode("pod_before_template", "frontier_template_blocks");
+add_shortcode("pod_if_field", "frontier_if_block");
 
+
+function frontier_if_block($atts, $code, $slug){
+
+	$pod = pods($atts['pod'], $atts['id']);
+	$code = explode('[else]', base64_decode($code) );
+
+	if( $field_data = $pod->field( $atts['field'] ) ){
+		// theres a field - let go deeper		
+		if(isset($atts['value'])){
+			if( $field_data == $atts['value']){
+				return do_shortcode( $code[0] );
+			}else{
+				if(isset($code[1])){
+					return do_shortcode( $code[1] );
+				}
+			}
+		}
+		return do_shortcode( $code[0] );
+	}else{
+		if(isset($code[1])){
+			return do_shortcode( $code[1] );
+		}		
+	}
+}
 
 function frontier_template_blocks($atts, $code, $slug){
 	global $template_post_blocks;
@@ -92,13 +117,13 @@ function frontier_prefilter_template($code, $template, $pod){
 		'once' 	=> 'pod_once_template',
 		'before'=> 'pod_before_template',
 		'after' => 'pod_after_template',
+		'if'	=> 'pod_if_field',
 	);
 	
 	$aliases = array();
 	foreach($commands as $command=>$shortcode){
 		preg_match_all("/(\[".$command."(.*?)]|\[\/".$command."\])/m", $code, $matches);
 		if(!empty($matches[0])){
-
 				// holder for found blocks.
 				$blocks = array();
 				$indexCount = 0;				
@@ -106,17 +131,33 @@ function frontier_prefilter_template($code, $template, $pod){
 					if(false === strpos($tag, '[/')){
 						// open tag
 						$field = null;
+						$value = null;
 						$ID = '{@ID}';
 						$atts = ' pod="@pod"';
 						if(!empty($matches[2][$key])){
-							$field = trim($matches[2][$key]);
+							// get atts if any
+							//$atts = shortcode_parse_atts(str_replace('.', '____', $matches[2][$key]));
+							$atts = array();
+							$pattern = '/(\w.+)\s*=\s*"([^"]*)"(?:\s|$)/';
+							$text = preg_replace("/[\x{00a0}\x{200b}]+/u", " ", $matches[2][$key]);
+							if ( preg_match_all($pattern, $text, $match, PREG_SET_ORDER) ) {
+								$field = $match[0][1];
+								$value = $match[0][2];
+							} else {
+								$field = trim($matches[2][$key]);
+							}
 							if(false !== strpos($field, '.')){
 								$path = explode('.', $field);
 								$field = array_pop($path);
 								$ID = '{@'.implode('.', $path).'.ID}';								
 							}
 							$atts = ' id="'.$ID.'" pod="@pod" field="'.$field.'"';
+							if(!empty($value)){
+								$atts .= ' value="'.$value.'"';
+							}
 						}
+
+
 						$newtag = $shortcode.'__'.$key;
 						$tags[$indexCount] = $newtag;
 						$aliases[] = $newtag;
@@ -223,4 +264,3 @@ function frontier_end_template($code, $base, $template, $pod){
 	return do_shortcode($code);
 }
 
-?>
