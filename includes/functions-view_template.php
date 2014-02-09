@@ -4,44 +4,59 @@
  */
 
 
-add_filter( 'pods_templates_post_template', 'frontier_end_template', 25, 4);
-add_filter( 'pods_templates_do_template', 'do_shortcode', 25, 4);
+add_filter( "pods_templates_post_template"	, "frontier_end_template", 25, 4 );
+add_filter( "pods_templates_do_template"	, "do_shortcode", 25, 4 );
 
 
 // template shortcode handlers
-add_shortcode("pod_sub_template", "frontier_do_subtemplate");
-add_shortcode("pod_once_template", "frontier_template_once_blocks");
-add_shortcode("pod_after_template", "frontier_template_blocks");
-add_shortcode("pod_before_template", "frontier_template_blocks");
-add_shortcode("pod_if_field", "frontier_if_block");
+add_shortcode( "pod_sub_template"	, "frontier_do_subtemplate" );
+add_shortcode( "pod_once_template"	, "frontier_template_once_blocks" );
+add_shortcode( "pod_after_template"	, "frontier_template_blocks" );
+add_shortcode( "pod_before_template", "frontier_template_blocks" );
+add_shortcode( "pod_if_field"		, "frontier_if_block" );
 
+function frontier_decode_template($code, $atts){
+	
+	$code = base64_decode( $code );
+
+	if(isset($atts['pod'])){
+		$code = str_replace('@pod', $atts['pod'], $code ); 
+	}
+	if(isset($atts['id'])){
+		$code = str_replace('{@ID}', $atts['id'], $code ); 
+	}
+
+	return $code;
+}
 
 function frontier_if_block($atts, $code, $slug){
 
-	$pod = pods($atts['pod'], $atts['id']);
-	$code = base64_decode( $code );
-	$code = str_replace('{@ID}', $atts['id'], $code );
-	$code = str_replace('pod="@pod"', 'pod="'.$atts['pod'].'"', $code );
-	$code = explode('[else]', $code );
+	$pod = pods( $atts['pod'], $atts['id'] );
+	$code = explode( '[else]',  frontier_decode_template( $code, $atts ) );
+	
+	$template = do_shortcode( $code[0] );
 
 	if( $field_data = $pod->field( $atts['field'] ) ){
-		// theres a field - let go deeper
+		// theres a field - let go deeper		
 		if(isset($atts['value'])){
-			if( $field_data == $atts['value']){
-				return do_shortcode( $code[0] );
+			if( $field_data == $atts['value']){				
+				return do_shortcode( $template );
 			}else{
 				if(isset($code[1])){
-					return do_shortcode( $code[1] );
+					$template = do_shortcode( $code[1] );
+					return do_shortcode( $template );
 				}
 			}
-		}else{
-			return do_shortcode( $code[0] );
 		}
+		
+		return do_shortcode( $template );
 	}else{
 		if(isset($code[1])){
-			return do_shortcode( $code[1] );
+			$template = do_shortcode( $code[1] );
+			return $template;
 		}		
 	}
+
 }
 
 function frontier_template_blocks($atts, $code, $slug){
@@ -54,12 +69,12 @@ function frontier_template_blocks($atts, $code, $slug){
 	}
 	if($slug === 'pod_before_template'){
 		if(!isset($template_post_blocks['before'][$atts['pod']])){
-			$template_post_blocks['before'][$atts['pod']] = do_shortcode( base64_decode($code) );
+			$template_post_blocks['before'][$atts['pod']] = do_shortcode( frontier_decode_template( $code, $atts ) );
 		}
 
 	}elseif($slug === 'pod_after_template'){
 		if(!isset($template_post_blocks['after'][$atts['pod']])){
-			$template_post_blocks['after'][$atts['pod']] = do_shortcode( base64_decode($code) );
+			$template_post_blocks['after'][$atts['pod']] = do_shortcode( frontier_decode_template( $code, $atts ) );
 		}
 	}
 
@@ -78,7 +93,7 @@ function frontier_template_once_blocks($atts, $code){
 	}
 	$frontier_once_hashes[] = $blockhash;
 
-	return do_shortcode( base64_decode($code) );
+	return do_shortcode( frontier_decode_template( $code, $atts ) );
 }
 
 function frontier_do_subtemplate($atts, $content, $a){
@@ -90,7 +105,7 @@ function frontier_do_subtemplate($atts, $content, $a){
 		);
 		$entries = $pod->field($params);
 		if(!empty($entries)){
-			$template = base64_decode($content);
+			$template = frontier_decode_template( $content, $atts );
 			foreach ($entries as $key => $entry) {
 				
 				$content = str_replace('{@'.$atts['field'].'.', '{@', $template);
