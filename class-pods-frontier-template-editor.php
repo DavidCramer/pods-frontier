@@ -182,17 +182,17 @@ class Pods_Frontier_Template_Editor {
 		
 		if(!in_array($post->post_type, array('_pods_template','frontier_view'))){return;}
 
-		wp_enqueue_style( $this->plugin_slug . '-panel-styles', $this->get_url( 'assets/css/panel.css', __FILE__ ), array(), self::VERSION );
+		wp_enqueue_script( 'jquery-ui-resizable' );
 		wp_enqueue_script( $this->plugin_slug . '-panel-script', $this->get_url( 'assets/js/panel.js', __FILE__ ), array( 'jquery' ), self::VERSION );
-
-		
-		wp_enqueue_style( $this->plugin_slug . '-cm-css', $this->get_url( 'assets/css/codemirror.css', __FILE__ ), array(), self::VERSION );
 		wp_enqueue_script( $this->plugin_slug . '-cm-comp', $this->get_url( 'assets/js/codemirror-compressed.js', __FILE__ ), array( 'jquery' ), self::VERSION );
 		wp_enqueue_script( $this->plugin_slug . '-cm-editor', $this->get_url( 'assets/js/editor.js', __FILE__ ), array( 'jquery' ), self::VERSION );
-		wp_enqueue_style( $this->plugin_slug . '-view_template-styles', $this->get_url( 'assets/css/styles-view_template.css', __FILE__ ), array(), self::VERSION );
 		wp_enqueue_script( $this->plugin_slug . '-handlebarsjs', $this->get_url( 'assets/js/handlebars.js', __FILE__ ), array( 'jquery' ), self::VERSION );
 		wp_enqueue_script( $this->plugin_slug . '-baldrickjs', $this->get_url( 'assets/js/jquery.baldrick.js', __FILE__ ), array( 'jquery' ), self::VERSION );
 		wp_enqueue_script( $this->plugin_slug . '-handlebars-baldrick', $this->get_url( 'assets/js/handlebars.baldrick.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+
+		wp_enqueue_style( $this->plugin_slug . '-panel-styles', $this->get_url( 'assets/css/panel.css', __FILE__ ), array(), self::VERSION );
+		wp_enqueue_style( $this->plugin_slug . '-cm-css', $this->get_url( 'assets/css/codemirror.css', __FILE__ ), array(), self::VERSION );
+		wp_enqueue_style( $this->plugin_slug . '-view_template-styles', $this->get_url( 'assets/css/styles-view_template.css', __FILE__ ), array(), self::VERSION );
 		wp_enqueue_style( $this->plugin_slug . '-pod_reference-styles', $this->get_url( 'assets/css/styles-pod_reference.css', __FILE__ ), array(), self::VERSION );
 		
 		add_meta_box('view_template', 'Frontier Template', array($this, 'render_metaboxes_custom'), '_pods_template', 'normal', 'high', array( 'slug' => 'view_template', 'groups' => array() ) );

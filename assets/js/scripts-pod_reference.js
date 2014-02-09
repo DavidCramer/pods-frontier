@@ -1,3 +1,5 @@
+var htmleditor;
+
 CodeMirror.defineMode("mustache", function(config, parserConfig) {
 	var mustacheOverlay = {
 		token: mustache
@@ -9,7 +11,7 @@ CodeMirror.defineMode("mustache", function(config, parserConfig) {
 // setup pod selection
 jQuery(function($){
 
-	var htmleditor = CodeMirror.fromTextArea(document.getElementById("content"), {
+	htmleditor = CodeMirror.fromTextArea(document.getElementById("content"), {
 		lineNumbers: true,
 		matchBrackets: true,
 		mode: "mustache",
