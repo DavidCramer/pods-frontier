@@ -7,7 +7,7 @@ function pods_frontier_template_editor_randomUUID() {
 var pods_frontier_template_editor_field_callbacks = [];
 jQuery(function($){
 	// add row
-	$('body').on('click', '.pods-frontier-template-editor-add-group-row', function(){
+	$('body').on('click', '.pods-frontier-add-group-row', function(){
 		var clicked = $( this ),
 			rowid = pods_frontier_template_editor_randomUUID(),
 			template = $( '#' + clicked.data('rowtemplate')).html().replace(/{{id}}/g, rowid);
@@ -26,13 +26,13 @@ jQuery(function($){
 			}
 
 	});
-	$('body').on('click', '.pods-frontier-template-editor-removeRow', function(){
+	$('body').on('click', '.pods-frontier-removeRow', function(){
 		$(this).next().remove();
 		$(this).remove();
 		//console.log(this);
 	});
 	// tabs
-	$('body').on('click', '.pods-frontier-template-editor-metabox-config-nav li a, .pods-frontier-template-editor-shortcode-config-nav li a, .pods-frontier-template-editor-settings-config-nav li a, .pods-frontier-template-editor-widget-config-nav li a', function(){
+	$('body').on('click', '.pods-frontier-metabox-config-nav li a, .pods-frontier-shortcode-config-nav li a, .pods-frontier-settings-config-nav li a, .pods-frontier-widget-config-nav li a', function(){
 		$(this).parent().parent().find('.current').removeClass('current');
 		$(this).parent().parent().parent().parent().find('.group').hide();
 		$(''+$(this).attr('href')+'').show();
@@ -45,11 +45,11 @@ jQuery(function($){
 
 	// initcallbacks
 	setInterval(function(){
-		$('.pods-frontier-template-editor-init-callback').each(function(k,v){
+		$('.pods-frontier-init-callback').each(function(k,v){
 			var callback = $(this);
 			if( typeof window[callback.data('init')] === 'function'){
 				window[callback.data('init')]();
-				callback.removeClass('pods-frontier-template-editor-init-callback');
+				callback.removeClass('pods-frontier-init-callback');
 			}
 		});
 	}, 100);	

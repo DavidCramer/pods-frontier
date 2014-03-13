@@ -23,7 +23,7 @@ class Pods_Frontier_Template_Editor {
 	/**
 	 * @var      string
 	 */
-	protected $plugin_slug = 'pods-frontier-template-editor';
+	protected $plugin_slug = 'pods-frontier';
 	/**
 	 * @var      object
 	 */
@@ -60,6 +60,36 @@ class Pods_Frontier_Template_Editor {
 
 		add_action( 'init', array( $this, 'activate_metaboxes' ) );
 
+		// remove default template metabox
+		add_action( 'add_meta_boxes', array( $this, 'remove_template_editor'), 1000 );
+		
+
+		// detect pod template for styles & scripts
+		add_action('wp', array( $this, 'detect_pod_template' ), 100 );
+
+		add_filter( 'pods_components_register', array( $this, 'register_frontier_modules' ) );
+
+
+	}
+	/**
+	 * register frontier modules
+	 */
+
+	function register_frontier_modules($components){
+		$components[]['File'] = dirname( __FILE__ ) . '/templates.php';
+		$components[]['File'] = dirname( __FILE__ ) . '/forms.php';
+		$components[]['File'] = dirname( __FILE__ ) . '/layouts.php';
+		return $components;
+	}	
+	/**
+	 * Remove the default template editor.
+	 *
+	 *
+	 * @return    null
+	 */
+
+	public function remove_template_editor(){
+	    remove_meta_box('pods-meta-template', '_pods_template', 'normal');
 	}
 
 	/**
@@ -195,7 +225,7 @@ class Pods_Frontier_Template_Editor {
 		wp_enqueue_style( $this->plugin_slug . '-view_template-styles', $this->get_url( 'assets/css/styles-view_template.css', __FILE__ ), array(), self::VERSION );
 		wp_enqueue_style( $this->plugin_slug . '-pod_reference-styles', $this->get_url( 'assets/css/styles-pod_reference.css', __FILE__ ), array(), self::VERSION );
 		
-		add_meta_box('view_template', 'Frontier Template', array($this, 'render_metaboxes_custom'), '_pods_template', 'normal', 'high', array( 'slug' => 'view_template', 'groups' => array() ) );
+		add_meta_box('view_template', 'Frontier', array($this, 'render_metaboxes_custom'), '_pods_template', 'normal', 'high', array( 'slug' => 'view_template', 'groups' => array() ) );
 		add_meta_box('pod_reference', 'Pod Reference', array($this, 'render_metaboxes_custom'), '_pods_template', 'side', 'default', array( 'slug' => 'pod_reference', 'groups' => array() ) );
 
 	}
@@ -448,6 +478,65 @@ class Pods_Frontier_Template_Editor {
 	static function get_path($src = null) {
 		return plugin_dir_path( $src );
 
+	}
+
+	/***
+	 * detect a pod template then render the styles & scripts if any.
+	 *
+	 */
+
+	public function detect_pod_template(){
+		
+		global $wp_query, $frontier_styles, $frontier_scripts;
+
+		$regex = frontier_get_regex(array('pods'));
+
+		// find used shortcodes within posts
+		foreach ($wp_query->posts as $key => &$post) {
+			preg_match_all('/' . $regex . '/s', $post->post_content, $shortcodes);
+
+			if(!empty($shortcodes[3])){
+				foreach($shortcodes[3] as $foundkey=>$args){
+
+					$atts = shortcode_parse_atts($shortcodes[3][$foundkey]);
+					if(isset($atts['template'])){
+						$template = pods()->api->load_template( array('name' => $atts['template']) );
+						if( !empty( $template ) ){
+							// got a template - check for styles & scripts
+							$meta = get_post_meta($template['id'], 'view_template', true);
+							
+							if(!empty($meta['css'])){
+								
+								$frontier_styles .= $meta['css'];
+								
+								add_action( 'wp_head', function(){
+									global $frontier_styles;
+									if(!empty($frontier_styles)){
+										echo "<style type=\"text/css\">\r\n";
+											echo $frontier_styles;
+										echo "</style>\r\n";
+									}
+								}, 100 );
+							}
+
+							if(!empty($meta['js'])){
+								
+								$frontier_scripts .= $meta['js'];
+								
+								add_action( 'wp_footer', function(){
+									global $frontier_scripts;
+									if(!empty($frontier_scripts)){
+										echo "<script type=\"text/javascript\">\r\n";
+											echo $frontier_scripts;
+										echo "</script>\r\n";
+									}
+								}, 100 );
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 	
 }

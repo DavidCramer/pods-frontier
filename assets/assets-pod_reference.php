@@ -1,7 +1,7 @@
 <?php
 /**
 *
-* registered assets for pods-frontier-template-editor
+* registered assets for pods-frontier
 *
 * @package Pods_Frontier_Template_Editor
 * @author David Cramer david@digilab.co.za
