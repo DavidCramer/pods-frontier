@@ -18,6 +18,9 @@ class Pods_Frontier_Form extends PodsComponent {
      */
     public function admin ( $options, $component ) {
     	
-    }
+    	echo "<div class=\"wrap\">";
+ 			   		
+    	echo "</div>";
+    }	
 
 }

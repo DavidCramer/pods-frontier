@@ -2,7 +2,7 @@
 /*
 Name: Frontier: Templates
 Category: Frontier
-Description: Andvanced template creation.
+Description: Advanced template creation.
 Version: 1.0.0
 Author: David Cramer
 Author URI: http://cramer.co.za

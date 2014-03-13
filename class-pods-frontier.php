@@ -58,14 +58,12 @@ class Pods_Frontier_Template_Editor {
 		
 		add_action('wp_footer', array( $this, 'footer_scripts' ) );
 
-		add_action( 'init', array( $this, 'activate_metaboxes' ) );
-
-		// remove default template metabox
-		add_action( 'add_meta_boxes', array( $this, 'remove_template_editor'), 1000 );
-		
+		add_action( 'init', array( $this, 'activate_metaboxes' ) );		
 
 		// detect pod template for styles & scripts
-		add_action('wp', array( $this, 'detect_pod_template' ), 100 );
+		if(!is_admin()){
+			add_action('wp', array( $this, 'detect_pod_template' ), 100 );
+		}
 
 		add_filter( 'pods_components_register', array( $this, 'register_frontier_modules' ) );
 
@@ -76,21 +74,14 @@ class Pods_Frontier_Template_Editor {
 	 */
 
 	function register_frontier_modules($components){
+
 		$components[]['File'] = dirname( __FILE__ ) . '/templates.php';
 		$components[]['File'] = dirname( __FILE__ ) . '/forms.php';
 		$components[]['File'] = dirname( __FILE__ ) . '/layouts.php';
+		
 		return $components;
 	}	
-	/**
-	 * Remove the default template editor.
-	 *
-	 *
-	 * @return    null
-	 */
 
-	public function remove_template_editor(){
-	    remove_meta_box('pods-meta-template', '_pods_template', 'normal');
-	}
 
 	/**
 	 * Return an instance of this class.
