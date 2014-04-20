@@ -92,6 +92,9 @@
   height: 160px;
 }
 .frontier-group-panel .add-new-h2{display: none;}
+h2.invalid-frontier-element {
+  margin-top: -40px;
+}
 .frontier-group-description {
   height: 35px;
   margin-right: -12px;

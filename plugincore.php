@@ -24,6 +24,9 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+define( 'FRONTIER_URL', plugin_dir_url( __FILE__ ) );
+define( 'FRONTIER_DIR', plugin_dir_path( __FILE__ ) );
+
 register_activation_hook( __FILE__, 'frontier_toggle' );
 register_deactivation_hook( __FILE__, 'frontier_toggle' );
 

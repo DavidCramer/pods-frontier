@@ -35,8 +35,8 @@ $element_types = apply_filters('frontier_get_element_types', array() );
 
 // Build Interface to element type
 if(!isset($element_types[$element['type']]['setup'])){
-	echo '<h2>' . __('Pods Frontier', 'pods-frontier') .' <a class="add-new-h2" href="admin.php?page=pods_frontier">Back</a></h2>';
-	echo '<div class="error"><p>' . __('Invalid element type', 'pods-frontier') .'</p></div>';
+	echo '<h2 class="invalid-frontier-element">' . __('Pods Frontier', 'pods-frontier') .' <a class="add-new-h2" href="admin.php?page=pods-component-frontier">Back</a></h2>';
+	echo '<div class="error"><p>' . __('Invalid or Disabled Frontier Element', 'pods-frontier') .'</p></div>';
 	return;
 }
 

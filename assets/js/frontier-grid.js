@@ -97,7 +97,7 @@ jQuery(function($) {
 				var newfield;
 
 				if(ui.draggable.hasClass('row-element')){
-					newfield = $('<div class="template-element column-container frontier-grid ui-sortable"><div class="row"><div class="col-md-12"><div class="frontier-column column-container ui-sortable ui-droppable"></div></div></div></div>');
+					newfield = $('<div class="template-element column-container frontier-grid ui-sortable"><div class="row"><div class="col-xs-12"><div class="frontier-column column-container ui-sortable ui-droppable"></div></div></div></div>');
 				}else{
 					newfield= ui.draggable.clone();					
 				}
@@ -177,7 +177,7 @@ jQuery(function($) {
 	});
 	
 	$( ".frontier-config-editor-main-panel" ).on('click', '.frontier-add-row', function(e){
-		$('.frontier-grid').append('<div class="first-row-level row"><div class="col-md-12"><div class="frontier-column column-container"></div></div></div>');
+		$('.frontier-grid').append('<div class="first-row-level row"><div class="col-xs-12"><div class="frontier-column column-container"></div></div></div>');
 		buildSortables();
 		buildLayoutString();
 	});
@@ -209,7 +209,7 @@ jQuery(function($) {
 		setrow.children().children().each(function(k,v){
 			var column = $(v)
 			var width = column.width()/2-5;
-			if(!column.parent().hasClass('col-md-1')){
+			if(!column.parent().hasClass('col-xs-1')){
 				column.prepend('<div class="column-split column-tools"><i class="icon-split"></i></div>');
 				column.find('.column-split').css('left', width);
 			}
@@ -374,7 +374,10 @@ jQuery(function($) {
 
 	});
 
-
+	// bind tray stuff
+	$('.frontier-editor-body').on('tray_loaded', '.frontier-template-tray', function(){
+		buildSortables();
+	});
 
 
 });
