@@ -55,7 +55,7 @@ class Pods_Frontier extends PodsComponent {
 		}
 
 		// add internal elements process & render
-		add_action('frontier_element_headers-frontier_layout', array( $this, 'layout_headers'), 10, 4);
+		add_action('frontier_element_headers-frontier_layout', array( $this, 'layout_headers'), 10);
 		add_filter('frontier_render_element-frontier_layout', array( $this, 'render_layout'), 10, 4);		
 
     }
@@ -280,7 +280,6 @@ class Pods_Frontier extends PodsComponent {
 								"repeat" => 0,
 								"fields" => array(
 									"use_stylesheet" => array(
-										"group" => "grid_settings",
 										"label" => __("Use Stylesheet", 'pods-frontier'),
 										"slug" => "use_stylesheet",
 										"caption" => __("Include the built in grid stylesheet (based on Bootstrap 3.0)", 'pods-frontier'),
@@ -300,7 +299,6 @@ class Pods_Frontier extends PodsComponent {
 										),
 									),
 									"first" => array(
-										"group" => "grid_settings",
 										"label" => __("First Row Class", 'pods-frontier'),
 										"slug" => "first",
 										"caption" => __("Class name to be added to the first row of the grid", 'pods-frontier'),
@@ -310,7 +308,6 @@ class Pods_Frontier extends PodsComponent {
 										),
 									),
 									"last" => array(
-										"group" => "grid_settings",
 										"label" => __("Last Row Class", 'pods-frontier'),
 										"slug" => "last",
 										"caption" => __("Class name to be added to the last row of the grid", 'pods-frontier'),
@@ -320,7 +317,6 @@ class Pods_Frontier extends PodsComponent {
 										),
 									),
 									"single" => array(
-										"group" => "grid_settings",
 										"label" => __("Single Row Class", 'pods-frontier'),
 										"slug" => "single",
 										"caption" => __("Class name to be added to a single row of the grid", 'pods-frontier'),
@@ -330,7 +326,6 @@ class Pods_Frontier extends PodsComponent {
 										),
 									),
 									"before" => array(
-										"group" => "grid_settings",
 										"label" => __("Before ", 'pods-frontier'),
 										"slug" => "before",
 										"caption" => __("Defines the start of the row wrapper", 'pods-frontier'),
@@ -340,7 +335,6 @@ class Pods_Frontier extends PodsComponent {
 										),
 									),
 									"after" => array(
-										"group" => "grid_settings",
 										"label" => __("After", 'pods-frontier'),
 										"slug" => "after",
 										"caption" => __("Defines the end of a row wrapper", 'pods-frontier'),

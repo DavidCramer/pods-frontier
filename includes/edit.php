@@ -49,69 +49,6 @@ $field_type_defaults = array(
 	"var fieldtype_defaults = {};"
 );
 
-
-/*
-$devsettings = array(
-	"slug"			=>	"my_meta_box",
-	"name"			=>	"My Metabox",
-	"context"		=>	"normal",
-	"priority"		=>	"core",
-	"build_type"	=>	"fields",
-	"post_types"	=>	array(
-		"post",
-		"page"
-	),
-	"storage"		=>	"array",
-	"groups"		=>	array(
-		"grp726"	=>	array(
-			"name"		=>	"General Settings",
-			"repeat"	=>	0
-		),
-		"grp991"	=>	array(
-			"name"		=>	"Extras",
-			"repeat"	=>	1
-		)
-	),
-	"fields"		=>	array(
-		"fld772"	=>	array(
-			"name"		=>	"My Field",
-			"slug"		=>	"my_field",
-			"caption"	=>	"This is a test field",
-			"type"		=>	"single_line_field",
-			"config"	=>	array(
-				"default"	=>	"default value",
-				"prefix"	=>	"field prefix"
-			),
-			"group"		=>	"grp726"
-		),
-		"fld887"	=>	array(
-			"name"		=>	"Another Field",
-			"slug"		=>	"another_field",
-			"caption"	=>	"This is a second test field",
-			"type"		=>	"single_line_field",
-			"config"	=>	array(
-				"default"	=>	"Another default",
-				"prefix"	=>	"YAPREFIX"
-			),
-			"group"		=>	"grp726"
-		),
-		"fld172"	=>	array(
-			"name"		=>	"Extra",
-			"slug"		=>	"extra",
-			"caption"	=>	"This is a repeatable field",
-			"type"		=>	"single_line_field",
-			"config"	=>	array(
-				"default"	=>	"yup default",
-				"prefix"	=>	"it is"
-			),
-			"group"		=>	"grp991"
-		)
-	)
-);
-update_option('cf_533020929060d', $devsettings);
-*/
-
-//dump($element);
 // Build Field Types List
 foreach($field_types as $field=>$config){
 	if(!file_exists($config['file'])){
@@ -424,9 +361,6 @@ function field_line_template($id = '{{id}}', $label = '{{label}}', $group = '{{g
 							echo "<div class=\"frontier-config-editor-panel-group\">\r\n";
 						}
 						foreach($tab_setup['fields'] as $field_slug=>&$field_setup){
-							if($field_setup['group'] !== $group_slug){
-								continue;
-							}
 							
 							$field_name = 'config[settings][' . $group_slug . '][' . $field_slug . '][]';
 							$field_id = $group_slug. '_' . $field_slug . '_' . $group_index;
@@ -464,9 +398,6 @@ function field_line_template($id = '{{id}}', $label = '{{label}}', $group = '{{g
 						$field_template .= "	<div class=\"frontier-config-editor-panel-group\">\r\n";
 
 						foreach($tab_setup['fields'] as $field_slug=>&$field_setup){
-							if($field_setup['group'] !== $group_slug){
-								continue;
-							}
 							
 							$field_name = 'config[settings][' . $group_slug . '][' . $field_slug . '][]';
 							$field_id = $group_slug. '_' . $field_slug;
