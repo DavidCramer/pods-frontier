@@ -4,7 +4,7 @@
 			Pods Frontier
 		</li>
 		<li class="pods-frontier-version">
-			V1.001
+			V1.000
 		</li>
 		<li style="margin: 10px 0px 0px 11px;">
 			<a class="add-new-h2 frontier-new-element-toggle" href="#new_element"><?php echo __('Add New', 'pods-frontier'); ?></a>
