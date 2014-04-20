@@ -100,6 +100,11 @@ class Frontier_List_Table extends WP_List_Table{
 
 
 		foreach ($elements as $eid => $element) {
+
+			if(!isset($element_types[$element['type']])){
+				continue;
+			}
+
 			$data[] = array(
 				'id'			=> $eid,
 				'title'			=> $element['name'],
