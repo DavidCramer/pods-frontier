@@ -10,7 +10,7 @@
  * Plugin Name: Pods Frontier
  * Plugin URI:  
  * Description: A suite of advanced templating features for Pods.
- * Version:     1.00
+ * Version:     1.000
  * Author:      David Cramer
  * Author URI:  
  * Text Domain: pods-frontier
@@ -24,12 +24,20 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+register_activation_hook( __FILE__, 'frontier_toggle' );
+register_deactivation_hook( __FILE__, 'frontier_toggle' );
+
+// hook-in to get frontier in the menus on activation.
+function frontier_toggle($a){
+	delete_transient( 'pods_components' );
+}
+
+
 if ( class_exists( 'Pods_Frontier_Template_Editor' ) || class_exists( 'Pods_Templates_Frontier' ) )
 	return;
 
-require_once( plugin_dir_path( __FILE__ ) . 'class-pods-frontier.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'pods-frontier-templates.php' );
+require_once( plugin_dir_path( __FILE__ ) . '/includes/frontier-grid.php' );
 
-
-// Load instance
+// Load instance of template editor overide
 Pods_Frontier_Template_Editor::get_instance();
-

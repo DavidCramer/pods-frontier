@@ -1,0 +1,24 @@
+@font-face {
+  font-family: 'pods-frontier';
+  src:url('fonts/pods-frontier.eot?7moc5h');
+  src:url('fonts/pods-frontier.eot?#iefix7moc5h') format('embedded-opentype'),
+    url('fonts/pods-frontier.woff?7moc5h') format('woff'),
+    url('fonts/pods-frontier.ttf?7moc5h') format('truetype'),
+    url('fonts/pods-frontier.svg?7moc5h#pods-frontier') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="dashicons-cf-"], [class*=" dashicons-cf-"] {
+  font-family: 'pods-frontier';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

@@ -19,7 +19,6 @@
 				start = token.start;
 		}
 		jQuery(typeclass).each(function(){
-			console.log(this);
 			var label = jQuery(this).find('.pod-field-label').html(),
 			field = jQuery(this).find('.pod-field-name').html();
 			if (label.indexOf(prefix) == 0 || field.indexOf(prefix) == 0){
@@ -44,7 +43,12 @@ var hidehints   = false,
 	display = 'fields';
 
 function podFields(cm, e) {
-console.log(e);
+
+	// check theres a reference first.
+	if(jQuery('.no-pod-selected').length){
+		return;
+	}
+
 	var cur = cm.getCursor();
 	if(e.keyCode === 27){
 		hidehints = (hidehints ? false : true);

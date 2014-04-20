@@ -58,12 +58,7 @@ class Pods_Frontier_Template_Editor {
 		
 		add_action('wp_footer', array( $this, 'footer_scripts' ) );
 
-		add_action( 'init', array( $this, 'activate_metaboxes' ) );		
-
-		// detect pod template for styles & scripts
-		if(!is_admin()){
-			add_action('wp', array( $this, 'detect_pod_template' ), 100 );
-		}
+		add_action( 'init', array( $this, 'activate_metaboxes' ) );
 
 		add_filter( 'pods_components_register', array( $this, 'register_frontier_modules' ) );
 
@@ -75,9 +70,8 @@ class Pods_Frontier_Template_Editor {
 
 	function register_frontier_modules($components){
 
-		$components[]['File'] = dirname( __FILE__ ) . '/templates.php';
-		$components[]['File'] = dirname( __FILE__ ) . '/forms.php';
-		$components[]['File'] = dirname( __FILE__ ) . '/layouts.php';
+		$components[]['File'] = dirname( __FILE__ ) . '/frontier-templates.php';
+		$components[]['File'] = dirname( __FILE__ ) . '/pods-frontier.php';
 		
 		return $components;
 	}	
@@ -348,54 +342,6 @@ class Pods_Frontier_Template_Editor {
 			$instanceID = $this->element_instance_id('pods_frontier_template_editor'.$slug, 'footer');
 		}
 
-		if(file_exists($this->get_path( __FILE__ ) .'configs/fieldgroups-'.$slug.'.php')){
-			include $this->get_path( __FILE__ ) .'configs/fieldgroups-'.$slug.'.php';		
-		
-			$defaults = array();
-			foreach($configfiles as $file){
-
-				include $file;
-				foreach($group['fields'] as $variable=>$conf){
-					if(!empty($group['multiple'])){
-						$value = array($this->process_value($conf['type'],$conf['default']));
-					}else{
-						$value = $this->process_value($conf['type'],$conf['default']);
-					}
-					if(!empty($group['multiple'])){
-						if(isset($atts[$variable.'_1'])){
-							$index = 1;
-							$value=array();
-							while(isset($atts[$variable.'_'.$index])){
-								$value[] = $this->process_value($conf['type'],$atts[$variable.'_'.$index]);
-								$index++;
-							}
-						}elseif (isset($atts[$variable])) {
-							if(is_array($atts[$variable])){
-								foreach($atts[$variable] as &$varval){
-									$varval = $this->process_value($conf['type'],$varval);
-								}
-								$value = $atts[$variable];
-							}else{
-								$value[] = $this->process_value($conf['type'],$atts[$variable]);
-							}
-						}
-					}else{
-						if(isset($atts[$variable])){
-							$value = $this->process_value($conf['type'],$atts[$variable]);
-						}
-					}
-					
-					if(!empty($group['multiple']) && !empty($value)){
-						foreach($value as $key=>$val){
-							$groups[$group['master']][$key][$variable] = $val;
-						}
-					}
-					$defaults[$variable] = $value;
-				}
-			}
-
-			$atts = $defaults;
-		}
 		// pull in the assets
 		$assets = array();
 		if(file_exists($this->get_path( __FILE__ ) . 'assets/assets-'.$slug.'.php')){
@@ -471,63 +417,5 @@ class Pods_Frontier_Template_Editor {
 
 	}
 
-	/***
-	 * detect a pod template then render the styles & scripts if any.
-	 *
-	 */
 
-	public function detect_pod_template(){
-		
-		global $wp_query, $frontier_styles, $frontier_scripts;
-
-		$regex = frontier_get_regex(array('pods'));
-
-		// find used shortcodes within posts
-		foreach ($wp_query->posts as $key => &$post) {
-			preg_match_all('/' . $regex . '/s', $post->post_content, $shortcodes);
-
-			if(!empty($shortcodes[3])){
-				foreach($shortcodes[3] as $foundkey=>$args){
-
-					$atts = shortcode_parse_atts($shortcodes[3][$foundkey]);
-					if(isset($atts['template'])){
-						$template = pods()->api->load_template( array('name' => $atts['template']) );
-						if( !empty( $template ) ){
-							// got a template - check for styles & scripts
-							$meta = get_post_meta($template['id'], 'view_template', true);
-							
-							if(!empty($meta['css'])){
-								
-								$frontier_styles .= $meta['css'];
-								
-								add_action( 'wp_head', function(){
-									global $frontier_styles;
-									if(!empty($frontier_styles)){
-										echo "<style type=\"text/css\">\r\n";
-											echo $frontier_styles;
-										echo "</style>\r\n";
-									}
-								}, 100 );
-							}
-
-							if(!empty($meta['js'])){
-								
-								$frontier_scripts .= $meta['js'];
-								
-								add_action( 'wp_footer', function(){
-									global $frontier_scripts;
-									if(!empty($frontier_scripts)){
-										echo "<script type=\"text/javascript\">\r\n";
-											echo $frontier_scripts;
-										echo "</script>\r\n";
-									}
-								}, 100 );
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
 }

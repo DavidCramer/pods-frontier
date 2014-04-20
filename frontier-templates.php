@@ -1,9 +1,9 @@
 <?php
 /*
-Name: Frontier: Templates
+Name: Frontier: Templates Enhancements
 Category: Frontier
-Description: Advanced template creation.
-Version: 1.0.0
+Description: Additional to Pods templates.
+Version: 1.000
 Author: David Cramer
 Author URI: http://cramer.co.za
 Author Email: david@digilab.co.za  

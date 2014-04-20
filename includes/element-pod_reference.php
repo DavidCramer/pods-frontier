@@ -28,7 +28,7 @@ echo '</select>';
 		}
 	}else{
 		echo '<div class="pod-field-row">';
-		echo '<div>No reference Pods selected</div>';
+		echo '<div class="no-pod-selected">'. __('No reference Pod selected', 'pods-frontier') . '</div>';
 		echo '</div>';
 
 	}

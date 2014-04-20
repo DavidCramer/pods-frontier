@@ -1,0 +1,1 @@
+<a class="add-new-h2 frontier-add-group frontier-add-row" href="#code_panels_tag"><?php echo __('Add Row', 'pods-frontier'); ?></a>
