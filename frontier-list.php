@@ -48,11 +48,11 @@ class Frontier_List_Table extends WP_List_Table{
 		$columns = array(
 			//'cb'			=> '<input type="checkbox" />',
 			'id'			=> 'ID',
-			'title'			=> 'Title',
-			'description'	=> 'Description',
-			'type'			=> 'Type',
-			'shortcode'		=> 'Shortcode',
-			'base_pod'		=> 'Base Pod'
+			'title'			=> __('Title', 'pods-frontier'),
+			'description'	=> __('Description', 'pods-frontier'),
+			'type'			=> __('Type', 'pods-frontier'),
+			'shortcode'		=> __('Shortcode', 'pods-frontier'),
+			'base_pod'		=> __('Base Pod', 'pods-frontier')
 			);
 
 		return $columns;
@@ -106,7 +106,7 @@ class Frontier_List_Table extends WP_List_Table{
 				'description'	=> $element['description'],
 				'type'			=> $element_types[$element['type']]['name'],
 				'shortcode'		=> "[frontier id=\"" . $eid . "\"]",
-				'base_pod'		=> $element['base_pod']
+				'base_pod'		=> ( isset($element['base_pod']) ? $element['base_pod'] : __('Not Set', 'pods-frontier') )
 				);
 
 		}
