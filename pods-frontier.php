@@ -261,6 +261,7 @@ class Pods_Frontier extends PodsComponent {
 							"layout" => array(
 								"name" => __("Layout", 'pods-frontier'),
 								"label" => __("Layout Builder", 'pods-frontier'),
+								"active" => true,
 								"actions" => array(
 									$path . "/layout_add_row.php"
 								),

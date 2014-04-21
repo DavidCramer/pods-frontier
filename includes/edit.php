@@ -243,6 +243,21 @@ function field_line_template($id = '{{id}}', $label = '{{label}}', $group = '{{g
 
 
 // Navigation
+
+// FIND A DEFAULT FIRST
+
+$settings_default = " class=\"active\"";
+
+if(!empty($element_types[$element['type']]['setup']['tabs']['groups'])){
+	foreach($element_types[$element['type']]['setup']['tabs']['groups'] as $tab_slug=>&$tab){
+		if(!empty($tab['active'])){
+			$settings_default = null;
+			break; // got one - end looking
+		}
+	}
+}
+
+
 ?>
 <div class="frontier-editor-header">
 	<ul class="frontier-editor-header-nav">
@@ -252,7 +267,7 @@ function field_line_template($id = '{{id}}', $label = '{{label}}', $group = '{{g
 		<li class="frontier-element-type-label">
 			<?php echo $element_types[$element['type']]['name']; ?>
 		</li>
-		<li class="active">
+		<li<?php echo $settings_default; ?>>
 			<a href="#settings-panel"><?php echo __('Settings', 'pods-frontier'); ?></a>
 		</li>
 
@@ -269,13 +284,21 @@ function field_line_template($id = '{{id}}', $label = '{{label}}', $group = '{{g
 			// FIELD BASED TABS
 			if(!empty($element_types[$element['type']]['setup']['tabs'])){
 				foreach($element_types[$element['type']]['setup']['tabs']['groups'] as $group_slug=>$tab_setup){
-					echo "<li><a href=\"#" . $group_slug . "-config-panel\">" . $tab_setup['name'] . "</a></li>\r\n";
+					$active = null;
+					if(!empty($tab_setup['active'])){
+						$active = " class=\"active\"";
+					}
+					echo "<li".$active."><a href=\"#" . $group_slug . "-config-panel\">" . $tab_setup['name'] . "</a></li>\r\n";
 				}
 			}
 			// CODE BASED TABS
 			if(!empty($element_types[$element['type']]['setup']['tabs']['code'])){
 				foreach($element_types[$element['type']]['setup']['tabs']['code'] as $code_slug=>$tab_setup){
-					echo "<li><a href=\"#" . $code_slug . "-code-panel\" data-editor=\"" . $code_slug . "-editor\">" . $tab_setup['name'] . "</a></li>\r\n";
+					$active = null;
+					if(!empty($tab_setup['active'])){
+						$active = " class=\"active\"";
+					}
+					echo "<li".$active."><a href=\"#" . $code_slug . "-code-panel\" data-editor=\"" . $code_slug . "-editor\">" . $tab_setup['name'] . "</a></li>\r\n";
 				}
 			}
 
@@ -289,7 +312,7 @@ function field_line_template($id = '{{id}}', $label = '{{label}}', $group = '{{g
 }
 /// Settings
 ?>
-<div id="settings-panel" class="frontier-editor-body frontier-settings-panel">
+<div id="settings-panel" class="frontier-editor-body frontier-settings-panel"<?php if(null === $settings_default){ echo ' style="display:none;"'; } ?>>
 	<h3><?php echo __('Element Settings', 'pods-frontier'); ?></h3>
 	<div class="frontier-config-group">
 		<label><?php echo __('Name', 'pods-frontier'); ?></label>
@@ -326,8 +349,11 @@ function field_line_template($id = '{{id}}', $label = '{{label}}', $group = '{{g
 	if(!empty($element_types[$element['type']]['setup']['tabs']['groups'])){
 		$repeatable_templates = array();
 		foreach($element_types[$element['type']]['setup']['tabs']['groups'] as $group_slug=>$tab_setup){
-
-			echo "<div id=\"" . $group_slug . "-config-panel\" class=\"frontier-editor-body frontier-config-editor-panel " . ( !empty($tab_setup['side_panel']) ? "frontier-config-has-side" : "" ) . "\" style=\"display:none;\">\r\n";
+			$active = "  style=\"display:none;\"";
+			if(!empty($tab_setup['active'])){
+				$active = null;
+			}
+			echo "<div id=\"" . $group_slug . "-config-panel\" class=\"frontier-editor-body frontier-config-editor-panel " . ( !empty($tab_setup['side_panel']) ? "frontier-config-has-side" : "" ) . "\"".$active.">\r\n";
 				if( !empty($tab_setup['side_panel']) ){
 					echo "<div id=\"" . $group_slug . "-config-panel-main\" class=\"frontier-config-editor-main-panel\">\r\n";
 				}
