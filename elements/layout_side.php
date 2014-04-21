@@ -60,5 +60,15 @@
 	}else{
 		echo '<p>You have no templates yet</p>';	
 	}
+
+	do_action('pods_frontier_template_items')
 	?>
 </div>
+
+
+
+
+
+
+
+

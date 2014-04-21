@@ -842,12 +842,14 @@ class Pods_Frontier extends PodsComponent {
 					foreach($sets as $colrow){
 						// explode type
 						$type = 'template'; // default type
-						$types = explode('_', $template);
+						$types = explode('_', $template, 2);
+						$ID = $template;
 						if(isset($types[1])){
+							$ID = $types[1];
 							$type = $types[0];
 						}
 						$templates[$location][$colrow][] = array(
-							'ID' => $template,
+							'ID' => $ID,
 							'type' => $type
 						);
 					}
@@ -910,12 +912,13 @@ class Pods_Frontier extends PodsComponent {
 
 							$grid->append( $core_pod->template( get_post_field('post_title', $template['ID'] ) ) , $map );
 
-						}elseif( 'container' == $template['type']){
+						}elseif( 'container' == $template['type']){							
 							// loop container templates.
+
 							if(!empty($templates[$template['ID']])){
+
 								// got - do po query
-								
-								$container_query = $element['frontier_grid']['queries'][$template['ID']];
+								$container_query = $element['frontier_grid']['queries']['container_' . $template['ID']];
 								
 								//check for a pod first
 								if( !empty($container_query['pod'])){
@@ -937,18 +940,25 @@ class Pods_Frontier extends PodsComponent {
 										$container_pod = pods( $container_query['pod'] )->find();
 									}
 									foreach($templates[$template['ID']] as $submap=>$set){
-										foreach($set as $subtemplate){
+										foreach($set as $subtemplate){											
 											if( 'template' == $subtemplate['type']){
 
 												$grid->append( $container_pod->template( get_post_field('post_title', $subtemplate['ID'] ) ) , $submap );
 
 											}else{
-												// no inner containers please.
+
+												$line = apply_filters( "pods_frontier_render_template-" . $subtemplate['type'], null, $subtemplate, $atts, $content );
+												$grid->append( $line , $submap );
+
 											}
 										}
 									}
 								}
 							}
+						}else{
+
+							$line = apply_filters( "pods_frontier_render_template-" . $template['type'], null, $template, $atts, $content );
+							$grid->append( $line , $map );
 						}
 					}
 				}

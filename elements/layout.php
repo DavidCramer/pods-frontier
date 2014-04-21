@@ -78,19 +78,21 @@ if(!empty($element['frontier_grid']['templates'])){
 			foreach($set as $colrow){
 				// explode type
 				$type = 'template'; // default type
+				$ID = $template;
 				$types = explode('_', $template, 2);
 				if(isset($types[1])){
-					$template = $types[1];
+					$ID = $types[1];
 					$type = $types[0];
 				}
 				$templates[$location][$colrow][] = array(
-					'ID' => $template,
+					'ID' => $ID,
 					'type' => $type
 				);
 			}
 		}
 	}
 }
+
 
 ?>
 <div class="layout-grid-panel frontier-grid">
@@ -167,13 +169,14 @@ if(!empty($element['frontier_grid']['templates'])){
 							</div>
 						</div>
 
-						<input type="hidden" data-type="containers" data-id="<?php echo $template['ID']; ?>" class="template-location" disabled="disabled">
+						<input type="hidden" data-type="containers" data-id="container_<?php echo $template['ID']; ?>" class="template-location" disabled="disabled">
 						<div id="<?php echo $template['ID']; ?>" class="query-container column-container">
 						<?php
 							if(isset($templates[$template['ID']][($row+1).':'.($column+1)])){
 
 
 								foreach($templates[$template['ID']][($row+1).':'.($column+1)] as $template){
+									if($template['type'] == 'template'){
 									?>
 									<div class="template-element query-element">
 										<i class="icon-remove" style="float: right; padding: 7px 0px 0px; display:none;"></i>
@@ -184,6 +187,9 @@ if(!empty($element['frontier_grid']['templates'])){
 										<input type="hidden" value="<?php echo ($row+1).':'.($column+1) ;?>" data-type="templates" data-id="<?php echo $template['ID']; ?>" class="template-location">
 									</div>
 									<?php 
+									}else{
+										do_action('pods_frontier_grid_template-' . $template['type'], $template, ($row+1).':'.($column+1), $template_index, $element);
+									}
 								}
 
 							}
