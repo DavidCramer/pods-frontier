@@ -37,10 +37,10 @@ class Pods_Frontier extends PodsComponent {
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 
 		// Load frontier element types
-		add_filter('frontier_get_element_types', array( $this, 'get_element_types'));
+		add_filter('pods_frontier_get_element_types', array( $this, 'get_element_types'));
 
 		// load field types for configs
-		add_filter('frontier_get_field_types', array( $this, 'get_field_types'));
+		add_filter('pods_frontier_get_field_types', array( $this, 'get_field_types'));
 
 		// add shortcode
 		add_shortcode( "frontier", array( $this, 'render_frontier' ) );
@@ -55,8 +55,8 @@ class Pods_Frontier extends PodsComponent {
 		}
 
 		// add internal elements process & render
-		add_action('frontier_element_headers-frontier_layout', array( $this, 'layout_headers'), 10);
-		add_filter('frontier_render_element-frontier_layout', array( $this, 'render_layout'), 10, 4);		
+		add_action('pods_frontier_element_headers-frontier_layout', array( $this, 'layout_headers'), 10);
+		add_filter('pods_frontier_render_element-frontier_layout', array( $this, 'render_layout'), 10, 4);		
 
     }
 
@@ -72,9 +72,9 @@ class Pods_Frontier extends PodsComponent {
 
 
 			// Load Field Types Styles & Scripts
-			$field_types = apply_filters('frontier_get_field_types', array() );
+			$field_types = apply_filters('pods_frontier_get_field_types', array() );
 			// load element types 
-			$element_types = apply_filters('frontier_get_element_types', array() );
+			$element_types = apply_filters('pods_frontier_get_element_types', array() );
 
 			// merge a list
 			$merged_admin_type = array_merge($field_types, $element_types);
@@ -137,9 +137,9 @@ class Pods_Frontier extends PodsComponent {
 			wp_enqueue_script( 'jquery-ui-droppable' );
 
 			// Load Field Types Styles & Scripts
-			$field_types = apply_filters('frontier_get_field_types', array() );
+			$field_types = apply_filters('pods_frontier_get_field_types', array() );
 			// load element types 
-			$element_types = apply_filters('frontier_get_element_types', array() );
+			$element_types = apply_filters('pods_frontier_get_element_types', array() );
 
 			// merge a list
 			$merged_admin_type = array_merge($field_types, $element_types);
@@ -714,12 +714,12 @@ class Pods_Frontier extends PodsComponent {
 			}
 			// Get Elements if not already gotten
 			if(!isset($element_types)){
-				$element_types = apply_filters('frontier_get_element_types', array() );
+				$element_types = apply_filters('pods_frontier_get_element_types', array() );
 			}
 
 			// got element process
-			$out = apply_filters( "frontier_render_element", null, $element, $atts, $content );
-			$out = apply_filters( "frontier_render_element-" . $element['type'], $out, $element, $atts, $content );
+			$out = apply_filters( "pods_frontier_render_element", null, $element, $atts, $content );
+			$out = apply_filters( "pods_frontier_render_element-" . $element['type'], $out, $element, $atts, $content );
 
 			return do_shortcode( $out );
 		}
@@ -769,12 +769,12 @@ class Pods_Frontier extends PodsComponent {
 						}
 						// Get Elements if not already gotten
 						if(!isset($element_types)){
-							$element_types = apply_filters('frontier_get_element_types', array() );
+							$element_types = apply_filters('pods_frontier_get_element_types', array() );
 						}
 
 						//do process
-						do_action( "frontier_element_headers", $element );
-						do_action( "frontier_element_headers-" . $element['type'], $element );
+						do_action( "pods_frontier_element_headers", $element );
+						do_action( "pods_frontier_element_headers-" . $element['type'], $element );
 					}
 				}
 			}

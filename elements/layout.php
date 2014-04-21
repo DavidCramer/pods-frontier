@@ -78,8 +78,9 @@ if(!empty($element['frontier_grid']['templates'])){
 			foreach($set as $colrow){
 				// explode type
 				$type = 'template'; // default type
-				$types = explode('_', $template);
+				$types = explode('_', $template, 2);
 				if(isset($types[1])){
+					$template = $types[1];
 					$type = $types[0];
 				}
 				$templates[$location][$colrow][] = array(
@@ -90,7 +91,6 @@ if(!empty($element['frontier_grid']['templates'])){
 		}
 	}
 }
-
 
 ?>
 <div class="layout-grid-panel frontier-grid">
@@ -106,7 +106,7 @@ if(!empty($element['frontier_grid']['templates'])){
 			<div class="frontier-column column-container">
 			<?php
 			if(isset($templates['core'][($row+1).':'.($column+1)])){
-				foreach($templates['core'][($row+1).':'.($column+1)] as $template){
+				foreach($templates['core'][($row+1).':'.($column+1)] as $template_index=>$template){
 					if($template['type'] == 'template'){
 					?>
 					<div class="template-element query-element">
@@ -193,6 +193,8 @@ if(!empty($element['frontier_grid']['templates'])){
 					</div>
 
 					<?php
+					}else{
+						do_action('pods_frontier_grid_template-' . $template['type'], $template, ($row+1).':'.($column+1), $template_index, $element);
 					}
 				}
 			 } ?>

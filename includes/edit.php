@@ -31,7 +31,7 @@ if(!empty($element)){
 echo '<input type="hidden" name="config[type]" value="'.$element['type'].'">';
 
 // Get Elements
-$element_types = apply_filters('frontier_get_element_types', array() );
+$element_types = apply_filters('pods_frontier_get_element_types', array() );
 
 // Build Interface to element type
 if(!isset($element_types[$element['type']]['setup'])){
@@ -41,7 +41,7 @@ if(!isset($element_types[$element['type']]['setup'])){
 }
 
 // Get Fieldtpyes
-$field_types = apply_filters('frontier_get_field_types', array() );
+$field_types = apply_filters('pods_frontier_get_field_types', array() );
 
 $field_type_list = array();
 $field_type_templates = array();

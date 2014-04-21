@@ -21,7 +21,7 @@ if(!empty($_GET['deleted'])){
 $elements = get_option('_pods_frontier_elements');
 
 //get element types
-$element_types = apply_filters('frontier_get_element_types', array() );
+$element_types = apply_filters('pods_frontier_get_element_types', array() );
 
 // panel size 
 $panel_size = get_option( '_frontier_panel_size' );

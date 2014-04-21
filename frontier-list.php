@@ -101,7 +101,7 @@ class Frontier_List_Table extends WP_List_Table {
 		$elements = (array) get_option( '_pods_frontier_elements', array() );
 
 		//get element types
-		$element_types = apply_filters( 'frontier_get_element_types', array() );
+		$element_types = apply_filters( 'pods_frontier_get_element_types', array() );
 
 		foreach ( $elements as $eid => $element ) {
 			if ( !isset( $element_types[ $element[ 'type' ] ] ) ) {
