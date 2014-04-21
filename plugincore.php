@@ -40,7 +40,8 @@ if ( class_exists( 'Pods_Frontier_Template_Editor' ) || class_exists( 'Pods_Temp
 	return;
 
 require_once( plugin_dir_path( __FILE__ ) . 'pods-frontier-templates.php' );
-require_once( plugin_dir_path( __FILE__ ) . '/includes/frontier-grid.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'includes/frontier-grid.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'elements/frontier_forms.php' );
 
 // Load instance of template editor overide
 Pods_Frontier_Template_Editor::get_instance();
