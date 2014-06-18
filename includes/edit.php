@@ -6,7 +6,7 @@ global $field_type_list, $field_type_templates;
 $element = get_option( $_GET['edit'] );
 
 // place nonce field
-wp_nonce_field( 'cf_edit_element', 'cf_edit_nonce' );
+wp_nonce_field( 'pf_edit_element', 'pf_edit_nonce' );
 
 // get pods list
 $api = pods_api();
@@ -14,7 +14,7 @@ $_pods = $api->load_pods();
 
 
 // DEV ELEMENT SETUP
-//$element = get_option('cf_533020929060d');
+//$element = get_option('pf_533020929060d');
 
 // Set element ID for Saving
 if(!empty($element)){

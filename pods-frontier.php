@@ -42,6 +42,9 @@ class Pods_Frontier extends PodsComponent {
 		// load field types for configs
 		add_filter('pods_frontier_get_field_types', array( $this, 'get_field_types'));
 
+		// prefilter
+		add_filter( 'pods_templates_pre_template', 'frontier_prefilter_template', 25, 4);
+
 		// add shortcode
 		add_shortcode( "frontier", array( $this, 'render_frontier' ) );
 
@@ -599,10 +602,10 @@ class Pods_Frontier extends PodsComponent {
 			}						
 
 		}
-		if( isset($_POST['config']) && isset( $_POST['cf_edit_nonce'] ) ){
+		if( isset($_POST['config']) && isset( $_POST['pf_edit_nonce'] ) ){
 
 			// if this fails, check_admin_referer() will automatically print a "failed" page and die.
-			if ( check_admin_referer( 'cf_edit_element', 'cf_edit_nonce' ) ) {
+			if ( check_admin_referer( 'pf_edit_element', 'pf_edit_nonce' ) ) {
 
 				// strip slashes
 				$data = stripslashes_deep($_POST['config']);
