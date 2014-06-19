@@ -1,7 +1,16 @@
-Pods Frontier
-==========
-Advanced templates and simple form and layouts for Pods.
 
+<p align="center">
+  <img src="./frontier-rectangle-logo.png" alt="Pods Frontier" width="50%" height="50%" />
+</p>
+
+<h1 align="center">Pods Frontier</h1>
+<p align="center">
+Advanced templates and simple form and layouts for Pods.
+</p>
+<p>
+<br />
+<em>Please Note: This plugin is currently in beta development. Not all functionality described here is completed.</em>
+</p>
 
 Using an intuitive visual editor, Pods Frontier allows you to create grid-based layouts, using Pods Templates or Forms as display components. In addition you can use the interface to easily create queries to control which items are shown in each element. All of these elements are outputted with a one shortcode.
 
