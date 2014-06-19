@@ -77,14 +77,14 @@ if( !empty( $_GET['settings-updated'] ) && $screen->parent_base != 'options-gene
 			<div class="frontier-config-group">
 				<label for="pods-frontier-new-desc"><?php echo __('Description', 'pods-frontier'); ?></label>
 				<div class="frontier-config-field">
-					<textarea id="pods-frontier-new-desc" name="frontier_element[desc]" class="block-input" style="width:310px; height:80px;" required></textarea>
+					<textarea id="pods-frontier-new-desc" name="frontier_element[desc]" class="block-input" style="width:310px; height:80px;"></textarea>
 				</div>
 			</div>
 
 		</div>
 		<div class="frontier-modal-footer">
-			<a href="#" style="float:left;" class="frontier-cancel-new-element button button-primary"><?php echo __('Cancel', 'pods-frontier'); ?></a>
-			<button type="submit" class="button"><?php echo __('Create', 'pods-frontier'); ?></button>
+			<a href="#" style="float:left;" class="frontier-cancel-new-element button"><?php echo __('Cancel', 'pods-frontier'); ?></a>
+			<button type="submit" class="button button-primary"><?php echo __('Create', 'pods-frontier'); ?></button>
 			<span class="spinner" style="display: none;"></span>
 		</div>
 
