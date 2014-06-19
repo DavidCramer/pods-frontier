@@ -128,16 +128,15 @@ if(!empty($element['frontier_grid']['templates'])){
 						<i class="icon-edit" data-title="Query Builder" style="float: right; padding: 7px 10px 0px; display:none;"></i>
 						<div class="drag-handle">
 							<i class="icon-searchfolder"></i> 
-							Query Container<span class="set-pod"><?php if(!empty($element['frontier_grid']['queries'][$template['ID']]['pod'])){ echo " - ". $element['frontier_grid']['queries'][$template['ID']]['pod']; }; ?></span>
+							Query Container<span class="set-pod"><?php if(!empty($element['frontier_grid']['queries']['container_'.$template['ID']]['pod'])){ echo " - ". $element['frontier_grid']['queries']['container_'.$template['ID']]['pod']; }; ?></span>
 						</div>
 						<div class="settings-wrapper">
 							<div class="settings-panel" data-container="<?php echo $template['ID']; ?>">
-
-								<select class="frontier-core-pod-query query_pod_select"> tabindex="0" name="config[frontier_grid][queries][<?php echo $template['ID']; ?>][pod]">
+								<select class="frontier-core-pod-query query_pod_select" tabindex="0" name="config[frontier_grid][queries][container_<?php echo $template['ID']; ?>][pod]">
 									<?php 
 										foreach($_pods as $pod){
 											$sel = "";
-											if($pod['name'] == $element['frontier_grid']['queries'][$template['ID']]['pod']){
+											if($pod['name'] == $element['frontier_grid']['queries']['container_'.$template['ID']]['pod']){
 												$sel = ' selected="selected"';
 											}
 											echo "<option value=\"" . $pod['name'] . "\"".$sel.">" . $pod['label'] . "</option>\r\n";
@@ -156,12 +155,12 @@ if(!empty($element['frontier_grid']['templates'])){
 								<span class="spinner" style="float: none; margin: 0 0 -8px;"></span>
 
 								<?php 
-								if(!empty($element['frontier_grid']['queries'][$template['ID']])){
-									$query = $element['frontier_grid']['queries'][$template['ID']];
+								if(!empty($element['frontier_grid']['queries']['container_'.$template['ID']])){
+									$query = $element['frontier_grid']['queries']['container_'.$template['ID']];
 									if(!empty($query['field'])){
 										foreach ($query['field'] as $qkey => $field) {
 
-											build_query_template($template['ID'], $query['pod'], $field, $query['compare'][$qkey], $query['value'][$qkey]);	
+											build_query_template('container_'.$template['ID'], $query['pod'], $field, $query['compare'][$qkey], $query['value'][$qkey]);	
 										}
 									}
 								}
