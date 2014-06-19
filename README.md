@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="./frontier-rectangle-logo.png" alt="Pods Frontier" width="50%" height="50%" />
+  <img src="./frontier-rectangle-logo.png" alt="Pods Frontier" width="80%" height="80%" />
 </p>
 
 <h1 align="center">Pods Frontier</h1>
