@@ -34,7 +34,8 @@ In the query container, you will first need to select a Pod to filter based on. 
 #### Outputting Your Frontier
 To output your Frontier layout simply copy the shortcode from the main Frontier screen and place it in a WordPress post or page. Alternatively, you can call it in a theme ro plugin file using `do_shortcode()`.
 
-@TODO Screenshot-5
+![Pods Admin -> Add New](https://github.com/pods-framework/pods-gravity-forms/blob/master/screenshot-1.png?raw=true)
+
 
 ### Templates
 
