@@ -53,37 +53,107 @@ To output your Frontier layout simply copy the shortcode from the main Frontier 
 
 ### Templates
 
-#### Conditionals
-Pods Frontier adds the ability to use [if] tags in your templates to conditionally show fields or markup. For example:
+#### Adding JavaScript and CSS Stylesheets
+Frontier adds two new tabs to the template editor: "Scripts" and "Styles". The scripts tab allows you to enter JavaScript and the "Styles" tab allows you to add CSS styles. The contents of these tabs will be outputted, wrapped in the appropriate style script tags whenever the template is loaded using a Frontier layout or the plugin Pods Frontier Auto Template. The scripts will be outputted in the site footer and the styles in the site header. They will only be outputted once, no matter how many times the template is used on the page.
+
+The contents of these tabs are stored as meta fields, which means they can be retrieved via `get_post_meta()`.
+
+
+#### Advanced Markup Simplified
+Pods Frontier allows you to use Pods Templates to create advanced markup, without using any PHP or sacrificing the ability to create complex templates. These new tools allow you to conditionally show output and create loops.
+
+##### Loops
+Pods Frontier enables easy looping via the `[each]` tag. This example shows how to loop through all entries in a relationship field--in this case a multi-select relationship field called chapters ina custom post type book--adding markup to each entry:
 
 ```html
-[if book_title="The Hobbit"]{@book_title} or There and Back Again[/if]
-```
-
-@TODO Add screenshot
-
-#### Loops
-Pods Frontier enables easy looping via the [each] tag. This first example shows how to loop through all entries in a relationship field (in this case a media field) aadding markup to each entry:
-
-```html
-[each cover_images]
-    <img class="cover-images-in-template" src="{@cover_images._src}" /></div>
+<h3>Chapters</h3>
+<ul>
+[each chapters]
+    <li>{@chapters.post_title}</li>
 [/each]
+</ul>
 ```
 
-When using the [each] loop you can also specify code to run before, after and only once, like in this example:
+This code would output one list item(`<li>`) with the post_title for each related chapter post.
+##### Conditionals
+The previous example illustrating an each for a relationship field, has a major problem: if there are no chapters set it would output:
 
 ```html
-[each cover_images]
-    [before]
-        <!-- Carousel items --><div class="carousel-inner">
-        <h3>Book</h3>
-    [/before]
-        <div class="[once]active [/once]item"><img src="{@cover_images._src}" /></div>
-    [after]</div><!--.carousel-inner-->[/after]
-[/each]
+<h3>Chapters</h3>
+<ul>
+</ul>
 ```
 
-This code will output the code in the [before] and [after] blocks will run before and after the looping items, but only if there are items to loop. The code in the [once] block will only run on the first iteration.
+To avoid, this the each loop can be placed inside of if conditionals, so that nothing is outputted if there are no chapters to output:
 
-![Output Frontier](https://raw.githubusercontent.com/pods-framework/pods-frontier/readme/screenshots/screenshot-2.png)
+```html
+[if chapters]
+    <h3>Chapters</h3>
+    <ul>
+    [each chapters]
+        <li>{@chapters.post_title}</li>
+    [/each]
+    </ul>
+[/if]
+```
+
+Now there will be no output if there are no related chapters to return. You can even take this a step further by adding alternate output, if the conditional is not met, using an else statement. For example:
+
+```html
+[if chapters]
+    <h3>Chapters</h3>
+    <ul>
+    [each chapters]
+        <li>{@chapters.post_title}</li>
+    [/each]
+    </ul>
+[else]
+    <p>Sorry, No chapters</p>
+[/if]
+```
+
+##### Once
+In many cases when doing an each loop, you may need to add markup, on the first item only. For example to apply a special CSS style or to add an "active" class for jQuery sliders, accordions or tabs. Adding to our chapters example, this next example adds a "first-chapter" class to the first chapter only:
+```html
+[if chapters]
+    <h3>Chapters</h3>
+    <ul>
+    [each chapters]
+        <li [once]class="first-chapter"[/once]>{@chapters.post_title}</li>
+    [/each]
+    </ul>
+[else]
+    <p>Sorry, No chapters</p>
+[/if]
+```
+
+#### Before and After
+@TODO Why use this?
+
+##### Putting It All Together
+This template is for a custom post type called "author" with a field called "books" that is a related to the custom post type "book". It uses a conditional test to check if the author has any books, and if it does not it outputs the message "Author has no books uploaded.". If the author does have books it outputs information from each of the related books, starting with the post title. Then it loops through the field "cover_images", which is in the "book" cpt. Inside of the loop, the `[once]` block is used to add an additional class to the first item only.
+
+```html
+[if books]
+    <h5>Books</h5>
+    <ul>
+        [each books]
+        <li>{@post_title}
+        [if cover_images]
+            <ul>
+                [each cover_images]
+                <li class="cover-image[once] first-image[/once]">{@_img.thumbnail}</li>
+                [/each]
+            </ul>
+        [else]
+            <p class="no-images">No Images for this book</p>
+        [/if]
+        </li>
+        [/each]
+    </ul>
+[else]
+    <p>Author has no books uploaded.</p>
+[/if]
+```
+
+![Frontier Template](https://raw.githubusercontent.com/pods-framework/pods-frontier/readme/screenshots/screenshot-2.png)
