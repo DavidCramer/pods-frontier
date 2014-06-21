@@ -61,7 +61,10 @@ class Pods_Frontier extends PodsComponent {
 		add_action('pods_frontier_element_headers-frontier_layout', array( $this, 'layout_headers'), 10);
 		add_filter('pods_frontier_render_element-frontier_layout', array( $this, 'render_layout'), 10, 4);		
 
-    }
+		//require template component
+    	add_action( 'plugins_loaded', array( $this, 'require_template_component' ) );
+
+	}
 
     /**
      * Enqueue styles
@@ -1004,4 +1007,14 @@ class Pods_Frontier extends PodsComponent {
 			echo "</script>\r\n";
 		}
 	}
+
+	/**
+	 * Force template component enable
+	 *
+	 * @since 1.000
+	 */
+	public function require_template_component() {
+		pods_require_component( 'templates' );
+	}
+
 }
