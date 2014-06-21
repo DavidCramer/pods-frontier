@@ -9,7 +9,7 @@ Advanced templates and simple form and layouts for Pods.
 </p>
 <p>
 <br />
-<em>Please Note: This plugin is currently in beta development. Not all functionality described here is completed.</em>
+<em>Please Note: This plugin is currently in beta development. Not all functionality described here is completed. <strong>Please test thoroughly before using in production</strong>. If you find a bug or have an idea to improve this plugin, [please open an issue](https://github.com/pods-framework/pods-frontier/issues/)</em>.
 </p>
 
 Using an intuitive visual editor, Pods Frontier allows you to create grid-based layouts, using Pods Templates or Forms as display components. In addition you can use the interface to easily create queries to control which items are shown in each element. All of these elements are outputted with a one shortcode.
@@ -39,6 +39,8 @@ In the "Layout Builder" tab, you will see all Pods Templates and Frontier forms 
 ![Layout Builder](https://raw.githubusercontent.com/pods-framework/pods-frontier/readme/screenshots/screenshot-1.png)
 
 You can add or remove layout containers, or rows of containers both vertically and horizontally by hovering near the borders of any layout container and clicking the plus or minus icons. Additionally you can rearrange rows by dragging and dropping them.
+
+<em><strong>NOTE:</strong> Query containers do not currently function properly. See [issue #23][https://github.com/pods-framework/pods-frontier/issues/23]</em>
 
 By default Pods Templates add to the layout will be populated with all items of the Pod set as the base Pod for this Frontier. To modify which items are used to populate the template, you need to add a query container. To do this, drag a query into a layout container before the template(s) you want to affect and then click the query container.
 
