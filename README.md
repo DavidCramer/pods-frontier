@@ -26,6 +26,7 @@ Your Frontier can be a layout or a form. The form editor will allow you to creat
 If you choose to create a form, the first step is to load a Pod from the drop-down menu on the right side of the "Layout Builder" tab. Once you have done that, you will see all fields of the selected Pod are now available on the right side of the editor. Simply drag and drop the fields into layout containers to build your form.
 
 ![Form Layout Builder](https://raw.githubusercontent.com/pods-framework/pods-frontier/readme/screenshots/screenshot-4.png)
+
 You can add or remove layout containers, or rows of containers both vertically and horizontally by hovering near the borders of any layout container and clicking the plus or minus icons. Additionally you can rearrange rows by dragging and dropping them.
 
 In the "Grid" tab you can customize the classes given to the classes that will wrap your form as well as the rows and containers that make it up. This will allow you to further customize your forms from a external CSS stylesheet or script.
@@ -39,7 +40,7 @@ In the "Layout Builder" tab, you will see all Pods Templates and Frontier forms 
 
 You can add or remove layout containers, or rows of containers both vertically and horizontally by hovering near the borders of any layout container and clicking the plus or minus icons. Additionally you can rearrange rows by dragging and dropping them.
 
-By default Pods Templates add to the layout will be populated with WHAT ITEMS? To modify which items are used to populate the template, you need to add a query container. To do this, drag a query into a layout container before the template(s) you want to affect and then click the query container.
+By default Pods Templates add to the layout will be populated with all items of the Pod set as the base Pod for this Frontier. To modify which items are used to populate the template, you need to add a query container. To do this, drag a query into a layout container before the template(s) you want to affect and then click the query container.
 
 In the query container, you will first need to select a Pod to filter based on. Then you can create one or more conditions to limit your items. Setting your filters is easy as all options, and comparisons are set from drop-downs.
 
@@ -49,7 +50,6 @@ In the query container, you will first need to select a Pod to filter based on. 
 To output your Frontier layout simply copy the shortcode from the main Frontier screen and place it in a WordPress post or page. Alternatively, you can call it in a theme ro plugin file using `do_shortcode()`.
 
 ![Output Frontier](https://raw.githubusercontent.com/pods-framework/pods-frontier/readme/screenshots/screenshot-5.png)
-
 
 ### Templates
 
@@ -75,6 +75,7 @@ Pods Frontier enables easy looping via the `[each]` tag. This example shows how 
 ```
 
 This code would output one list item(`<li>`) with the post_title for each related chapter post.
+
 ##### Conditionals
 The previous example illustrating an each for a relationship field, has a major problem: if there are no chapters set it would output:
 
@@ -112,6 +113,16 @@ Now there will be no output if there are no related chapters to return. You can 
 [/if]
 ```
 
+
+If conditionals are also useful when you wish to show a label before a field, but do not want that label to appear if the field has no value. In the following example, the text "Co Author:" only appears if there is a value in the 'co_author' field.
+
+```html
+    [if co_author]
+       Co Author: {@co_author}
+    [/if]
+```
+
+
 ##### Once
 In many cases when doing an each loop, you may need to add markup, on the first item only. For example to apply a special CSS style or to add an "active" class for jQuery sliders, accordions or tabs. Adding to our chapters example, this next example adds a "first-chapter" class to the first chapter only:
 ```html
@@ -128,32 +139,74 @@ In many cases when doing an each loop, you may need to add markup, on the first 
 ```
 
 #### Before and After
-@TODO Why use this?
+Pods Frontier also ads `[before]` and `[after]` blocks. These can be used to set code that runs before or after all iterations of a template. This means that if you call a template in a Frontier layout or using the Pods shortcode, so that it is used to show multiple items, the ``[before]` and `[after]` blocks will only run once.
 
-##### Putting It All Together
-This template is for a custom post type called "author" with a field called "books" that is a related to the custom post type "book". It uses a conditional test to check if the author has any books, and if it does not it outputs the message "Author has no books uploaded.". If the author does have books it outputs information from each of the related books, starting with the post title. Then it loops through the field "cover_images", which is in the "book" cpt. Inside of the loop, the `[once]` block is used to add an additional class to the first item only.
+This avoids the issue where the shortcode `[pods name="book" template="Books"]` if it called a tempalte like this:
 
 ```html
-[if books]
-    <h5>Books</h5>
-    <ul>
-        [each books]
-        <li>{@post_title}
-        [if cover_images]
-            <ul>
-                [each cover_images]
-                <li class="cover-image[once] first-image[/once]">{@_img.thumbnail}</li>
-                [/each]
-            </ul>
-        [else]
-            <p class="no-images">No Images for this book</p>
-        [/if]
-        </li>
-        [/each]
-    </ul>
-[else]
-    <p>Author has no books uploaded.</p>
-[/if]
+tml
+<ul>
+	<li>{@post_title}</li>
+</ul>
+```
+
+Would output:
+```html
+<ul>
+	<li>Book One</li>
+</ul>
+<ul>
+	<li>Book Two</li>
+</ul>
+<ul>
+	<li>Book Three</li>
+</ul>
+```
+
+That template could be rewritten as:
+```html
+[before]<ul>[/before]
+	<li>{@post_title}</li>
+[after]</ul>[/after]
+```
+
+Which will result in:
+
+```html
+<ul>
+	<li>Book One</li>
+	<li>Book Two</li>
+	<li>Book Three</li>
+</ul>
+```
+
+
+##### Putting It All Together
+This template is for a custom post type called "author" with a field called "books" that is a related to the custom post type "book". It uses a conditional test to check if the author has any books, and if it does not it outputs the message "Author has no books uploaded.". If the author does have books it outputs information from each of the related books, starting with the post title. Then it loops through the field "cover_images", which is in the "book" cpt. Inside of the loop, the `[once]` block is used to add an additional class to the first item only. If this template itself is looped the wrapping container `.book-wrap` will contain all items and not be repeated.
+
+```html
+[before]<div class="book-wrap">[/before]
+    [if books]
+        <h5>Books</h5>
+        <ul>
+            [each books]
+            <li>{@post_title}
+            [if cover_images]
+                <ul>
+                    [each cover_images]
+                    <li class="cover-image[once] first-image[/once]">{@_img.thumbnail}</li>
+                    [/each]
+                </ul>
+            [else]
+                <p class="no-images">No Images for this book</p>
+            [/if]
+            </li>
+            [/each]
+        </ul>
+    [else]
+        <p>Author has no books uploaded.</p>
+    [/if]
+[after]<!--.book-wrap-->[/after]
 ```
 
 ![Frontier Template](https://raw.githubusercontent.com/pods-framework/pods-frontier/readme/screenshots/screenshot-2.png)
