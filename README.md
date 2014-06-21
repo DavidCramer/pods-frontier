@@ -18,7 +18,7 @@ Pods Frontier also adds new capabilities to Pods Templates making it easier than
 
 ### Frontier Layouts and Forms
 
-To create a new layout go to the Frontier from the Pods Menu and select "Add New". In the pop-up enter a name for your new Frontier. You will then need to choose if your Frontier is a form or a layout. You will also need to add a description and click create.
+To create a new Frontier layout or form go to the Frontier from the Pods Menu and select "Add New". In the pop-up enter a name for your new Frontier. You will then need to choose if your Frontier is a form or a layout. You will also need to add a description and click create.
 
 Your Frontier can be a layout or a form. The form editor will allow you to create responsive forms, while the layout editor will allow you to combine Frontier Forms, Pods Templates and custom queries to easily create complex, responsive layouts. Both editors use a simple, yet powerful drag and drop interface.
 
@@ -47,7 +47,7 @@ In the query container, you will first need to select a Pod to filter based on. 
 ![Query Builder](https://raw.githubusercontent.com/pods-framework/pods-frontier/readme/screenshots/screenshot-3.png)
 
 #### Outputting Your Frontier
-To output your Frontier layout simply copy the shortcode from the main Frontier screen and place it in a WordPress post or page. Alternatively, you can call it in a theme ro plugin file using `do_shortcode()`.
+To output your Frontier layout or form, simply copy the shortcode from the main Frontier screen and place it in a WordPress post or page. Alternatively, you can call it in a theme or plugin file using `do_shortcode()`.
 
 ![Output Frontier](https://raw.githubusercontent.com/pods-framework/pods-frontier/readme/screenshots/screenshot-5.png)
 
