@@ -215,4 +215,3 @@ This template is for a custom post type called "author" with a field called "boo
 ```
 
 ![Frontier Template](/screenshots/screenshot-2.png)
->>>>>>> readme
