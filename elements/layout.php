@@ -34,17 +34,17 @@ function build_query_template($container="{{container_id}}", $pod = null, $field
 		"NOT EXISTS",
 		"REGEXP",
 		"NOT REGEXP",
-		"RLIKE",		
+		"RLIKE",
 	);
-?>
-<div class="settings-panel-row">
-	<select name="config[frontier_grid][queries][<?php echo $container; ?>][field][]" tabindex="1">
-		<option value=""><?php echo __('Select Field', 'pods-frontier'); ?></option>		
-		<?php echo $fields; ?>
-	</select> 
-	<select name="config[frontier_grid][queries][<?php echo $container; ?>][compare][]" tabindex="2">
-		<option value=""><?php echo __('Select Compare', 'pods-frontier'); ?></option>
-		<?php
+	?>
+	<div class="settings-panel-row">
+		<select name="config[frontier_grid][queries][<?php echo $container; ?>][field][]" tabindex="1">
+			<option value=""><?php echo __('Select Field', 'pods-frontier'); ?></option>
+			<?php echo $fields; ?>
+		</select>
+		<select name="config[frontier_grid][queries][<?php echo $container; ?>][compare][]" tabindex="2">
+			<option value=""><?php echo __('Select Compare', 'pods-frontier'); ?></option>
+			<?php
 			foreach($compare_types as $type){
 				$sel = '';
 				if($type == $compare){
@@ -52,11 +52,11 @@ function build_query_template($container="{{container_id}}", $pod = null, $field
 				}
 				echo "<option value=\"" . $type . "\"".$sel.">" . $type . "</option>\r\n";
 			}
-		?>
-	</select> 
-	<input type="text" name="config[frontier_grid][queries][<?php echo $container; ?>][value][]" value="<?php echo $value; ?>" placeholder="value">
-	<button type="button" class="button button-small button-primary remove-where"><i class="icon-remove"></i></button>
-</div>
+			?>
+		</select>
+		<input type="text" name="config[frontier_grid][queries][<?php echo $container; ?>][value][]" value="<?php echo $value; ?>" placeholder="value">
+		<button type="button" class="button button-small button-primary remove-where"><i class="icon-remove"></i></button>
+	</div>
 <?php
 }
 
@@ -98,117 +98,116 @@ if(!empty($element['frontier_grid']['templates'])){
 <div class="layout-grid-panel frontier-grid">
 	<?php
 	if(!empty($rows)){
-	foreach($rows as $row=>$columns){ ?>
-	<div class="first-row-level row">
-		<?php
-		$columns = explode(':', $columns);
-		foreach($columns as $column=>$span){
-		?>
-		<div class="col-xs-<?php echo $span; ?>">
-			<div class="frontier-column column-container">
-			<?php
-			if(isset($templates['core'][($row+1).':'.($column+1)])){
-				foreach($templates['core'][($row+1).':'.($column+1)] as $template_index=>$template){
-					if($template['type'] == 'template'){
-					?>
-					<div class="template-element query-element">
-						<i class="icon-remove" style="float: right; padding: 7px 0px 0px; display:none;"></i>
-						<div class="drag-handle">
-							<i class="icon-templates"></i>
-							<?php echo get_the_title( $template['ID'] ); ?>
-						</div>
-						<input type="hidden" value="<?php echo ($row+1).':'.($column+1) ;?>" data-type="templates" data-id="<?php echo $template['ID']; ?>" class="template-location">
-					</div>
+		foreach($rows as $row=>$columns){ ?>
+			<div class="first-row-level row">
 				<?php
-					}elseif($template['type'] == 'container'){
+				$columns = explode(':', $columns);
+				foreach($columns as $column=>$span){
 					?>
-
-					<div class="template-element container-button wrap-container">
-						<i class="icon-remove" style="float: right; padding: 7px 0px 0px; display:none;"></i>
-						<i class="icon-edit" data-title="Query Builder" style="float: right; padding: 7px 10px 0px; display:none;"></i>
-						<div class="drag-handle">
-							<i class="icon-searchfolder"></i> 
-							Query Container<span class="set-pod"><?php if(!empty($element['frontier_grid']['queries'][$template['ID']]['pod'])){ echo " - ". $element['frontier_grid']['queries'][$template['ID']]['pod']; }; ?></span>
-						</div>
-						<div class="settings-wrapper">
-							<div class="settings-panel" data-container="<?php echo $template['ID']; ?>">
-
-								<select class="frontier-core-pod-query query_pod_select"> tabindex="0" name="config[frontier_grid][queries][<?php echo $template['ID']; ?>][pod]">
-									<?php 
-										foreach($_pods as $pod){
-											$sel = "";
-											if($pod['name'] == $element['frontier_grid']['queries'][$template['ID']]['pod']){
-												$sel = ' selected="selected"';
-											}
-											echo "<option value=\"" . $pod['name'] . "\"".$sel.">" . $pod['label'] . "</option>\r\n";
-										}
-									?>
-								</select>
-								<button class="button use-pod-container" type="button" data-title="<?php echo __('Add Filter', 'pods-frontier'); ?>">
-									<?php
-										if(!empty($element['frontier_grid']['queries'][$template['ID']])){
-											echo __('Add Filter', 'pods-frontier');
-										}else{
-											echo __('Use Pod', 'pods-frontier');
-										}
-									?>
-								</button>
-								<span class="spinner" style="float: none; margin: 0 0 -8px;"></span>
-
-								<?php 
-								if(!empty($element['frontier_grid']['queries'][$template['ID']])){
-									$query = $element['frontier_grid']['queries'][$template['ID']];
-									if(!empty($query['field'])){
-										foreach ($query['field'] as $qkey => $field) {
-
-											build_query_template($template['ID'], $query['pod'], $field, $query['compare'][$qkey], $query['value'][$qkey]);	
-										}
-									}
-								}
-								?>
-							</div>
-						</div>
-
-						<input type="hidden" data-type="containers" data-id="container_<?php echo $template['ID']; ?>" class="template-location" disabled="disabled">
-						<div id="<?php echo $template['ID']; ?>" class="query-container column-container">
-						<?php
-							if(isset($templates[$template['ID']][($row+1).':'.($column+1)])){
-
-
-								foreach($templates[$template['ID']][($row+1).':'.($column+1)] as $template){
+					<div class="col-xs-<?php echo $span; ?>">
+						<div class="frontier-column column-container">
+							<?php
+							if(isset($templates['core'][($row+1).':'.($column+1)])){
+								foreach($templates['core'][($row+1).':'.($column+1)] as $template_index=>$template){
 									if($template['type'] == 'template'){
-									?>
-									<div class="template-element query-element">
-										<i class="icon-remove" style="float: right; padding: 7px 0px 0px; display:none;"></i>
-										<div class="drag-handle">
-											<i class="icon-templates"></i>
-											<?php echo get_the_title( $template['ID'] ); ?>
+										?>
+										<div class="template-element query-element">
+											<i class="icon-remove" style="float: right; padding: 7px 0px 0px; display:none;"></i>
+											<div class="drag-handle">
+												<i class="icon-templates"></i>
+												<?php echo get_the_title( $template['ID'] ); ?>
+											</div>
+											<input type="hidden" value="<?php echo ($row+1).':'.($column+1) ;?>" data-type="templates" data-id="<?php echo $template['ID']; ?>" class="template-location">
 										</div>
-										<input type="hidden" value="<?php echo ($row+1).':'.($column+1) ;?>" data-type="templates" data-id="<?php echo $template['ID']; ?>" class="template-location">
-									</div>
-									<?php 
+									<?php
+									}elseif($template['type'] == 'container'){
+										?>
+
+										<div class="template-element container-button wrap-container">
+											<i class="icon-remove" style="float: right; padding: 7px 0px 0px; display:none;"></i>
+											<i class="icon-edit" data-title="Query Builder" style="float: right; padding: 7px 10px 0px; display:none;"></i>
+											<div class="drag-handle">
+												<i class="icon-searchfolder"></i>
+												Query Container<span class="set-pod"><?php if(!empty($element['frontier_grid']['queries']['container_'.$template['ID']]['pod'])){ echo " - ". $element['frontier_grid']['queries']['container_'.$template['ID']]['pod']; }; ?></span>
+											</div>
+											<div class="settings-wrapper">
+												<div class="settings-panel" data-container="<?php echo $template['ID']; ?>">
+													<select class="frontier-core-pod-query query_pod_select" tabindex="0" name="config[frontier_grid][queries][container_<?php echo $template['ID']; ?>][pod]">
+														<?php
+														foreach($_pods as $pod){
+															$sel = "";
+															if($pod['name'] == $element['frontier_grid']['queries']['container_'.$template['ID']]['pod']){
+																$sel = ' selected="selected"';
+															}
+															echo "<option value=\"" . $pod['name'] . "\"".$sel.">" . $pod['label'] . "</option>\r\n";
+														}
+														?>
+													</select>
+													<button class="button use-pod-container" type="button" data-title="<?php echo __('Add Filter', 'pods-frontier'); ?>">
+														<?php
+														if(!empty($element['frontier_grid']['queries'][$template['ID']])){
+															echo __('Add Filter', 'pods-frontier');
+														}else{
+															echo __('Use Pod', 'pods-frontier');
+														}
+														?>
+													</button>
+													<span class="spinner" style="float: none; margin: 0 0 -8px;"></span>
+
+													<?php
+													if(!empty($element['frontier_grid']['queries']['container_'.$template['ID']])){
+														$query = $element['frontier_grid']['queries']['container_'.$template['ID']];
+														if(!empty($query['field'])){
+															foreach ($query['field'] as $qkey => $field) {
+
+																build_query_template('container_'.$template['ID'], $query['pod'], $field, $query['compare'][$qkey], $query['value'][$qkey]);
+															}
+														}
+													}
+													?>
+												</div>
+											</div>
+
+											<input type="hidden" data-type="containers" data-id="container_<?php echo $template['ID']; ?>" class="template-location" disabled="disabled">
+											<div id="<?php echo $template['ID']; ?>" class="query-container column-container">
+												<?php
+												if(isset($templates[$template['ID']][($row+1).':'.($column+1)])){
+
+
+													foreach($templates[$template['ID']][($row+1).':'.($column+1)] as $template){
+														if($template['type'] == 'template'){
+															?>
+															<div class="template-element query-element">
+																<i class="icon-remove" style="float: right; padding: 7px 0px 0px; display:none;"></i>
+																<div class="drag-handle">
+																	<i class="icon-templates"></i>
+																	<?php echo get_the_title( $template['ID'] ); ?>
+																</div>
+																<input type="hidden" value="<?php echo ($row+1).':'.($column+1) ;?>" data-type="templates" data-id="<?php echo $template['ID']; ?>" class="template-location">
+															</div>
+														<?php
+														}else{
+															do_action('pods_frontier_grid_template-' . $template['type'], $template, ($row+1).':'.($column+1), $template_index, $element);
+														}
+													}
+
+												}
+												?>
+
+											</div>
+										</div>
+
+									<?php
 									}else{
 										do_action('pods_frontier_grid_template-' . $template['type'], $template, ($row+1).':'.($column+1), $template_index, $element);
 									}
 								}
-
-							}
-						?>
-
+							} ?>
 						</div>
 					</div>
-
-					<?php
-					}else{
-						do_action('pods_frontier_grid_template-' . $template['type'], $template, ($row+1).':'.($column+1), $template_index, $element);
-					}
-				}
-			 } ?>
+				<?php } ?>
 			</div>
-		</div>
-		<?php } ?>
-	</div>
-	<?php }} ?>
+		<?php }} ?>
 	<!-- Build the grid -->
 </div>
 <input type="hidden" name="config[frontier_grid][structure]" class="layout-structure" value="<?php echo $post->post_content; ?>">
@@ -223,7 +222,7 @@ if(!empty($element['frontier_grid']['templates'])){
 		<div class="frontier-modal-body">
 		</div>
 		<div class="frontier-modal-footer">
-			<a href="#" class="frontier-modal-save-action button"><?php echo __('Close', 'pods-frontier'); ?></a>			
+			<a href="#" class="frontier-modal-save-action button"><?php echo __('Close', 'pods-frontier'); ?></a>
 		</div>
 
 	</div>
