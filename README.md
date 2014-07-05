@@ -144,12 +144,11 @@ In many cases when doing an each loop, you may need to add markup, on the first 
 ```
 
 #### Before and After
-Pods Frontier also ads `[before]` and `[after]` blocks. These can be used to set code that runs before or after all iterations of a template. This means that if you call a template in a Frontier layout or using the Pods shortcode, so that it is used to show multiple items, the ``[before]` and `[after]` blocks will only run once.
+Pods Frontier also ads `[before]` and `[after]` blocks. These can be used to set code that runs before or after all iterations of a template. This means that if you call a template in a Frontier layout or using the Pods shortcode, so that it is used to show multiple items, the `[before]` and `[after]` blocks will only run once.
 
 This avoids the issue where the shortcode `[pods name="book" template="Books"]` if it called a tempalte like this:
 
 ```html
-tml
 <ul>
 	<li>{@post_title}</li>
 </ul>
