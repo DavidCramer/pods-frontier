@@ -6,7 +6,7 @@
         "homepage"     : "https://github.com/pods-framework/pods-frontier",
         "require"      : {
             "php": ">=5.3",
-            "pods-framework/pods" : ">=2.4.*"
+            "wpackagist-plugin/pods" : ">=2.4.*"
         },
         "license"      : "GPL-2.0",
         "authors"      : [
