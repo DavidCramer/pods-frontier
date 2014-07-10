@@ -1,11 +1,12 @@
 {
-        "name"         : "pods-framework/pods-frontier",
+        "name"         : "podsframework/pods-frontier",
         "description"  : "Pods Frontier — Advanced Templating, Form Builder, Layout Builder",
         "type"         : "wordpress-plugin",
         "keywords"     : ["pods", "wordpress", "templates", "forms", "page-layout"],
         "homepage"     : "https://github.com/pods-framework/pods-frontier",
         "require"      : {
-            "php": ">=5.3"
+            "php": ">=5.3",
+            "podsframework/pods" : ">=2.3.18"
         },
         "license"      : "GPL-2.0",
         "authors"      : [
