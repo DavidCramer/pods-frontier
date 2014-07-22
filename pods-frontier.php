@@ -10,6 +10,9 @@ Author Email: david@digilab.co.za
 Menu Name: Frontier
 Class: Pods_Frontier
 */
+
+
+
 if ( class_exists( 'Pods_Frontier' ) )
     return;
 
@@ -59,10 +62,7 @@ class Pods_Frontier extends PodsComponent {
 
 		// add internal elements process & render
 		add_action('pods_frontier_element_headers-frontier_layout', array( $this, 'layout_headers'), 10);
-		add_filter('pods_frontier_render_element-frontier_layout', array( $this, 'render_layout'), 10, 4);		
-
-		//require template component
-		add_filter( 'pods_component_require_templates', '__return_true' );
+		add_filter('pods_frontier_render_element-frontier_layout', array( $this, 'render_layout'), 10, 4);
 
 	}
 

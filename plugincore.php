@@ -45,3 +45,6 @@ require_once( plugin_dir_path( __FILE__ ) . 'elements/frontier_forms.php' );
 
 // Load instance of template editor overide
 Pods_Frontier_Template_Editor::get_instance();
+
+//require template component to be active
+add_filter( 'pods_component_require_templates', '__return_true' );
