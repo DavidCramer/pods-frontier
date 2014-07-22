@@ -62,7 +62,7 @@ class Pods_Frontier extends PodsComponent {
 		add_filter('pods_frontier_render_element-frontier_layout', array( $this, 'render_layout'), 10, 4);		
 
 		//require template component
-    	add_action( 'plugins_loaded', array( $this, 'require_template_component' ) );
+		add_filter( 'pods_component_require_templates', '__return_true' );
 
 	}
 
@@ -1006,15 +1006,6 @@ class Pods_Frontier extends PodsComponent {
 				echo $frontier_scripts;
 			echo "</script>\r\n";
 		}
-	}
-
-	/**
-	 * Force template component enable
-	 *
-	 * @since 1.000
-	 */
-	public function require_template_component() {
-		pods_require_component( 'templates' );
 	}
 
 }
