@@ -100,6 +100,12 @@ var mustache = function(stream, state) {
 		stream.eat("}");
 		return "mustacheinternal";
 	}
+	if (stream.match("{_")) {
+		while ((ch = stream.next()) != null)
+			if (ch == "}") break;
+		stream.eat("}");
+		return "mustacheinternal";
+	}
 	if (stream.match("[/each]") || stream.match("[else]") || stream.match("[/if]") || stream.match("[/pod]")) {
 		return "command";
 	}
@@ -123,6 +129,7 @@ var mustache = function(stream, state) {
 	while (stream.next() != null && 
 		!stream.match("{@", false) && 
 		!stream.match("{&", false) && 
+		!stream.match("{_", false) && 
 		!stream.match("{{_", false) && 
 		!stream.match("[before]", false) && 
 		!stream.match("[/before]", false) && 
