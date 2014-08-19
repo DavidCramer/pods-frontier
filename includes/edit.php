@@ -246,7 +246,7 @@ function field_line_template($id = '{{id}}', $label = '{{label}}', $group = '{{g
 
 // FIND A DEFAULT FIRST
 
-$settings_default = " class=\"active\"";
+$settings_default = 'active';
 
 if(!empty($element_types[$element['type']]['setup']['tabs']['groups'])){
 	foreach($element_types[$element['type']]['setup']['tabs']['groups'] as $tab_slug=>&$tab){
@@ -265,9 +265,9 @@ if(!empty($element_types[$element['type']]['setup']['tabs']['groups'])){
 			<?php echo __('Pods Frontier', 'pods-frontier'); ?>
 		</li>
 		<li class="frontier-element-type-label">
-			<?php echo $element_types[$element['type']]['name']; ?>
+			<a href="#layout-config-panel"><?php echo $element_types[$element['type']]['name']; ?></a>
 		</li>
-		<li<?php echo $settings_default; ?>>
+		<li class="frontier-element-type-label <?php echo $settings_default; ?>">
 			<a href="#settings-panel"><?php echo __('Settings', 'pods-frontier'); ?></a>
 		</li>
 
