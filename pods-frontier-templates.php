@@ -62,7 +62,13 @@ class Pods_Frontier_Template_Editor {
 
 		add_filter( 'pods_components_register', array( $this, 'register_frontier_modules' ) );
 
+		if( is_admin() ){
+			add_action('wp_ajax_pods_shortcode_live_preview', array( $this, 'render_live_preview' ) );
+			add_action('admin_footer-edit.php',  array( $this, 'render_preview_template')); // Fired on the page with the posts table
+			add_action('admin_footer-post.php',  array( $this, 'render_preview_template')); // Fired on post edit page
+			add_action('admin_footer-post-new.php',  array( $this, 'render_preview_template')); // Fired on add new post page		
 
+		}
 	}
 	/**
 	 * register frontier modules
@@ -76,7 +82,34 @@ class Pods_Frontier_Template_Editor {
 		return $components;
 	}	
 
+	/**
+	 * register frontier modules
+	 */
 
+	public function render_live_preview(){
+		global $post;
+		$post = get_post( (int) $_POST['post_id'] );
+		ob_start();
+		echo do_shortcode( urldecode( $_POST['raw'] ) );
+		$out['html'] = ob_get_clean();
+		wp_send_json_success( $out );
+	}	
+	
+	public function render_preview_template(){
+	?>
+	<input type="hidden" value="<?php echo $this->get_url( 'assets/css/frontier-lgo.png' , __FILE__ ); ?>" id="frontier_logo">
+	<script type="text/html" id="tmpl-pods-live-shortcode-preview">	
+	<# if ( data.html ) { #>
+		{{{ data.html }}}
+	<# } else { #>
+		<div class="wpview-error">
+			<div class="dashicons dashicons-cf-logo"></div><p style="font-size: 13px;"><?php _e( 'Error Loading Preview', 'pods-frontier' ); ?></p>
+		</div>
+	<# } #>
+	</script>
+	<?php
+
+	}
 	/**
 	 * Return an instance of this class.
 	 *
@@ -116,12 +149,12 @@ class Pods_Frontier_Template_Editor {
 
 		$screen = get_current_screen();
 
-		
+		wp_enqueue_script( $this->plugin_slug . '-live-preview', $this->get_url( 'assets/js/shortcode-live-preview.js' , __FILE__ ) , array('jquery') );
+
 
 		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
 			return;
 		}
-
 		if ( in_array( $screen->id, $this->plugin_screen_hook_suffix ) ) {
 			$slug = array_search( $screen->id, $this->plugin_screen_hook_suffix );			
 			//$configfiles = glob( $this->get_path( __FILE__ ) .'configs/'.$slug.'-*.php' );
