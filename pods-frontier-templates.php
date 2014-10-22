@@ -103,7 +103,7 @@ class Pods_Frontier_Template_Editor {
 		{{{ data.html }}}
 	<# } else { #>
 		<div class="wpview-error">
-			<div class="dashicons dashicons-cf-logo"></div><p style="font-size: 13px;"><?php _e( 'Error Loading Preview', 'pods-frontier' ); ?></p>
+			<div class="dashicons dashicons-dismiss"></div><p style="font-size: 13px;"><?php _e( 'Error Loading Preview', 'pods-frontier' ); ?></p>
 		</div>
 	<# } #>
 	</script>
