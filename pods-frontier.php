@@ -716,7 +716,7 @@ class Pods_Frontier extends PodsComponent {
 		if(!empty($atts['id'])){
 			$element = get_option( $atts['id'] );
 			if(empty($element)){
-				continue;
+				return;
 			}
 			// Get Elements if not already gotten
 			if(!isset($element_types)){
