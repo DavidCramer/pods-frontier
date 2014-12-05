@@ -1,0 +1,40 @@
+{
+    "name"         : "pods-framework/pods-frontier",
+    "description"  : "Pods Frontier — Advanced Templating, Form Builder, Layout Builder",
+    "type"         : "wordpress-plugin",
+    "keywords"     : ["pods", "wordpress", "templates", "forms", "page-layout"],
+    "homepage"     : "https://github.com/pods-framework/pods-frontier",
+    "license"      : "GPL-2.0+",
+    "authors"      : [
+        {
+            "name"    : "David Cramer",
+            "homepage": "http://cramer.co.za",
+            "role": "Lead Developer"
+        },
+        {
+            "name"    : "Josh Pollock",
+            "email"   : "Josh@Pods.io",
+            "homepage": "http://JoshPress.net",
+            "role"    : "Developer"
+        },
+        {
+            "name"    : "Pods Framework Team",
+            "email"   : "contact@pods.io",
+            "homepage": "http://pods.io/"
+        }
+    ],
+    "support"    : {
+        "issues": "https://github.com/pods-framework/pods-frontier/issues",
+        "source": "https://github.com/pods-framework/pods-frontier"
+    },
+    "require": {
+        "php": ">=5.3.0",
+        "xamin/handlebars.php"                      : "dev-master",
+        "cadlerawp/metaplate-core"                  : "dev-master",
+        "calderawp/metaplate-admin-templates"       : "dev-master",
+        "calderawp/metaplate-admin-assets"          : "dev-master",
+        "calderawp/wp-handlebars-helpers"           :"dev-master",
+        "pods-framework/frontier-admin"             :"dev-master",
+        "pods-framework/template-syntax-converter"  :"dev-master"
+    }
+}
