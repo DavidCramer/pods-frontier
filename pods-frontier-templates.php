@@ -149,7 +149,7 @@ class Pods_Frontier_Template_Editor {
 
 		$screen = get_current_screen();
 
-		wp_enqueue_script( $this->plugin_slug . '-live-preview', $this->get_url( 'assets/js/shortcode-live-preview.js' , __FILE__ ) , array('jquery') );
+		//wp_enqueue_script( $this->plugin_slug . '-live-preview', $this->get_url( 'assets/js/shortcode-live-preview.js' , __FILE__ ) , array('jquery') );
 
 
 		if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
