@@ -37,7 +37,7 @@ In the "Grid" tab you can customize the classes given to the classes that will w
 From the "Form Settings" tab you can set the URL the form redirects to using the "Thank you URL" field and change the text for the submit button using the "Button Label".
 
 #### Layouts
-In the "Layout Builder" tab, you will see all Pods Templates and Frontier forms in the far-right side of the screen, in addition to a query container option. To add a template or form to a container, simply drag and drop it form the list on the right side into a container in the layout.
+In the "Layout Builder" tab, you will see all Pods Templates and Frontier forms in the far-right side of the screen, in addition to a query container option. To add a template or form to a container, simply drag and drop it from the list on the right side into a container in the layout.
 
 ![Layout Builder](/screenshots/screenshot-1.png)
 
@@ -68,7 +68,7 @@ The contents of these tabs are stored as meta fields, which means they can be re
 Pods Frontier allows you to use Pods Templates to create advanced markup, without using any PHP or sacrificing the ability to create complex templates. These new tools allow you to conditionally show output and create loops.
 
 ##### Loops
-Pods Frontier enables easy looping via the `[each]` tag. This example shows how to loop through all entries in a relationship field--in this case a multi-select relationship field called chapters ina custom post type book--adding markup to each entry:
+Pods Frontier enables easy looping via the `[each]` tag. This example shows how to loop through all entries in a relationship field--in this case a multi-select relationship field called chapters in a custom post type book--adding markup to each entry:
 
 ```html
 <h3>Chapters</h3>
@@ -129,7 +129,7 @@ If conditionals are also useful when you wish to show a label before a field, bu
 
 
 ##### Once
-In many cases when doing an each loop, you may need to add markup, on the first item only. For example to apply a special CSS style or to add an "active" class for jQuery sliders, accordions or tabs. Adding to our chapters example, this next example adds a "first-chapter" class to the first chapter only:
+In many cases when doing an each loop, you may need to add markup, on the first item only. For example to apply a special CSS style or to add an "active" class for jQuery sliders, accordions or tabs. Adding to our chapter's example, this next example adds a "first-chapter" class to the first chapter only:
 ```html
 [if chapters]
     <h3>Chapters</h3>
@@ -144,9 +144,9 @@ In many cases when doing an each loop, you may need to add markup, on the first 
 ```
 
 #### Before and After
-Pods Frontier also ads `[before]` and `[after]` blocks. These can be used to set code that runs before or after all iterations of a template. This means that if you call a template in a Frontier layout or using the Pods shortcode, so that it is used to show multiple items, the `[before]` and `[after]` blocks will only run once.
+Pods Frontier also adds `[before]` and `[after]` blocks. These can be used to set code that runs before or after all iterations of a template. This means that if you call a template in a Frontier layout or using the Pods shortcode, so that it is used to show multiple items, the `[before]` and `[after]` blocks will only run once.
 
-This avoids the issue where the shortcode `[pods name="book" template="Books"]` if it called a tempalte like this:
+This avoids the issue where the shortcode `[pods name="book" template="Books"]` if it called a template like this:
 
 ```html
 <ul>
