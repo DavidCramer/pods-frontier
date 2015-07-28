@@ -7,8 +7,13 @@
 Advanced templates and simple form and layouts for Pods.
 </p>
 <p>
-<br />
-<em>Please Note: This plugin is currently in beta development. Not all functionality described here is completed. <strong>Please test thoroughly before using in production</strong>.</em>.
+<em>Please Note:</em> <strong>Pods Frontier is no longer under active development. It was an experiment founded by a contributing developer who has taken their lessons learned and applied them more broadly towards a larger scale through their plugins at [CalderaWP](http://www.calderawp.com).</p>
+
+<p>There are portions of Pods Frontier which may not be working, and will not be receiving bug fixes. We recommend you only reference this plugin and repository if you are maintaining or moving away from Pods Frontier and need to access the code. Some areas that have known issues are the Layout or Form Builders.</p>
+
+<p>The only part of Pods Frontier that was stable has already been merged into Pods core in the 2.x branch, which includes the [Pods Template Conditional Tags](http://pods.io/docs/build/template-tags-in-pods-templates/). You don't need Pods Frontier installed to use those.</p>
+
+Sorry for the inconvenience, we had all hoped this project was going to expand further, but it became clear that the work inside of it could apply to the greater WordPress ecosystem for other custom fields plugins, not just Pods.</strong>.
 </p>
 
 If you find a bug or have an idea to improve this plugin, [please open an issue](https://github.com/pods-framework/pods-frontier/issues/)
